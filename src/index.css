@@ -40,8 +40,35 @@ html, body, #root {
   max-width: 1920px;
   margin: 0;
   padding: 0;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 #root {
   margin: 0 auto;
+}
+
+/* Prevent default zoom behavior on mobile */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in input fields and content areas */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Smooth zoom transitions */
+.zoom-container {
+  transition: transform 0.2s ease-out;
+}
+
+.zoom-container.zooming {
+  transition: none;
 }
