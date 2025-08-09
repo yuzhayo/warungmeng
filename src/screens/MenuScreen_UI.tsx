@@ -37,14 +37,14 @@ const MenuScreenUI: React.FC<MenuScreenUIProps> = ({
             <div
               key={item.id}
               onClick={(e) => onMenuItemClick(item.id, e)}
-              className="bg-menu-item-gradient rounded-md shadow-custom cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex flex-col w-[250px] h-[250px] flex-shrink-0"
+              className="bg-menu-item-gradient rounded-md shadow-custom cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex flex-col w-[200px] h-[200px] flex-shrink-0"
             >
               {/* Image Placeholder */}
               <div 
                 className="rounded-lg mx-1 mt-1 mb-2 flex-shrink-0"
                 style={{
-                  width: '242.86px',
-                  height: '142.86px',
+                  width: '194.29px',
+                  height: '114.29px',
                   background: 'linear-gradient(180deg, #ffffff 46.37%, #e2e2e2 100%)'
                 }}
               >
@@ -65,12 +65,12 @@ const MenuScreenUI: React.FC<MenuScreenUIProps> = ({
               <div 
                 className="flex items-center justify-center text-center font-normal text-4xl leading-tight whitespace-nowrap overflow-hidden text-ellipsis px-1"
                 style={{
-                  width: '242.86px',
-                  height: '35.71px',
+                  width: '194.29px',
+                  height: '28.57px',
                   fontFamily: 'Inter, sans-serif',
                   color: '#b5acac',
-                  fontSize: '24px',
-                  lineHeight: '28px'
+                  fontSize: '19px',
+                  lineHeight: '22px'
                 }}
               >
                 {item.name}
@@ -80,12 +80,12 @@ const MenuScreenUI: React.FC<MenuScreenUIProps> = ({
               <div 
                 className="flex items-center justify-center text-center font-normal text-4xl leading-tight whitespace-nowrap px-1 mt-2"
                 style={{
-                  width: '242.86px',
-                  height: '35.71px',
+                  width: '194.29px',
+                  height: '28.57px',
                   fontFamily: 'Inter, sans-serif',
                   color: '#b5acac',
-                  fontSize: '24px',
-                  lineHeight: '28px'
+                  fontSize: '19px',
+                  lineHeight: '22px'
                 }}
               >
                 {Math.round(item.price).toLocaleString('de-DE')}
