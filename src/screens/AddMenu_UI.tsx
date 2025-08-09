@@ -58,25 +58,15 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
       <div 
         className="relative"
         style={{
-          width: '1100px',
-          height: '831px',
           borderRadius: '5px',
           background: 'linear-gradient(180deg, #ffffff 0%, #c5c4f2 59.97%)',
           border: '20px solid #36c7fc',
           boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
         }}
+        className="w-11/12 max-w-4xl h-auto max-h-[90vh] p-6 flex flex-col items-center space-y-4 overflow-y-auto"
       >
         {/* Menu Name Input */}
-        <div 
-          className="absolute"
-          style={{
-            top: '100px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '650px',
-            height: '70px'
-          }}
-        >
+        <div className="w-full max-w-xl h-auto min-h-[70px] flex items-center justify-center">
           <div
             className="w-full h-full rounded-lg flex items-center justify-center relative"
             style={{
@@ -88,29 +78,14 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
               value={menuName}
               onChange={(e) => onMenuNameChange(e.target.value)}
               placeholder="Menu Name"
-              className="w-4/5 h-3/5 text-center bg-transparent border-none outline-none text-black placeholder-gray-500"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '36px',
-                lineHeight: '44px',
-                color: '#b5acac'
-              }}
+              className="w-4/5 h-3/5 text-center bg-transparent border-none outline-none text-4xl font-normal text-gray-500 placeholder-gray-500"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             />
           </div>
         </div>
 
         {/* Image Upload Section */}
-        <div 
-          className="absolute"
-          style={{
-            top: '190px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '650px',
-            height: '120px'
-          }}
-        >
+        <div className="w-full max-w-xl h-auto min-h-[120px] flex items-center justify-center">
           <div
             className="w-full h-full rounded-lg flex items-center justify-center relative"
             style={{
@@ -147,16 +122,7 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
         </div>
 
         {/* Category Input */}
-        <div 
-          className="absolute"
-          style={{
-            top: '330px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '650px',
-            height: '70px'
-          }}
-        >
+        <div className="w-full max-w-xl h-auto min-h-[70px] flex items-center justify-center">
           <div
             className="w-full h-full rounded-lg flex items-center justify-center relative"
             style={{
@@ -169,12 +135,10 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
               className={`w-4/5 h-3/5 text-center bg-transparent border-none outline-none appearance-none cursor-pointer ${
                 category ? 'text-black' : 'text-gray-500'
               }`}
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '36px',
-                lineHeight: '44px'
-              }}
+              className={`w-4/5 h-3/5 text-center bg-transparent border-none outline-none appearance-none cursor-pointer text-4xl font-normal ${
+                category ? 'text-black' : 'text-gray-500'
+              }`}
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <option value="" disabled className="text-gray-500">
                 Select Category
@@ -205,16 +169,7 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
         </div>
 
         {/* Price Input */}
-        <div 
-          className="absolute"
-          style={{
-            top: '420px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '650px',
-            height: '70px'
-          }}
-        >
+        <div className="w-full max-w-xl h-auto min-h-[70px] flex items-center justify-center">
           <div
             className="w-full h-full rounded-lg flex items-center justify-center relative"
             style={{
@@ -228,36 +183,18 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
               placeholder="Price"
               step="0.01"
               min="0"
-              className="w-4/5 h-3/5 text-center bg-transparent border-none outline-none text-black placeholder-gray-500"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '36px',
-                lineHeight: '44px',
-                color: '#b5acac'
-              }}
+              className="w-4/5 h-3/5 text-center bg-transparent border-none outline-none text-4xl font-normal text-gray-500 placeholder-gray-500"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div 
-          className="absolute"
-          style={{
-            bottom: '80px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '650px',
-            height: '120px'
-          }}
-        >
+        <div className="w-full max-w-xl flex justify-between space-x-4 mt-auto p-4">
           {/* Cancel Button */}
           <div 
-            className="absolute cursor-pointer flex items-center justify-center"
+            className="flex-1 py-4 cursor-pointer flex items-center justify-center"
             style={{
-              left: '0px',
-              width: '275px',
-              height: '120px',
               borderRadius: '10px',
               background: 'linear-gradient(180deg, #ffffff 0%, #f6556d 100%)',
               boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
@@ -265,13 +202,8 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
             onClick={onCancelClick}
           >
             <span
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '48px',
-                lineHeight: '58px',
-                color: '#000000'
-              }}
+              className="text-5xl font-normal text-black"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               CANCEL
             </span>
@@ -279,15 +211,12 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
 
           {/* Save Button */}
           <div 
-            className={`absolute flex items-center justify-center ${
+            className={`flex-1 py-4 flex items-center justify-center ${
               menuName.trim() && category.trim() && price.trim() && parseFloat(price) > 0
                 ? 'cursor-pointer' 
                 : 'cursor-not-allowed opacity-50'
             }`}
             style={{
-              right: '0px',
-              width: '275px',
-              height: '120px',
               borderRadius: '10px',
               background: 'linear-gradient(180deg, #ffffff 0%, #55f678 100%)',
               boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
@@ -299,13 +228,8 @@ const AddMenuUI: React.FC<AddMenuUIProps> = ({
             }
           >
             <span
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '48px',
-                lineHeight: '58px',
-                color: '#000000'
-              }}
+              className="text-5xl font-normal text-black"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               SAVE
             </span>

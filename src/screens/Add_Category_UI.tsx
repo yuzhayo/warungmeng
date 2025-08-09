@@ -22,43 +22,18 @@ const AddCategoryUI: React.FC<AddCategoryUIProps> = ({
       <div 
         className="relative rounded-md shadow-custom"
         style={{
-          width: '1120px',
-          height: '719px',
           background: '#ecffed',
           boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
         }}
+        className="w-11/12 max-w-3xl h-auto max-h-[90vh] p-6 flex flex-col items-center space-y-8 overflow-y-auto"
       >
         {/* Add New Category Title */}
-        <div 
-          className="absolute flex items-center justify-center"
-          style={{
-            top: '50px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '661px',
-            height: '78px',
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 400,
-            fontSize: '64px',
-            lineHeight: '77px',
-            textAlign: 'center',
-            color: '#b5acac'
-          }}
-        >
+        <div className="w-full text-center text-6xl font-normal text-gray-500 mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
           Add New Category
         </div>
 
         {/* Input Box */}
-        <div 
-          className="absolute"
-          style={{
-            top: '200px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '870px',
-            height: '124px'
-          }}
-        >
+        <div className="w-full max-w-2xl h-auto min-h-[124px] flex items-center justify-center">
           <div
             className="w-full h-full rounded-lg flex items-center justify-center"
             style={{
@@ -78,60 +53,45 @@ const AddCategoryUI: React.FC<AddCategoryUIProps> = ({
           </div>
         </div>
 
-        {/* No Button */}
-        <div 
-          className="absolute cursor-pointer flex items-center justify-center"
-          style={{
-            bottom: '100px',
-            left: '180px',
-            width: '360px',
-            height: '160px',
-            borderRadius: '10px',
-            background: 'linear-gradient(180deg, #ffffff 0%, #ff5555 100%)',
-            boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
-          }}
-          onClick={onNoClick}
-        >
-          <span
+        {/* Action Buttons */}
+        <div className="w-full max-w-2xl flex justify-between space-x-4 mt-auto p-4">
+          {/* No Button */}
+          <div 
+            className="flex-1 py-6 cursor-pointer flex items-center justify-center"
             style={{
-              fontFamily: 'Inter, sans-serif',
-              fontWeight: 400,
-              fontSize: '64px',
-              lineHeight: '77px',
-              color: '#000000'
+              borderRadius: '10px',
+              background: 'linear-gradient(180deg, #ffffff 0%, #ff5555 100%)',
+              boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
             }}
+            onClick={onNoClick}
           >
-            NO
-          </span>
-        </div>
+            <span
+              className="text-7xl font-normal text-black"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            >
+              NO
+            </span>
+          </div>
 
-        {/* Yes Button */}
-        <div 
-          className={`absolute flex items-center justify-center ${
-            newCategoryName.trim() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-          }`}
-          style={{
-            bottom: '100px',
-            right: '180px',
-            width: '360px',
-            height: '160px',
-            borderRadius: '10px',
-            background: 'linear-gradient(180deg, #ffffff 0%, #55f678 100%)',
-            boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
-          }}
-          onClick={newCategoryName.trim() ? onYesClick : undefined}
-        >
-          <span
+          {/* Yes Button */}
+          <div 
+            className={`flex-1 py-6 flex items-center justify-center ${
+              newCategoryName.trim() ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+            }`}
             style={{
-              fontFamily: 'Inter, sans-serif',
-              fontWeight: 400,
-              fontSize: '64px',
-              lineHeight: '77px',
-              color: '#000000'
+              borderRadius: '10px',
+              background: 'linear-gradient(180deg, #ffffff 0%, #55f678 100%)',
+              boxShadow: '0px 4px 4px rgba(0,0,0,0.25)'
             }}
+            onClick={newCategoryName.trim() ? onYesClick : undefined}
           >
-            YES
-          </span>
+            <span
+              className="text-7xl font-normal text-black"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            >
+              YES
+            </span>
+          </div>
         </div>
       </div>
     </div>
