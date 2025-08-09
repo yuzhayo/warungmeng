@@ -1,6 +1,6 @@
 import React from 'react';
 import MainLayout from './MainLayout';
-import { ZoomProvider } from './contexts/ZoomContext';
+import { ZoomProvider } from './ZoomContext';
 
 function App() {
   return (

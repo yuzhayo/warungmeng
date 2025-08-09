@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useZoom } from './contexts/ZoomContext';
+import { useZoom } from './ZoomContext';
 import MainScreen from './screens/MainScreen';
 import HomeTab from './screens/Home_Tab';
 import DatabaseTab from './screens/Database_Tab';
