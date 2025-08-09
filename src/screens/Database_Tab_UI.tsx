@@ -1,12 +1,12 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 
-
 interface DatabaseTabUIProps {
   activeScreen: string;
   onCategoryClick: () => void;
   onMenuClick: () => void;
   onCashflowClick: () => void;
+  onExtraClick: () => void;
   onRefresh: () => void;
 }
 
@@ -15,6 +15,7 @@ const DatabaseTabUI: React.FC<DatabaseTabUIProps> = ({
   onCategoryClick,
   onMenuClick,
   onCashflowClick,
+  onExtraClick,
   onRefresh
 }) => {
   const getScreenTitle = () => {
@@ -25,6 +26,8 @@ const DatabaseTabUI: React.FC<DatabaseTabUIProps> = ({
         return 'Menu Items';
       case 'cashflow':
         return 'Cashflow Analytics';
+      case 'extra':
+        return 'Extra Features';
       default:
         return 'Menu Items';
     }
@@ -51,6 +54,12 @@ const DatabaseTabUI: React.FC<DatabaseTabUIProps> = ({
           className="bg-gray-600 text-white hover:bg-gray-500 px-4 py-2 rounded-md font-medium transition-all duration-300 ease-in-out min-w-[100px] text-sm whitespace-nowrap border border-gray-500"
         >
           Cashflow
+        </button>
+        <button
+          onClick={onExtraClick}
+          className="bg-gray-600 text-white hover:bg-gray-500 px-4 py-2 rounded-md font-medium transition-all duration-300 ease-in-out min-w-[100px] text-sm whitespace-nowrap border border-gray-500"
+        >
+          Extra
         </button>
       </div>
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export const useDatabaseTabLogic = () => {
-  const [activeScreen, setActiveScreen] = useState<string>('menu'); // 'category', 'menu', or 'cashflow'
+  const [activeScreen, setActiveScreen] = useState<string>('menu'); // 'category', 'menu', 'cashflow', or 'extra'
 
   const handleCategoryClick = () => {
     console.log('Category button clicked');
@@ -18,6 +18,10 @@ export const useDatabaseTabLogic = () => {
     setActiveScreen('cashflow');
   };
 
+  const handleExtraClick = () => {
+    console.log('Extra button clicked');
+    setActiveScreen('extra');
+  };
 
   const handleRefresh = () => {
     console.log(`Refreshing ${activeScreen} data...`);
@@ -30,6 +34,7 @@ export const useDatabaseTabLogic = () => {
     handleCategoryClick,
     handleMenuClick,
     handleCashflowClick,
+    handleExtraClick,
     handleRefresh
   };
 };

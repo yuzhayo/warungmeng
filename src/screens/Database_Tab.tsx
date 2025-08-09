@@ -4,6 +4,7 @@ import DatabaseTabUI from './Database_Tab_UI';
 import CategoryScreen from './CategoryScreen';
 import MenuDatabaseScreen from './MenuDatabaseScreen';
 import CashflowScreen from './CashflowScreen';
+import ExtraScreen from './ExtraScreen';
 
 const DatabaseTab: React.FC = () => {
   const { 
@@ -11,6 +12,7 @@ const DatabaseTab: React.FC = () => {
     handleCategoryClick,
     handleMenuClick,
     handleCashflowClick,
+    handleExtraClick,
     handleRefresh
   } = useDatabaseTabLogic();
 
@@ -22,6 +24,8 @@ const DatabaseTab: React.FC = () => {
         return <MenuDatabaseScreen />;
       case 'cashflow':
         return <CashflowScreen />;
+      case 'extra':
+        return <ExtraScreen />;
       default:
         return (
           <div className="w-full h-full bg-main-gray rounded-lg shadow-custom flex items-center justify-center">
@@ -42,6 +46,7 @@ const DatabaseTab: React.FC = () => {
           onCategoryClick={handleCategoryClick}
           onMenuClick={handleMenuClick}
           onCashflowClick={handleCashflowClick}
+          onExtraClick={handleExtraClick}
           onRefresh={handleRefresh}
         />
       </div>
