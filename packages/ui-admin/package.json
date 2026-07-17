@@ -6,6 +6,11 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "peerDependencies": {
+    "antd": "^6.5.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
   }
