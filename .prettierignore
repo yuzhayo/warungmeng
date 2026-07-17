@@ -1,8 +1,12 @@
 node_modules
 dist
+coverage
 .vite
 .cache
 .git
 .github
 .local
+.agents
+.codex
+.meng2
 *.log
