@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!env.local.example
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs & caches
+*.log
+.eslintcache
+.cache/
+
+.agents
+.docs
+meng-deletable
