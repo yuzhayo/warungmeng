@@ -38,10 +38,7 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
         },
       ],
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        { prefer: "type-imports" },
-      ],
+      "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
       "@typescript-eslint/no-explicit-any": "off",
       "no-empty": ["error", { allowEmptyCatch: true }],
     },
@@ -49,10 +46,7 @@ export default tseslint.config(
   {
     files: ["apps/*/src/**/*.{ts,tsx}"],
     rules: {
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
   {

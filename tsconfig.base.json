@@ -19,12 +19,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    ".agents",
-    ".codex",
-    ".meng2"
-  ]
+  "exclude": ["node_modules", "dist", "coverage", ".agents", ".codex", ".meng2"]
 }
