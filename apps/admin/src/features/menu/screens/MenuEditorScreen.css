@@ -1,0 +1,36 @@
+.menu-editor {
+  width: min(100%, 90rem);
+  margin-inline: auto;
+}
+
+.menu-editor .ant-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-spacing-lg, 1.5rem);
+}
+
+.menu-editor .ant-typography {
+  margin-block: 0;
+}
+
+.menu-editor__loading {
+  min-height: 20rem;
+}
+
+.menu-editor__details-grid,
+.menu-editor__availability-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--wm-spacing-lg, 1.5rem);
+}
+
+.menu-editor__photo-preview {
+  margin-block-end: var(--wm-spacing-md, 1rem);
+}
+
+@media (max-width: 48rem) {
+  .menu-editor__details-grid,
+  .menu-editor__availability-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

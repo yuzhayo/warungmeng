@@ -22,6 +22,7 @@ export interface VariantCategoryEditorValues {
   readonly name: string;
   readonly description: string;
   readonly visible: boolean;
+  readonly connectedMenuIds: readonly string[];
   readonly options: readonly VariantOptionEditorValue[];
   readonly selectionMode: VariantSelectionMode;
   readonly selectionMinimum?: number;
@@ -51,6 +52,7 @@ export function createDefaultVariantCategoryEditorValues(
     name: "",
     description: "",
     visible: true,
+    connectedMenuIds: [],
     options: [createVariantOptionEditorValue(optionId)],
     selectionMode: "optional-unlimited",
   };
@@ -58,6 +60,7 @@ export function createDefaultVariantCategoryEditorValues(
 
 export function mapVariantGroupToEditorValues(
   group: MenuVariantGroup,
+  connectedMenuIds: readonly string[] = [],
 ): VariantCategoryEditorValues {
   const mode = deriveVariantSelectionMode(group.selection);
 
@@ -65,6 +68,7 @@ export function mapVariantGroupToEditorValues(
     name: group.name,
     description: group.description,
     visible: group.visibility === "visible",
+    connectedMenuIds,
     options: group.options.map((option) => ({
       id: option.id,
       name: option.name,

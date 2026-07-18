@@ -1,4 +1,4 @@
-import type { MenuVariantGroup } from "@warungmeng/domain";
+import type { MenuCategory, MenuItem, MenuVariantGroup } from "@warungmeng/domain";
 import { Button, Card, Flex, Form, Input, Switch, Typography } from "antd";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,15 +10,21 @@ import {
   type VariantCategoryEditorValues,
 } from "../application/variantCategoryEditorModel";
 import { VariantCategoryOptionFields } from "./VariantCategoryOptionFields";
+import { VariantConnectedMenuFields } from "./VariantConnectedMenuFields";
 import { VariantSelectionRuleFields } from "./VariantSelectionRuleFields";
 
 export interface VariantCategoryEditorFormProps {
   readonly baseline: MenuVariantGroup | null;
+  readonly categories: readonly MenuCategory[];
   readonly initialValues: VariantCategoryEditorValues;
+  readonly menus: readonly MenuItem[];
   readonly mode: "create" | "edit";
   readonly sortOrder: number;
   readonly onCancel: () => void;
-  readonly onSubmit: (input: VariantCategoryEditorInput) => Promise<void>;
+  readonly onSubmit: (
+    input: VariantCategoryEditorInput,
+    connectedMenuIds: readonly string[],
+  ) => Promise<void>;
 }
 
 function createOptionId(): string {
@@ -27,7 +33,9 @@ function createOptionId(): string {
 
 export function VariantCategoryEditorForm({
   baseline,
+  categories,
   initialValues,
+  menus,
   mode,
   sortOrder,
   onCancel,
@@ -56,7 +64,10 @@ export function VariantCategoryEditorForm({
 
     setSubmitting(true);
     try {
-      await onSubmit(createVariantCategoryEditorInput(values, baseline, sortOrder));
+      await onSubmit(
+        createVariantCategoryEditorInput(values, baseline, sortOrder),
+        values.connectedMenuIds,
+      );
     } finally {
       setSubmitting(false);
     }
@@ -151,6 +162,12 @@ export function VariantCategoryEditorForm({
           form={form}
           totalVariants={options.length}
         />
+      </Card>
+
+      <Card title={t("variants.editor.connectedMenus.title")}>
+        <Form.Item name="connectedMenuIds" noStyle>
+          <VariantConnectedMenuFields categories={categories} menus={menus} />
+        </Form.Item>
       </Card>
     </Form>
   );

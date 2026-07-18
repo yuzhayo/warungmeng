@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createWarungMengMockRepository } from "@warungmeng/data";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
 import { AdminUiProvider } from "@warungmeng/ui-admin";
@@ -80,5 +80,31 @@ describe("VariantCategoryEditorScreen", () => {
 
     expect(await screen.findByText("Kategori varian tidak ditemukan")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Kembali ke Daftar" })).toBeInTheDocument();
+  });
+
+  it("persists connected menus through MenuItem.variantGroupIds", async () => {
+    const { repository } = renderEditor("/menu/variants/new", "create");
+    await screen.findByText("Buat Kategori Varian");
+
+    fireEvent.change(screen.getByLabelText("Nama Kategori Varian"), {
+      target: { value: "Suhu" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Nama varian 1" }), {
+      target: { value: "Panas" },
+    });
+
+    const menuRow = (await screen.findByText("GADO-GADO")).closest("tr");
+    if (!menuRow) throw new Error("Expected connected-menu row");
+    fireEvent.click(within(menuRow).getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    await screen.findByText("Daftar kategori varian");
+    const createdGroup = (await repository.listVariantGroups()).find(
+      (group) => group.name === "Suhu",
+    );
+    expect(createdGroup).toBeDefined();
+    await expect(repository.getMenuById("2661748529823232")).resolves.toMatchObject({
+      variantGroupIds: expect.arrayContaining([createdGroup?.id]),
+    });
   });
 });

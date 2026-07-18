@@ -3,11 +3,13 @@ import type { MenuItem } from "@warungmeng/domain";
 import { Alert, App, Button } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useMenuList } from "../application/useMenuList";
 import { CatalogSplitTableLayout } from "../components/CatalogSplitTableLayout";
 import { MenuListTable } from "../components/MenuListTable";
 import { MenuListToolbar } from "../components/MenuListToolbar";
+import { MenuCategoryCreateDialog } from "../components/MenuCategoryCreateDialog";
 import "./MenuListScreen.css";
 
 export interface MenuListScreenProps {
@@ -17,15 +19,14 @@ export interface MenuListScreenProps {
 export function MenuListScreen({ repository = menuCatalogRepository }: MenuListScreenProps) {
   const { message } = App.useApp();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const menuList = useMenuList(repository);
   const [categoryCollapsed, setCategoryCollapsed] = useState(false);
-
-  function showComingSoon(feature: string): void {
-    void message.info(t("menu.feedback.comingSoon", { feature }));
-  }
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   function handleEdit(menu: MenuItem): void {
-    showComingSoon(t("menu.actions.edit", { name: menu.name }));
+    navigate(`/menu/${encodeURIComponent(menu.id)}/edit`);
   }
 
   const errorMessage =
@@ -41,8 +42,8 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
         allCount={menuList.allCount}
         availability={menuList.filters.availability}
         onAvailabilityChange={menuList.setAvailability}
-        onCreateCategory={() => showComingSoon(t("menu.actions.createCategory"))}
-        onCreateMenu={() => showComingSoon(t("menu.actions.createMenu"))}
+        onCreateCategory={() => setCategoryDialogOpen(true)}
+        onCreateMenu={() => navigate("/menu/new")}
         onSearchChange={menuList.setSearch}
         search={menuList.filters.search}
         unavailableCount={menuList.unavailableCount}
@@ -94,6 +95,31 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
           />
         </div>
       </CatalogSplitTableLayout>
+
+      <MenuCategoryCreateDialog
+        nextSortOrder={
+          menuList.categories.reduce(
+            (highest, category) => Math.max(highest, category.sortOrder),
+            -1,
+          ) + 1
+        }
+        onCancel={() => setCategoryDialogOpen(false)}
+        onSubmit={async (input) => {
+          setCreatingCategory(true);
+          try {
+            await repository.createCategory(input);
+            setCategoryDialogOpen(false);
+            menuList.retry();
+            void message.success(t("menu.categoryDialog.feedback.created"));
+          } catch {
+            void message.error(t("menu.categoryDialog.feedback.failed"));
+          } finally {
+            setCreatingCategory(false);
+          }
+        }}
+        open={categoryDialogOpen}
+        submitting={creatingCategory}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "../components/layout/AdminShell";
 import { MenuListScreen } from "../features/menu/screens/MenuListScreen";
+import { MenuEditorScreen } from "../features/menu/screens/MenuEditorScreen";
 import { MenuScreen } from "../features/menu/screens/MenuScreen";
 import { VariantCategoryEditorScreen } from "../features/menu/screens/VariantCategoryEditorScreen";
 import { VariantListView } from "../features/menu/views/VariantListView";
@@ -16,6 +17,8 @@ export function AppRoutes() {
         <Route index element={<AdminHomeScreen />} />
         <Route path="menu" element={<MenuScreen />}>
           <Route index element={<MenuListScreen />} />
+          <Route path="new" element={<MenuEditorScreen mode="create" />} />
+          <Route path=":menuId/edit" element={<MenuEditorScreen mode="edit" />} />
           <Route path="variants" element={<VariantListView />} />
           <Route path="variants/new" element={<VariantCategoryEditorScreen mode="create" />} />
           <Route

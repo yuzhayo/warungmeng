@@ -4,6 +4,7 @@ import { createWarungMengMockRepository } from "@warungmeng/data";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
 import { AdminUiProvider } from "@warungmeng/ui-admin";
 import { describe, expect, it } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import { MenuListScreen } from "./MenuListScreen";
 
 function renderMenuList() {
@@ -11,7 +12,9 @@ function renderMenuList() {
   const result = render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
-        <MenuListScreen repository={repository} />
+        <MemoryRouter>
+          <MenuListScreen repository={repository} />
+        </MemoryRouter>
       </AdminUiProvider>
     </WarungMengI18nProvider>,
   );
@@ -94,5 +97,20 @@ describe("MenuListScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "Kategori" }));
     expect(await screen.findByText("GADO-GADO")).toBeInTheDocument();
+  });
+
+  it("creates a category from the toolbar dialog and refreshes the category rail", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderMenuList();
+    await screen.findByText("GADO-GADO");
+
+    await user.click(screen.getByRole("button", { name: /Buat Kategori/ }));
+    await user.type(screen.getByLabelText("Nama Kategori"), "Camilan");
+    await user.click(screen.getByRole("button", { name: /^Buat$/ }));
+
+    expect(await screen.findByTitle("Camilan (0)")).toBeInTheDocument();
+    await expect(repository.listCategories()).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ name: "Camilan", slug: "camilan" })]),
+    );
   });
 });

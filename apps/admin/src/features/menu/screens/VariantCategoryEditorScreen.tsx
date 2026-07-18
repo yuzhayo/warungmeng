@@ -1,5 +1,5 @@
 import type { MenuCatalogRepository } from "@warungmeng/data";
-import type { MenuVariantGroup } from "@warungmeng/domain";
+import type { MenuCategory, MenuItem, MenuVariantGroup } from "@warungmeng/domain";
 import { Alert, App, Button, Flex, Result, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,10 @@ import {
   type VariantCategoryEditorInput,
   type VariantCategoryEditorValues,
 } from "../application/variantCategoryEditorModel";
+import {
+  getConnectedMenuIds,
+  syncVariantGroupConnections,
+} from "../application/variantGroupConnections";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { VariantCategoryEditorForm } from "../components/VariantCategoryEditorForm";
 import "./VariantCategoryEditorScreen.css";
@@ -26,7 +30,9 @@ type LoadState =
   | {
       readonly status: "ready";
       readonly baseline: MenuVariantGroup | null;
+      readonly categories: readonly MenuCategory[];
       readonly initialValues: VariantCategoryEditorValues;
+      readonly menus: readonly MenuItem[];
       readonly sortOrder: number;
     };
 
@@ -50,23 +56,38 @@ export function VariantCategoryEditorScreen({
 
     const load =
       mode === "create"
-        ? repository.listVariantGroups().then((groups) => {
+        ? Promise.all([
+            repository.listVariantGroups(),
+            repository.listMenus(),
+            repository.listCategories(),
+          ]).then(([groups, menus, categories]) => {
             const sortOrder =
               groups.reduce((highest, group) => Math.max(highest, group.sortOrder), -1) + 1;
             return {
               status: "ready",
               baseline: null,
+              categories,
               initialValues: createDefaultVariantCategoryEditorValues(createDraftOptionId()),
+              menus,
               sortOrder,
             } satisfies LoadState;
           })
         : variantGroupId
-          ? repository.getVariantGroupById(variantGroupId).then((group) =>
+          ? Promise.all([
+              repository.getVariantGroupById(variantGroupId),
+              repository.listMenus(),
+              repository.listCategories(),
+            ]).then(([group, menus, categories]) =>
               group
                 ? ({
                     status: "ready",
                     baseline: group,
-                    initialValues: mapVariantGroupToEditorValues(group),
+                    categories,
+                    initialValues: mapVariantGroupToEditorValues(
+                      group,
+                      getConnectedMenuIds(menus, group.id),
+                    ),
+                    menus,
                     sortOrder: group.sortOrder,
                   } satisfies LoadState)
                 : ({ status: "not-found" } satisfies LoadState),
@@ -95,15 +116,27 @@ export function VariantCategoryEditorScreen({
     setReloadVersion((current) => current + 1);
   }
 
-  async function handleSubmit(input: VariantCategoryEditorInput): Promise<void> {
+  async function handleSubmit(
+    input: VariantCategoryEditorInput,
+    connectedMenuIds: readonly string[],
+  ): Promise<void> {
     try {
+      let savedGroup: MenuVariantGroup;
       if (mode === "create") {
-        await repository.createVariantGroup(input);
+        savedGroup = await repository.createVariantGroup(input);
       } else {
         if (!variantGroupId) throw new Error("Missing variant group ID");
         const updated = await repository.updateVariantGroup(variantGroupId, input);
         if (!updated) throw new Error(`Variant group ${variantGroupId} was not found`);
+        savedGroup = updated;
       }
+
+      await syncVariantGroupConnections(
+        repository,
+        loadState.status === "ready" ? loadState.menus : [],
+        savedGroup.id,
+        connectedMenuIds,
+      );
 
       void message.success(
         t(
@@ -158,9 +191,11 @@ export function VariantCategoryEditorScreen({
     <div className="variant-category-editor">
       <VariantCategoryEditorForm
         baseline={loadState.baseline}
+        categories={loadState.categories}
         initialValues={loadState.initialValues}
         key={`${mode}:${variantGroupId ?? "new"}`}
         mode={mode}
+        menus={loadState.menus}
         onCancel={returnToList}
         onSubmit={handleSubmit}
         sortOrder={loadState.sortOrder}
