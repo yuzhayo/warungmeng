@@ -8,6 +8,11 @@ import {
   type VariantGroupAvailabilityFilter,
   type VariantGroupListFilters,
 } from "./variantGroupListModel";
+import {
+  removeVariantOption,
+  updateVariantOption,
+  type VariantOptionQuickEdit,
+} from "./variantOptionCommands";
 
 export type VariantGroupListError = "load" | "update" | null;
 
@@ -33,6 +38,7 @@ export function useVariantGroupList(repository: MenuCatalogRepository) {
   const [error, setError] = useState<VariantGroupListError>(null);
   const [reloadVersion, setReloadVersion] = useState(0);
   const [pendingGroupIds, setPendingGroupIds] = useState<ReadonlySet<string>>(new Set());
+  const [pendingOptionIds, setPendingOptionIds] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -98,6 +104,71 @@ export function useVariantGroupList(repository: MenuCatalogRepository) {
     }
   }
 
+  async function mutateVariantOption(
+    groupId: string,
+    optionId: string,
+    mutate: (group: MenuVariantGroup) => readonly MenuVariantGroup["options"][number][],
+  ): Promise<boolean> {
+    setPendingOptionIds((current) => new Set(current).add(optionId));
+    setError(null);
+
+    try {
+      const group = await repository.getVariantGroupById(groupId);
+      if (!group) throw new Error(`Variant group ${groupId} was not found`);
+
+      const updated = await repository.updateVariantGroup(groupId, {
+        options: mutate(group),
+      });
+      if (!updated) throw new Error(`Variant group ${groupId} was not found`);
+
+      setGroups((current) => current.map((item) => (item.id === groupId ? updated : item)));
+      return true;
+    } catch {
+      setError("update");
+      return false;
+    } finally {
+      setPendingOptionIds((current) => {
+        const next = new Set(current);
+        next.delete(optionId);
+        return next;
+      });
+    }
+  }
+
+  function saveVariantOption(
+    groupId: string,
+    optionId: string,
+    input: VariantOptionQuickEdit,
+  ): Promise<boolean> {
+    return mutateVariantOption(groupId, optionId, (group) =>
+      updateVariantOption(group, optionId, {
+        name: input.name.trim(),
+        priceAdjustment: {
+          amount: input.priceAmount,
+          currency: "IDR",
+        },
+      }),
+    );
+  }
+
+  function setVariantOptionAvailability(
+    groupId: string,
+    optionId: string,
+    available: boolean,
+  ): Promise<boolean> {
+    return mutateVariantOption(groupId, optionId, (group) =>
+      updateVariantOption(group, optionId, {
+        availability: available
+          ? { status: "available" }
+          : { status: "unavailable", unavailableUntil: null },
+      }),
+    );
+  }
+
+  function deleteVariantOption(groupId: string, optionId: string): Promise<boolean> {
+    return mutateVariantOption(groupId, optionId, (group) => removeVariantOption(group, optionId));
+  }
+
   return {
     allCount,
     connectedMenuCounts,
@@ -106,10 +177,14 @@ export function useVariantGroupList(repository: MenuCatalogRepository) {
     filters,
     loading,
     pendingGroupIds,
+    pendingOptionIds,
     retry,
+    deleteVariantOption,
+    saveVariantOption,
     setAvailability: (availability: VariantGroupAvailabilityFilter) =>
       updateFilters({ availability }),
     setGroupVisibility,
+    setVariantOptionAvailability,
     setSearch: (search: string) => updateFilters({ search }),
     unavailableCount,
   };

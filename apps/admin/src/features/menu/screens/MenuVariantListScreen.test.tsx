@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createWarungMengMockRepository } from "@warungmeng/data";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
@@ -19,6 +19,14 @@ function renderVariantList() {
   return { repository, ...result };
 }
 
+function getVariantGroupRow(name: string): HTMLTableRowElement {
+  const row = screen.getByText(name).closest("tr");
+  if (!(row instanceof HTMLTableRowElement)) {
+    throw new Error(`Variant group row ${name} was not found`);
+  }
+  return row;
+}
+
 describe("MenuVariantListScreen", () => {
   it("renders all real variant categories without pagination", async () => {
     renderVariantList();
@@ -27,7 +35,19 @@ describe("MenuVariantListScreen", () => {
     expect(screen.getByText("Ice")).toBeInTheDocument();
     expect(screen.getByText("Semua (9)")).toBeInTheDocument();
     expect(screen.getByText("Tidak Tersedia (1)")).toBeInTheDocument();
-    expect(screen.getByText(/No Ice \(Cup Regular 14 oz\)/)).toBeInTheDocument();
+    expect(screen.getByText("5 varian")).toBeInTheDocument();
+    expect(screen.queryByText("BUMBU 50ml")).not.toBeInTheDocument();
+
+    const extraRow = getVariantGroupRow("EXTRA");
+    fireEvent.click(extraRow);
+
+    expect(screen.getByText("BUMBU 50ml")).toBeInTheDocument();
+    expect(screen.getByText(/\+Rp\s*3\.000/)).toBeInTheDocument();
+    expect(extraRow).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByText("Nama Varian")).not.toBeInTheDocument();
+
+    fireEvent.click(extraRow);
+    expect(extraRow).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("navigation", { name: /pagination/i })).not.toBeInTheDocument();
   });
 
@@ -62,6 +82,44 @@ describe("MenuVariantListScreen", () => {
       await expect(repository.getVariantGroupById("3106667766346240")).resolves.toMatchObject({
         visibility: "hidden",
       });
+    });
+  });
+
+  it("quick edits an option name and price through the repository", async () => {
+    const { repository } = renderVariantList();
+    await screen.findByText("EXTRA");
+
+    fireEvent.click(getVariantGroupRow("EXTRA"));
+    fireEvent.click(screen.getByRole("button", { name: "Edit cepat BUMBU 50ml" }));
+
+    const nameInput = screen.getByRole("textbox", { name: "Nama varian BUMBU 50ml" });
+    const priceInput = screen.getByRole("textbox", { name: "Tambahan harga BUMBU 50ml" });
+    fireEvent.change(nameInput, { target: { value: "BUMBU 75ml" } });
+    fireEvent.change(priceInput, { target: { value: "4500" } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan perubahan BUMBU 50ml" }));
+
+    await waitFor(async () => {
+      const group = await repository.getVariantGroupById("3106667766346240");
+      expect(group?.options[0]).toMatchObject({
+        name: "BUMBU 75ml",
+        priceAdjustment: { amount: 4_500, currency: "IDR" },
+      });
+    });
+  });
+
+  it("deletes an option only after confirmation", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderVariantList();
+    await screen.findByText("EXTRA");
+
+    fireEvent.click(getVariantGroupRow("EXTRA"));
+    await user.click(screen.getByRole("button", { name: "Hapus varian BUMBU 50ml" }));
+    expect(screen.getByText("Hapus BUMBU 50ml?")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Hapus$/ }));
+
+    await waitFor(async () => {
+      const group = await repository.getVariantGroupById("3106667766346240");
+      expect(group?.options.some((option) => option.name === "BUMBU 50ml")).toBe(false);
     });
   });
 });

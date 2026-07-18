@@ -35,3 +35,7 @@ export {
   type AdminThemeSettings,
   type AdminThemeTextColorMode,
 } from "./theme/themeTypes";
+export {
+  useSingleExpandedRow,
+  type SingleExpandedRowController,
+} from "./table/useSingleExpandedRow";

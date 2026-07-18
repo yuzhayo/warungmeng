@@ -6,6 +6,7 @@ import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useVariantGroupList } from "../application/useVariantGroupList";
 import { VariantGroupListTable } from "../components/VariantGroupListTable";
 import { VariantGroupListToolbar } from "../components/VariantGroupListToolbar";
+import "./MenuVariantListScreen.css";
 
 export interface MenuVariantListScreenProps {
   readonly repository?: MenuCatalogRepository;
@@ -72,10 +73,14 @@ export function MenuVariantListScreen({
           loading={variantList.loading}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          onOptionAvailabilityChange={variantList.setVariantOptionAvailability}
+          onOptionDelete={variantList.deleteVariantOption}
+          onOptionSave={variantList.saveVariantOption}
           onVisibilityChange={(groupId, visible) => {
             void variantList.setGroupVisibility(groupId, visible);
           }}
           pendingGroupIds={variantList.pendingGroupIds}
+          pendingOptionIds={variantList.pendingOptionIds}
         />
       </div>
     </>
