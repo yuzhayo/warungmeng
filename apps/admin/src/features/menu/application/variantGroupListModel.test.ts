@@ -1,41 +1,72 @@
 import { createWarungMengMockSeed } from "@warungmeng/data";
 import { describe, expect, it } from "vitest";
 import {
-  countVariantGroupsByAvailability,
+  countVariantOptionsByAvailability,
+  createVariantGroupCounts,
   DEFAULT_VARIANT_GROUP_LIST_FILTERS,
-  filterVariantGroups,
-  hasUnavailableOption,
+  filterVariantOptions,
+  flattenVariantOptions,
 } from "./variantGroupListModel";
 
 const variantGroups = createWarungMengMockSeed().variantGroups ?? [];
 
 describe("variantGroupListModel", () => {
-  it("searches group names, descriptions, and option names", () => {
-    expect(
-      filterVariantGroups(variantGroups, {
-        ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
-        search: "strawberry",
-      }).map((group) => group.name),
-    ).toEqual(["MIX"]);
+  it("flattens category options into stable list rows", () => {
+    const rows = flattenVariantOptions(variantGroups);
 
-    expect(
-      filterVariantGroups(variantGroups, {
-        ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
-        search: "original buatan sendiri",
-      }).map((group) => group.name),
-    ).toEqual(["LONTONG BALAP"]);
+    expect(rows).toHaveLength(30);
+    expect(rows[0]).toMatchObject({
+      groupName: "EXTRA",
+      option: { name: "BUMBU 50ml" },
+    });
+    expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);
   });
 
-  it("identifies groups containing an unavailable option", () => {
-    const portionGroup = variantGroups.find((group) => group.name === "PORSI");
-    const iceGroup = variantGroups.find((group) => group.name === "Ice");
-
-    expect(portionGroup && hasUnavailableOption(portionGroup)).toBe(true);
-    expect(iceGroup && hasUnavailableOption(iceGroup)).toBe(false);
+  it("filters options by search, parent category, and availability", () => {
     expect(
-      countVariantGroupsByAvailability(
+      filterVariantOptions(variantGroups, {
+        ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
+        search: "strawberry",
+      }).map((row) => row.option.name),
+    ).toContain("Strawberry");
+
+    const portionGroup = variantGroups.find((group) => group.name === "PORSI");
+    if (!portionGroup) throw new Error("PORSI fixture was not found");
+
+    expect(
+      filterVariantOptions(variantGroups, {
+        ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
+        groupId: portionGroup.id,
+      }),
+    ).toHaveLength(2);
+    expect(
+      filterVariantOptions(variantGroups, {
+        ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
+        availability: "unavailable",
+      }),
+    ).toHaveLength(1);
+  });
+
+  it("builds category counts from active search and availability filters", () => {
+    const counts = createVariantGroupCounts(variantGroups, {
+      ...DEFAULT_VARIANT_GROUP_LIST_FILTERS,
+      search: "strawberry",
+    });
+
+    expect([...counts.values()]).toEqual([1]);
+  });
+
+  it("counts option availability while preserving the selected category", () => {
+    const portionGroup = variantGroups.find((group) => group.name === "PORSI");
+    if (!portionGroup) throw new Error("PORSI fixture was not found");
+
+    expect(
+      countVariantOptionsByAvailability(variantGroups, DEFAULT_VARIANT_GROUP_LIST_FILTERS, "all"),
+    ).toBe(30);
+    expect(
+      countVariantOptionsByAvailability(
         variantGroups,
-        DEFAULT_VARIANT_GROUP_LIST_FILTERS,
+        { ...DEFAULT_VARIANT_GROUP_LIST_FILTERS, groupId: portionGroup.id },
         "unavailable",
       ),
     ).toBe(1);

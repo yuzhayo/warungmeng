@@ -1,34 +1,30 @@
 import type { MenuCatalogRepository } from "@warungmeng/data";
 import type { MenuVariantGroup } from "@warungmeng/domain";
 import { Alert, App, Button } from "antd";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useVariantGroupList } from "../application/useVariantGroupList";
-import { VariantGroupListTable } from "../components/VariantGroupListTable";
+import { CatalogSplitTableLayout } from "../components/CatalogSplitTableLayout";
 import { VariantGroupListToolbar } from "../components/VariantGroupListToolbar";
-import "./MenuVariantListScreen.css";
+import { VariantOptionListTable } from "../components/VariantOptionListTable";
 
-export interface MenuVariantListScreenProps {
+export interface VariantListViewProps {
   readonly repository?: MenuCatalogRepository;
 }
 
-export function MenuVariantListScreen({
-  repository = menuCatalogRepository,
-}: MenuVariantListScreenProps) {
+export function VariantListView({ repository = menuCatalogRepository }: VariantListViewProps) {
   const { message } = App.useApp();
   const { t } = useTranslation();
   const variantList = useVariantGroupList(repository);
+  const [categoryCollapsed, setCategoryCollapsed] = useState(false);
 
   function showComingSoon(feature: string): void {
     void message.info(t("menu.feedback.comingSoon", { feature }));
   }
 
-  function handleEdit(group: MenuVariantGroup): void {
+  function handleEditCategory(group: MenuVariantGroup): void {
     showComingSoon(t("variants.actions.edit", { name: group.name }));
-  }
-
-  function handleDelete(group: MenuVariantGroup): void {
-    showComingSoon(t("variants.actions.delete", { name: group.name }));
   }
 
   const errorMessage =
@@ -66,23 +62,35 @@ export function MenuVariantListScreen({
         />
       ) : null}
 
-      <div style={{ minWidth: 0, overflow: "hidden" }}>
-        <VariantGroupListTable
-          connectedMenuCounts={variantList.connectedMenuCounts}
-          groups={variantList.filteredGroups}
+      <CatalogSplitTableLayout
+        categories={variantList.groups.map((group) => ({
+          count: variantList.groupCounts.get(group.id) ?? 0,
+          id: group.id,
+          name: group.name,
+        }))}
+        categoryAriaLabel={t("variants.categories.title")}
+        categoryTitle={t("variants.categories.title")}
+        collapsed={categoryCollapsed}
+        collapseLabel={t("variants.categories.collapse")}
+        editCategoryLabel={(category) => t("variants.actions.edit", { name: category.name })}
+        expandLabel={t("variants.categories.expand")}
+        onCategoryChange={variantList.setGroup}
+        onCollapsedChange={setCategoryCollapsed}
+        onEditCategory={(category) => {
+          const group = variantList.groups.find((item) => item.id === category.id);
+          if (group) handleEditCategory(group);
+        }}
+        selectedCategoryId={variantList.filters.groupId}
+      >
+        <VariantOptionListTable
+          items={variantList.filteredOptions}
           loading={variantList.loading}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          onOptionAvailabilityChange={variantList.setVariantOptionAvailability}
-          onOptionDelete={variantList.deleteVariantOption}
-          onOptionSave={variantList.saveVariantOption}
-          onVisibilityChange={(groupId, visible) => {
-            void variantList.setGroupVisibility(groupId, visible);
-          }}
-          pendingGroupIds={variantList.pendingGroupIds}
+          onAvailabilityChange={variantList.setVariantOptionAvailability}
+          onDelete={variantList.deleteVariantOption}
+          onSave={variantList.saveVariantOption}
           pendingOptionIds={variantList.pendingOptionIds}
         />
-      </div>
+      </CatalogSplitTableLayout>
     </>
   );
 }

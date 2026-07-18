@@ -37,6 +37,6 @@ describe("admin foundation", () => {
       "aria-selected",
       "true",
     );
-    expect(await screen.findByText("EXTRA")).toBeInTheDocument();
+    expect(await screen.findByText("BUMBU 50ml")).toBeInTheDocument();
   });
 });

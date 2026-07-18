@@ -1,0 +1,8 @@
+.variant-option-list-table .ant-table-tbody > tr > td {
+  height: 4.5rem;
+}
+
+.variant-option-list-table .ant-input,
+.variant-option-list-table .ant-input-affix-wrapper {
+  width: 100%;
+}

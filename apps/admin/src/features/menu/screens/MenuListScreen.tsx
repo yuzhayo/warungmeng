@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useMenuList } from "../application/useMenuList";
-import { MenuCategoryFilter } from "../components/MenuCategoryFilter";
+import { CatalogSplitTableLayout } from "../components/CatalogSplitTableLayout";
 import { MenuListTable } from "../components/MenuListTable";
 import { MenuListToolbar } from "../components/MenuListToolbar";
 import "./MenuListScreen.css";
@@ -64,20 +64,21 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
         />
       ) : null}
 
-      <div
-        className={`menu-list-screen__catalog${
-          categoryCollapsed ? " menu-list-screen__catalog--category-collapsed" : ""
-        }`}
+      <CatalogSplitTableLayout
+        categories={menuList.categories.map((category) => ({
+          count: menuList.categoryCounts.get(category.id) ?? 0,
+          id: category.id,
+          name: category.name,
+        }))}
+        categoryAriaLabel={t("menu.categories.title")}
+        categoryTitle={t("menu.categories.title")}
+        collapsed={categoryCollapsed}
+        collapseLabel={t("menu.categories.collapse")}
+        expandLabel={t("menu.categories.expand")}
+        onCategoryChange={menuList.setCategory}
+        onCollapsedChange={setCategoryCollapsed}
+        selectedCategoryId={menuList.filters.categoryId}
       >
-        <MenuCategoryFilter
-          categories={menuList.categories}
-          collapsed={categoryCollapsed}
-          counts={menuList.categoryCounts}
-          onChange={menuList.setCategory}
-          onCollapsedChange={setCategoryCollapsed}
-          selectedCategoryId={menuList.filters.categoryId}
-          totalCount={menuList.allCount}
-        />
         <div className="menu-list-screen__table">
           <MenuListTable
             loading={menuList.loading}
@@ -92,7 +93,7 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
             pendingMenuIds={menuList.pendingMenuIds}
           />
         </div>
-      </div>
+      </CatalogSplitTableLayout>
     </>
   );
 }

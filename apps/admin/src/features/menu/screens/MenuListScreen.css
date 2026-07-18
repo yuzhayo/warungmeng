@@ -25,81 +25,9 @@
   flex: 0 0 auto;
 }
 
-.menu-list-screen__catalog {
-  display: grid;
-  min-height: 0;
-  flex: 1;
-  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr);
-  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-  transition: grid-template-columns 180ms ease;
-}
-
-.menu-list-screen__catalog--category-collapsed {
-  grid-template-columns: 3.75rem minmax(0, 1fr);
-}
-
-.menu-category-filter {
-  min-width: 0;
-  border-inline-end: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-}
-
-.menu-category-filter__header {
-  display: flex;
-  min-height: 3.5rem;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--wm-space-xs, 0.5rem);
-  padding: var(--wm-space-sm, 0.75rem);
-  border-block-end: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-}
-
-.menu-category-filter__title.ant-typography {
-  overflow: hidden;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.menu-category-filter--collapsed .menu-category-filter__header {
-  justify-content: center;
-  gap: 0;
-  padding-inline: var(--wm-space-sm, 0.75rem);
-}
-
-.menu-category-filter--collapsed .menu-category-filter__title {
-  display: none;
-}
-
-.menu-category-filter .ant-menu {
-  width: 100%;
-  border-inline-end: 0;
-}
-
-.menu-category-filter .ant-menu-inline-collapsed {
-  width: 100%;
-}
-
-.menu-category-filter--collapsed .ant-menu-inline-collapsed > .ant-menu-item {
-  padding-inline: calc(50% - 0.5em);
-}
-
 .menu-list-screen__table {
   min-width: 0;
   overflow: hidden;
-}
-
-.menu-list-screen__table .ant-table-wrapper,
-.menu-list-screen__table .ant-spin-nested-loading,
-.menu-list-screen__table .ant-spin-container {
-  min-height: 100%;
-}
-
-.menu-list-screen__table .ant-table {
-  border: 0;
-  border-radius: 0;
-}
-
-.menu-list-screen__table .ant-table-thead > tr > th::before {
-  display: none;
 }
 
 .menu-list-table__identity,
@@ -136,36 +64,6 @@
 
   .menu-list-toolbar__actions {
     justify-content: flex-end;
-  }
-}
-
-@media (max-width: 48rem) {
-  .menu-list-screen__catalog {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .menu-category-filter {
-    overflow-x: auto;
-    border-inline-end: 0;
-    border-block-end: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-  }
-
-  .menu-category-filter__title {
-    display: none;
-  }
-
-  .menu-category-filter__header {
-    display: none;
-  }
-
-  .menu-category-filter .ant-menu {
-    display: flex;
-    min-width: max-content;
-  }
-
-  .menu-category-filter .ant-menu-item {
-    width: auto;
-    flex: 0 0 auto;
   }
 }
 

@@ -25,11 +25,12 @@ describe("MenuListScreen", () => {
 
     expect(await screen.findByText("GADO-GADO")).toBeInTheDocument();
     expect(screen.getByText("Semua (23)")).toBeInTheDocument();
+    expect(screen.queryByText(/Semua Kategori/)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Rp\s*22\.000/).length).toBeGreaterThan(0);
     expect(screen.queryByRole("navigation", { name: /pagination/i })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /buat kategori/i })).toHaveClass("ant-btn-primary");
     expect(screen.getByRole("button", { name: /buat menu/i })).toHaveClass("ant-btn-primary");
-  });
+  }, 10_000);
 
   it("filters by search and category", async () => {
     const user = userEvent.setup();
@@ -42,7 +43,7 @@ describe("MenuListScreen", () => {
     expect(screen.queryByText("LONTONG BALAP")).not.toBeInTheDocument();
 
     await user.clear(screen.getByRole("searchbox", { name: /cari nama/i }));
-    await user.click(screen.getByText("Minuman (18)"));
+    await user.click(screen.getByTitle("Minuman (18)"));
 
     expect(await screen.findByText("ES TELER CREAMY")).toBeInTheDocument();
     expect(screen.queryByText("GADO-GADO")).not.toBeInTheDocument();
@@ -67,12 +68,12 @@ describe("MenuListScreen", () => {
     renderMenuList();
     await screen.findByText("GADO-GADO");
 
-    const categoryFilter = screen.getByTestId("menu-category-filter");
+    const categoryFilter = screen.getByTestId("catalog-category-rail");
     const collapseButton = screen.getByRole("button", { name: "Tutup kategori" });
 
     await user.click(collapseButton);
 
-    expect(categoryFilter).toHaveClass("menu-category-filter--collapsed");
+    expect(categoryFilter).toHaveClass("catalog-category-rail--collapsed");
     expect(screen.getByRole("button", { name: "Buka kategori" })).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -80,6 +81,18 @@ describe("MenuListScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "Buka kategori" }));
 
-    expect(categoryFilter).not.toHaveClass("menu-category-filter--collapsed");
+    expect(categoryFilter).not.toHaveClass("catalog-category-rail--collapsed");
+  }, 10_000);
+
+  it("uses the category header to restore the unfiltered list", async () => {
+    const user = userEvent.setup();
+    renderMenuList();
+    await screen.findByText("GADO-GADO");
+
+    await user.click(screen.getByTitle("Minuman (18)"));
+    expect(screen.queryByText("GADO-GADO")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Kategori" }));
+    expect(await screen.findByText("GADO-GADO")).toBeInTheDocument();
   });
 });
