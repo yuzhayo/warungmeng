@@ -54,7 +54,7 @@ export function MenuListToolbar({
         />
       </div>
       <div className="menu-list-toolbar__actions">
-        <Button icon={<PlusOutlined />} onClick={onCreateCategory}>
+        <Button icon={<PlusOutlined />} onClick={onCreateCategory} type="primary">
           {t("menu.actions.createCategory")}
         </Button>
         <Button icon={<PlusOutlined />} onClick={onCreateMenu} type="primary">

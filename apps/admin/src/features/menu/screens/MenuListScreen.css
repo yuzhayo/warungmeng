@@ -71,8 +71,9 @@
   display: flex;
   min-height: 3.5rem;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem;
   border-block-end: 1px solid color-mix(in srgb, currentColor 16%, transparent);
 }
 
@@ -84,7 +85,8 @@
 
 .menu-category-filter--collapsed .menu-category-filter__header {
   justify-content: center;
-  padding-inline: 0;
+  gap: 0;
+  padding-inline: 0.625rem;
 }
 
 .menu-category-filter--collapsed .menu-category-filter__title {

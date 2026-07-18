@@ -29,5 +29,10 @@ export const adminTheme: ThemeConfig = {
       itemBorderRadius: 0,
       itemMarginInline: 0,
     },
+    Segmented: {
+      itemActiveBg: "#b97f1f",
+      itemSelectedBg: "#d99a27",
+      itemSelectedColor: "#181a1b",
+    },
   },
 };

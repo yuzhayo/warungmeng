@@ -27,6 +27,8 @@ describe("MenuListScreen", () => {
     expect(screen.getByText("Semua (23)")).toBeInTheDocument();
     expect(screen.getAllByText(/Rp\s*22\.000/).length).toBeGreaterThan(0);
     expect(screen.queryByRole("navigation", { name: /pagination/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /buat kategori/i })).toHaveClass("ant-btn-primary");
+    expect(screen.getByRole("button", { name: /buat menu/i })).toHaveClass("ant-btn-primary");
   });
 
   it("filters by search and category", async () => {

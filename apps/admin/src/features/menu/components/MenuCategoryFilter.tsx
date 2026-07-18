@@ -52,9 +52,6 @@ export function MenuCategoryFilter({
       data-testid="menu-category-filter"
     >
       <div className="menu-category-filter__header">
-        <Typography.Title className="menu-category-filter__title" level={5}>
-          {t("menu.categories.title")}
-        </Typography.Title>
         <Tooltip title={collapseLabel}>
           <Button
             aria-expanded={!collapsed}
@@ -64,6 +61,9 @@ export function MenuCategoryFilter({
             type="text"
           />
         </Tooltip>
+        <Typography.Title className="menu-category-filter__title" level={5}>
+          {t("menu.categories.title")}
+        </Typography.Title>
       </div>
       <Menu
         inlineCollapsed={collapsed}
