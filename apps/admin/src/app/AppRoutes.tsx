@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "../components/layout/AdminShell";
 import { MenuListScreen } from "../features/menu/screens/MenuListScreen";
+import { SettingsScreen } from "../features/settings/SettingsScreen";
+import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -37,15 +39,10 @@ export function AppRoutes() {
             />
           }
         />
-        <Route
-          path="settings"
-          element={
-            <AdminPlaceholderScreen
-              descriptionKey="screen.settings.description"
-              titleKey="screen.settings.title"
-            />
-          }
-        />
+        <Route path="settings" element={<SettingsScreen />}>
+          <Route index element={<Navigate replace to="theme" />} />
+          <Route path="theme" element={<ThemeSettingsScreen />} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>

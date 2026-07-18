@@ -12,4 +12,18 @@ describe("admin foundation", () => {
     expect(screen.getByRole("heading", { name: "Performa Outlet" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
   });
+
+  it("routes Settings through the reusable settings tabs to the theme screen", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/settings";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Pengaturan" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Tema" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Jam Operasional" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    expect(screen.getByText("Pilihan Tema")).toBeInTheDocument();
+  });
 });

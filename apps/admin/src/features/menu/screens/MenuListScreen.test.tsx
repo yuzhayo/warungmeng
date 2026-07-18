@@ -10,7 +10,7 @@ function renderMenuList() {
   const repository = createWarungMengMockRepository();
   const result = render(
     <WarungMengI18nProvider storage={null}>
-      <AdminUiProvider>
+      <AdminUiProvider storage={null}>
         <MenuListScreen repository={repository} />
       </AdminUiProvider>
     </WarungMengI18nProvider>,

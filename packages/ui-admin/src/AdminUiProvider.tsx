@@ -1,22 +1,16 @@
-import { App as AntdApp, ConfigProvider } from "antd";
-import type { ThemeConfig } from "antd";
 import type { Locale } from "antd/es/locale";
 import type { PropsWithChildren } from "react";
-import { adminTheme } from "./adminTheme";
+import { AdminThemeProvider } from "./theme/AdminThemeProvider";
 
 type AdminUiProviderProps = PropsWithChildren<{
   locale?: Locale;
-  themeConfig?: ThemeConfig;
+  storage?: Pick<Storage, "getItem" | "setItem"> | null;
 }>;
 
-export function AdminUiProvider({
-  children,
-  locale,
-  themeConfig = adminTheme,
-}: AdminUiProviderProps) {
+export function AdminUiProvider({ children, locale, storage }: AdminUiProviderProps) {
   return (
-    <ConfigProvider locale={locale} theme={themeConfig}>
-      <AntdApp>{children}</AntdApp>
-    </ConfigProvider>
+    <AdminThemeProvider locale={locale} storage={storage}>
+      {children}
+    </AdminThemeProvider>
   );
 }
