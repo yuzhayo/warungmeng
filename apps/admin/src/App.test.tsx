@@ -4,6 +4,7 @@ import App from "./App";
 
 describe("admin foundation", () => {
   it("renders the initial admin route inside the application providers", () => {
+    window.localStorage.clear();
     window.location.hash = "#/";
     render(<App />);
 

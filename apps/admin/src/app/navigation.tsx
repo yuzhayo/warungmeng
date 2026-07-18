@@ -6,34 +6,57 @@ import {
   ShoppingCartOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
+import type { TranslationKey } from "@warungmeng/i18n";
 import type { MenuProps } from "antd";
 
 export interface AdminNavigationItem {
   readonly key: string;
-  readonly label: string;
+  readonly labelKey: TranslationKey;
   readonly icon: React.ReactNode;
 }
 
 export const adminNavigationItems: readonly AdminNavigationItem[] = [
-  { key: "/", label: "Performa Outlet", icon: <BarChartOutlined aria-hidden /> },
-  { key: "/menu", label: "Menu", icon: <AppstoreOutlined aria-hidden /> },
-  { key: "/finance", label: "Keuangan", icon: <WalletOutlined aria-hidden /> },
-  { key: "/calculator", label: "Calculator", icon: <CalculatorOutlined aria-hidden /> },
+  {
+    key: "/",
+    labelKey: "navigation.performance",
+    icon: <BarChartOutlined aria-hidden />,
+  },
+  {
+    key: "/menu",
+    labelKey: "navigation.menu",
+    icon: <AppstoreOutlined aria-hidden />,
+  },
+  {
+    key: "/finance",
+    labelKey: "navigation.finance",
+    icon: <WalletOutlined aria-hidden />,
+  },
+  {
+    key: "/calculator",
+    labelKey: "navigation.calculator",
+    icon: <CalculatorOutlined aria-hidden />,
+  },
   {
     key: "/orders",
-    label: "Manajemen Pesanan",
+    labelKey: "navigation.orders",
     icon: <ShoppingCartOutlined aria-hidden />,
   },
-  { key: "/settings", label: "Pengaturan", icon: <SettingOutlined aria-hidden /> },
+  {
+    key: "/settings",
+    labelKey: "navigation.settings",
+    icon: <SettingOutlined aria-hidden />,
+  },
 ];
 
-export const adminMenuItems: MenuProps["items"] = adminNavigationItems.map(
-  ({ key, label, icon }) => ({
+export function createAdminMenuItems(
+  translate: (key: TranslationKey) => string,
+): MenuProps["items"] {
+  return adminNavigationItems.map(({ key, labelKey, icon }) => ({
     key,
-    label,
+    label: translate(labelKey),
     icon,
-  }),
-);
+  }));
+}
 
 export function getSelectedNavigationKey(pathname: string): string {
   const matchingItem = [...adminNavigationItems]

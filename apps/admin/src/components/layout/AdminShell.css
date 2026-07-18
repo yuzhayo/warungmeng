@@ -54,11 +54,16 @@ body {
   color: inherit;
 }
 
+.admin-header__language,
 .admin-header__notification {
   height: 100%;
   border-radius: 0;
   padding-inline: clamp(0.75rem, 2vw, 1.5rem);
   border-inline: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.admin-header__notification {
+  border-inline-start: 0;
 }
 
 .admin-clock {
@@ -109,6 +114,7 @@ body {
     font-size: 1rem;
   }
 
+  .admin-header__language,
   .admin-header__notification,
   .admin-clock {
     padding-inline: 0.625rem;

@@ -12,8 +12,8 @@ export function AppRoutes() {
           path="menu"
           element={
             <AdminPlaceholderScreen
-              description="Daftar menu dan kategori akan ditampilkan di sini."
-              title="Pengaturan Menu"
+              descriptionKey="screen.menu.description"
+              titleKey="screen.menu.title"
             />
           }
         />
@@ -21,23 +21,26 @@ export function AppRoutes() {
           path="finance"
           element={
             <AdminPlaceholderScreen
-              description="Ringkasan saldo dan transaksi outlet."
-              title="Keuangan"
+              descriptionKey="screen.finance.description"
+              titleKey="screen.finance.title"
             />
           }
         />
         <Route
           path="calculator"
           element={
-            <AdminPlaceholderScreen description="Perhitungan HPP dan pajak." title="Calculator" />
+            <AdminPlaceholderScreen
+              descriptionKey="screen.calculator.description"
+              titleKey="screen.calculator.title"
+            />
           }
         />
         <Route
           path="orders"
           element={
             <AdminPlaceholderScreen
-              description="Pengelolaan pesanan outlet."
-              title="Manajemen Pesanan"
+              descriptionKey="screen.orders.description"
+              titleKey="screen.orders.title"
             />
           }
         />
@@ -45,8 +48,8 @@ export function AppRoutes() {
           path="settings"
           element={
             <AdminPlaceholderScreen
-              description="Pengaturan operasional dan tampilan aplikasi."
-              title="Pengaturan"
+              descriptionKey="screen.settings.description"
+              titleKey="screen.settings.title"
             />
           }
         />

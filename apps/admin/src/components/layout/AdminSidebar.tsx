@@ -7,6 +7,7 @@ export interface AdminSidebarProps {
   readonly collapsed: boolean;
   readonly mobile: boolean;
   readonly items: MenuProps["items"];
+  readonly navigationLabel: string;
   readonly selectedKey: string;
   readonly onBreakpoint: (mobile: boolean) => void;
   readonly onCollapse: (collapsed: boolean) => void;
@@ -17,6 +18,7 @@ export function AdminSidebar({
   collapsed,
   mobile,
   items,
+  navigationLabel,
   selectedKey,
   onBreakpoint,
   onCollapse,
@@ -35,7 +37,7 @@ export function AdminSidebar({
       trigger={null}
       width="clamp(15rem, 19vw, 18rem)"
     >
-      <nav aria-label="Navigasi utama" className="admin-sidebar__navigation">
+      <nav aria-label={navigationLabel} className="admin-sidebar__navigation">
         <Menu
           items={items}
           mode="inline"
