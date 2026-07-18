@@ -1,0 +1,122 @@
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 20rem;
+}
+
+.admin-shell {
+  min-height: 100dvh;
+}
+
+.admin-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+  color: inherit;
+  border-block-end: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.admin-header__brand,
+.admin-header__actions,
+.admin-clock {
+  display: flex;
+  align-items: center;
+}
+
+.admin-header__brand {
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.admin-header__brand-name {
+  overflow: hidden;
+  font-size: 1.125rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.admin-header__actions {
+  align-self: stretch;
+}
+
+.admin-header .ant-btn {
+  color: inherit;
+}
+
+.admin-header__notification {
+  height: 100%;
+  border-radius: 0;
+  padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+  border-inline: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.admin-clock {
+  align-self: stretch;
+  gap: 0.625rem;
+  padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.admin-clock > span {
+  display: grid;
+  line-height: 1.1;
+}
+
+.admin-clock small {
+  margin-block-start: 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-shell__body {
+  min-height: calc(100dvh - 4rem);
+}
+
+.admin-sidebar {
+  overflow: auto;
+  border-inline-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.admin-sidebar__navigation {
+  padding-block: 0.75rem;
+}
+
+.admin-sidebar .ant-menu {
+  border-inline-end: 0;
+}
+
+.admin-content {
+  min-width: 0;
+  overflow: auto;
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+
+@media (max-width: 40rem) {
+  .admin-header__action-label {
+    display: none;
+  }
+
+  .admin-header__brand-name {
+    font-size: 1rem;
+  }
+
+  .admin-header__notification,
+  .admin-clock {
+    padding-inline: 0.625rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  .admin-clock > span {
+    display: none;
+  }
+}

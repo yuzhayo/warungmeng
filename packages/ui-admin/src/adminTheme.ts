@@ -11,4 +11,23 @@ export const adminTheme: ThemeConfig = {
     borderRadius: 4,
     fontSize: 14,
   },
+  components: {
+    Layout: {
+      bodyBg: "#181a1b",
+      headerBg: "#d99a27",
+      headerColor: "#181a1b",
+      headerHeight: 64,
+      siderBg: "#1b1d1e",
+    },
+    Menu: {
+      darkItemBg: "#1b1d1e",
+      darkItemColor: "#f0ede7",
+      darkItemHoverBg: "#292b2d",
+      darkItemHoverColor: "#f0ede7",
+      darkItemSelectedBg: "#3d2b08",
+      darkItemSelectedColor: "#f6c453",
+      itemBorderRadius: 0,
+      itemMarginInline: 0,
+    },
+  },
 };

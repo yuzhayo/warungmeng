@@ -4,9 +4,11 @@ import App from "./App";
 
 describe("admin foundation", () => {
   it("renders the initial admin route inside the application providers", () => {
+    window.location.hash = "#/";
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "Warung Meng" })).toBeInTheDocument();
-    expect(screen.getByText("Admin")).toBeInTheDocument();
+    expect(screen.getByText("WARUNG MENG")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Performa Outlet" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
   });
 });

@@ -1,8 +1,8 @@
 export function AdminHomeScreen() {
   return (
-    <main>
-      <h1>Warung Meng</h1>
-      <p>Admin</p>
-    </main>
+    <section aria-labelledby="admin-home-title">
+      <h1 id="admin-home-title">Performa Outlet</h1>
+      <p>Ringkasan performa operasional Warung Meng.</p>
+    </section>
   );
 }
