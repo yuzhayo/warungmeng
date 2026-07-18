@@ -25,3 +25,7 @@ class ResizeObserverMock {
 }
 
 vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+const getComputedStyle = window.getComputedStyle.bind(window);
+window.getComputedStyle = (element: Element, _pseudoElement?: string | null) =>
+  getComputedStyle(element);

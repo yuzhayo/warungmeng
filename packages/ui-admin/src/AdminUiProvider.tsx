@@ -16,7 +16,7 @@ export function AdminUiProvider({
 }: AdminUiProviderProps) {
   return (
     <ConfigProvider locale={locale} theme={themeConfig}>
-      <AntdApp component={false}>{children}</AntdApp>
+      <AntdApp>{children}</AntdApp>
     </ConfigProvider>
   );
 }
