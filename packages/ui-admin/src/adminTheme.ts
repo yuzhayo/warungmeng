@@ -9,7 +9,7 @@ export const adminTheme: ThemeConfig = {
     colorBgBase: "#181a1b",
     colorTextBase: "#f0ede7",
     borderRadius: 4,
-    fontSize: 14,
+    fontSize: 16,
   },
   components: {
     Layout: {

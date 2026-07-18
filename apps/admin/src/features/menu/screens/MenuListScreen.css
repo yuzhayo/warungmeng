@@ -122,6 +122,10 @@
   border-radius: 0;
 }
 
+.menu-list-screen__table .ant-table-thead > tr > th::before {
+  display: none;
+}
+
 .menu-list-table__identity,
 .menu-list-table__status {
   display: grid;

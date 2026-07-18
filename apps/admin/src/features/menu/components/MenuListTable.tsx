@@ -33,7 +33,7 @@ export function MenuListTable({
       {
         key: "name",
         title: t("menu.table.name"),
-        width: 300,
+        width: "36%",
         render: (_, menu) => (
           <Flex align="center" gap="middle">
             <Avatar
@@ -58,15 +58,16 @@ export function MenuListTable({
       {
         key: "price",
         title: t("menu.table.price"),
-        width: 140,
+        width: "12%",
         render: (_, menu) => (
           <Text strong>{formatRupiah(menu.price.amount, { regionalFormat })}</Text>
         ),
       },
       {
+        align: "center",
         key: "schedule",
         title: t("menu.table.schedule"),
-        width: 160,
+        width: "14%",
         render: (_, menu) =>
           menu.salesSchedule.mode === "always"
             ? t("menu.schedule.always")
@@ -75,7 +76,7 @@ export function MenuListTable({
       {
         key: "visibility",
         title: t("menu.table.visibility"),
-        width: 175,
+        width: "15%",
         render: (_, menu) => {
           const visible = menu.visibility === "visible";
           return (
@@ -95,7 +96,7 @@ export function MenuListTable({
       {
         key: "availability",
         title: t("menu.table.stock"),
-        width: 190,
+        width: "17%",
         render: (_, menu) => {
           const available = menu.availability.status === "available";
           return (
@@ -125,7 +126,7 @@ export function MenuListTable({
         align: "center",
         key: "actions",
         title: t("menu.table.actions"),
-        width: 100,
+        width: "6%",
         render: (_, menu) => (
           <Tooltip title={t("menu.actions.edit", { name: menu.name })}>
             <Button
@@ -143,7 +144,6 @@ export function MenuListTable({
 
   return (
     <Table<MenuItem>
-      bordered
       columns={columns}
       dataSource={[...menus]}
       loading={loading}
@@ -152,8 +152,12 @@ export function MenuListTable({
       }}
       pagination={false}
       rowKey="id"
-      scroll={{ x: "max-content" }}
+      scroll={{
+        x: 1100,
+        y: "clamp(20rem, calc(100dvh - 19rem), 52rem)",
+      }}
       size="medium"
+      tableLayout="fixed"
     />
   );
 }
