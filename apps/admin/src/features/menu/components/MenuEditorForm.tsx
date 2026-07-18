@@ -1,5 +1,5 @@
 import type { MenuCategory, MenuItem, MenuVariantGroup } from "@warungmeng/domain";
-import { Button, Card, Flex, Form, Typography } from "antd";
+import { Button, Card, Flex, Form, Popconfirm, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,7 +20,9 @@ export interface MenuEditorFormProps {
   readonly mode: "create" | "edit";
   readonly sortOrder: number;
   readonly variantGroups: readonly MenuVariantGroup[];
+  readonly deleting: boolean;
   readonly onCancel: () => void;
+  readonly onDelete?: () => Promise<void>;
   readonly onSubmit: (input: MenuEditorInput) => Promise<void>;
 }
 
@@ -31,7 +33,9 @@ export function MenuEditorForm({
   mode,
   sortOrder,
   variantGroups,
+  deleting,
   onCancel,
+  onDelete,
   onSubmit,
 }: MenuEditorFormProps) {
   const { t } = useTranslation();
@@ -85,10 +89,24 @@ export function MenuEditorForm({
           <Typography.Text type="secondary">{t("menu.editor.description")}</Typography.Text>
         </div>
         <Flex gap="small">
+          {mode === "edit" && onDelete ? (
+            <Popconfirm
+              cancelText={t("menu.editor.actions.cancel")}
+              description={t("menu.editor.delete.description")}
+              okButtonProps={{ danger: true, loading: deleting }}
+              okText={t("menu.editor.actions.delete")}
+              onConfirm={onDelete}
+              title={t("menu.editor.delete.title", { name: menuName })}
+            >
+              <Button danger disabled={submitting || deleting} loading={deleting}>
+                {t("menu.editor.actions.delete")}
+              </Button>
+            </Popconfirm>
+          ) : null}
           <Button disabled={submitting} onClick={onCancel}>
             {t("menu.editor.actions.cancel")}
           </Button>
-          <Button htmlType="submit" loading={submitting} type="primary">
+          <Button disabled={deleting} htmlType="submit" loading={submitting} type="primary">
             {t("menu.editor.actions.save")}
           </Button>
         </Flex>

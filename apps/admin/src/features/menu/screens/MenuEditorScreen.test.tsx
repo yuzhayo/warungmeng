@@ -76,6 +76,31 @@ describe("MenuEditorScreen", () => {
     });
   });
 
+  it("deletes an existing menu after confirmation and returns to the list", async () => {
+    const repository = createWarungMengMockRepository();
+    const existing = (await repository.listMenus())[0];
+    if (!existing) throw new Error("Expected menu fixture");
+
+    renderEditor(`/menu/${existing.id}/edit`, "edit", repository);
+
+    expect(await screen.findByText("Ubah Menu")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
+    expect(await screen.findByText(`Hapus ${existing.name}?`)).toBeInTheDocument();
+
+    const deleteButtons = screen.getAllByRole("button", { name: "Hapus" });
+    fireEvent.click(deleteButtons.at(-1)!);
+
+    expect(await screen.findByText("Daftar menu")).toBeInTheDocument();
+    await expect(repository.getMenuById(existing.id)).resolves.toBeNull();
+  });
+
+  it("does not show the delete action while creating a menu", async () => {
+    renderEditor("/menu/new", "create");
+
+    expect(await screen.findByText("Buat Menu")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Hapus" })).not.toBeInTheDocument();
+  });
+
   it("shows an explicit not-found state", async () => {
     renderEditor("/menu/unknown/edit", "edit");
 

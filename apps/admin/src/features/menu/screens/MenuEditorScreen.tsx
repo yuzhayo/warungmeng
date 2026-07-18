@@ -47,6 +47,7 @@ export function MenuEditorScreen({
   const { menuId } = useParams<{ menuId: string }>();
   const [reloadVersion, setReloadVersion] = useState(0);
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,6 +123,24 @@ export function MenuEditorScreen({
     }
   }
 
+  async function handleDelete(): Promise<void> {
+    if (mode !== "edit" || !menuId) return;
+
+    setDeleting(true);
+    try {
+      const deleted = await repository.deleteMenu(menuId);
+      if (!deleted) {
+        throw new Error(`Menu ${menuId} was not found`);
+      }
+
+      void message.success(t("menu.editor.feedback.deleted"));
+      returnToList();
+    } catch {
+      setDeleting(false);
+      void message.error(t("menu.editor.feedback.deleteFailed"));
+    }
+  }
+
   if (loadState.status === "loading") {
     return (
       <Flex align="center" className="menu-editor__loading" justify="center">
@@ -171,10 +190,12 @@ export function MenuEditorScreen({
       <MenuEditorForm
         baseline={loadState.baseline}
         categories={loadState.categories}
+        deleting={deleting}
         initialValues={loadState.initialValues}
         key={`${mode}:${menuId ?? "new"}`}
         mode={mode}
         onCancel={returnToList}
+        onDelete={mode === "edit" ? handleDelete : undefined}
         onSubmit={handleSubmit}
         sortOrder={loadState.sortOrder}
         variantGroups={loadState.variantGroups}
