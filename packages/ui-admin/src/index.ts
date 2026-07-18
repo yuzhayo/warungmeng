@@ -1,6 +1,16 @@
 export { AdminUiProvider } from "./AdminUiProvider";
 export { adminTheme } from "./adminTheme";
-export { createAdminTheme } from "./theme/createAdminTheme";
+export { createAdminTheme, resolveAdminThemeValues } from "./theme/createAdminTheme";
+export {
+  DARK_READABLE_TEXT,
+  LIGHT_READABLE_TEXT,
+  MINIMUM_TEXT_CONTRAST,
+  getContrastRatio,
+  getReadableTextColor,
+  meetsMinimumTextContrast,
+  mixThemeColors,
+  resolveAdminTextColor,
+} from "./theme/themeContrast";
 export { DEFAULT_ADMIN_CUSTOM_THEME, DEFAULT_ADMIN_THEME_SETTINGS } from "./theme/themeDefaults";
 export {
   AdminThemeProvider,
@@ -23,4 +33,5 @@ export {
   type AdminThemeFontSize,
   type AdminThemeMode,
   type AdminThemeSettings,
+  type AdminThemeTextColorMode,
 } from "./theme/themeTypes";

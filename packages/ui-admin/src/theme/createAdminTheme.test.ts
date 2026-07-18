@@ -22,11 +22,13 @@ describe("createAdminTheme", () => {
 
   it("derives component colors and compact algorithm from custom seed tokens", () => {
     const settings: AdminThemeSettings = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       mode: "custom",
       custom: {
         colorPrimary: "#55ccaa",
         colorBgBase: "#101418",
+        textColorMode: "manual",
+        colorTextBase: "#ffddaa",
         fontSize: 18,
         density: "compact",
         borderRadius: 10,
@@ -38,6 +40,7 @@ describe("createAdminTheme", () => {
     expect(config.token).toMatchObject({
       colorPrimary: "#55ccaa",
       colorBgBase: "#101418",
+      colorTextBase: "#ffddaa",
       fontSize: 18,
       borderRadius: 10,
     });

@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "../components/layout/AdminShell";
 import { MenuListScreen } from "../features/menu/screens/MenuListScreen";
+import { MenuScreen } from "../features/menu/screens/MenuScreen";
+import { MenuVariantListScreen } from "../features/menu/screens/MenuVariantListScreen";
 import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
@@ -11,7 +13,10 @@ export function AppRoutes() {
     <Routes>
       <Route element={<AdminShell />}>
         <Route index element={<AdminHomeScreen />} />
-        <Route path="menu" element={<MenuListScreen />} />
+        <Route path="menu" element={<MenuScreen />}>
+          <Route index element={<MenuListScreen />} />
+          <Route path="variants" element={<MenuVariantListScreen />} />
+        </Route>
         <Route
           path="finance"
           element={

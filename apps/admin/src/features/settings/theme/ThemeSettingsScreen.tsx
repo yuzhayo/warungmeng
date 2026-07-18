@@ -8,6 +8,7 @@ import {
 import { Button, Col, Flex, Row, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ThemeContrastStatus } from "./ThemeContrastStatus";
 import { ThemeModeControl } from "./ThemeModeControl";
 import { ThemePreviewPlaceholder } from "./ThemePreviewPlaceholder";
 import { ThemeTokenEditor } from "./ThemeTokenEditor";
@@ -53,6 +54,7 @@ export function ThemeSettingsScreen() {
             onChange={handleCustomThemeChange}
             settings={draft.custom}
           />
+          <ThemeContrastStatus settings={draft} />
         </Flex>
       </Col>
 

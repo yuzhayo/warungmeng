@@ -17,11 +17,13 @@ function createMemoryStorage() {
 }
 
 const customSettings: AdminThemeSettings = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   mode: "custom",
   custom: {
     colorPrimary: "#2f9e8f",
     colorBgBase: "#101820",
+    textColorMode: "manual",
+    colorTextBase: "#f2eadf",
     fontSize: 18,
     density: "compact",
     borderRadius: 8,
@@ -47,7 +49,7 @@ describe("themeStorage", () => {
     expect(
       parseAdminThemeSettings({
         ...customSettings,
-        schemaVersion: 2,
+        schemaVersion: 3,
       }),
     ).toBeNull();
     expect(
@@ -62,6 +64,34 @@ describe("themeStorage", () => {
         custom: { ...customSettings.custom, borderRadius: 40 },
       }),
     ).toBeNull();
+  });
+
+  it("migrates schema version 1 without discarding the saved theme", () => {
+    const legacySettings = {
+      schemaVersion: 1,
+      mode: "custom",
+      custom: {
+        colorPrimary: "#2F9E8F",
+        colorBgBase: "#101820",
+        fontSize: 18,
+        density: "compact",
+        borderRadius: 8,
+      },
+    };
+
+    expect(parseAdminThemeSettings(legacySettings)).toEqual({
+      ...customSettings,
+      custom: {
+        ...customSettings.custom,
+        colorPrimary: "#2f9e8f",
+        textColorMode: "auto",
+        colorTextBase: "#f0ede7",
+      },
+    });
+
+    const storage = createMemoryStorage();
+    storage.setItem("warungmeng.admin.theme.v1", JSON.stringify(legacySettings));
+    expect(loadAdminThemeSettings(storage)).toEqual(parseAdminThemeSettings(legacySettings));
   });
 
   it("falls back safely when stored JSON is invalid", () => {

@@ -3,6 +3,7 @@ import type {
   AdminCustomThemeSettings,
   AdminThemeDensity,
   AdminThemeFontSize,
+  AdminThemeTextColorMode,
 } from "@warungmeng/ui-admin";
 import { Card, ColorPicker, Flex, InputNumber, Segmented, Typography } from "antd";
 import type { ReactNode } from "react";
@@ -66,6 +67,32 @@ export function ThemeTokenEditor({ disabled, settings, onChange }: ThemeTokenEdi
             showText
             value={settings.colorBgBase}
           />
+        </ThemeSettingRow>
+
+        <ThemeSettingRow
+          description={t("theme.custom.textColorDescription")}
+          label={t("theme.custom.textColor")}
+        >
+          <Flex align="center" gap="small" wrap>
+            <Segmented
+              aria-label={t("theme.custom.textColorModeLabel")}
+              disabled={disabled}
+              onChange={(value) => onChange({ textColorMode: value as AdminThemeTextColorMode })}
+              options={[
+                { label: t("theme.custom.textColor.auto"), value: "auto" },
+                { label: t("theme.custom.textColor.manual"), value: "manual" },
+              ]}
+              value={settings.textColorMode}
+            />
+            <ColorPicker
+              aria-label={t("theme.custom.textColorValue")}
+              disabled={disabled || settings.textColorMode === "auto"}
+              disabledAlpha
+              onChangeComplete={(color) => onChange({ colorTextBase: color.toHexString() })}
+              showText
+              value={settings.colorTextBase}
+            />
+          </Flex>
         </ThemeSettingRow>
 
         <ThemeSettingRow

@@ -23,6 +23,11 @@ describe("ThemeSettingsScreen", () => {
     expect(screen.getByRole("radio", { name: "Bawaan" })).toBeChecked();
     expect(screen.getByRole("spinbutton", { name: "Bentuk Sudut" })).toBeDisabled();
     expect(screen.getByRole("radio", { name: "14 px" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "Otomatis" })).toBeDisabled();
+    expect(screen.getByLabelText("Pilihan warna teks")).toHaveClass(
+      "ant-color-picker-trigger-disabled",
+    );
+    expect(screen.getByText("Keterbacaan Warna")).toBeInTheDocument();
     expect(
       screen.getByText("Area preview dashboard disiapkan untuk pengembangan berikutnya."),
     ).toBeInTheDocument();
@@ -37,7 +42,16 @@ describe("ThemeSettingsScreen", () => {
 
     expect(screen.getByRole("spinbutton", { name: "Bentuk Sudut" })).toBeEnabled();
     expect(screen.getByRole("radio", { name: "14 px" })).toBeEnabled();
+    expect(screen.getByRole("radio", { name: "Otomatis" })).toBeEnabled();
+    expect(screen.getByLabelText("Pilihan warna teks")).toHaveClass(
+      "ant-color-picker-trigger-disabled",
+    );
     expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Manual" }));
+    expect(screen.getByLabelText("Pilihan warna teks")).not.toHaveClass(
+      "ant-color-picker-trigger-disabled",
+    );
 
     await user.click(screen.getByRole("button", { name: "Batal" }));
     expect(screen.getByRole("radio", { name: "Bawaan" })).toBeChecked();

@@ -3,7 +3,6 @@ import type { MenuItem } from "@warungmeng/domain";
 import { Alert, App, Button } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TabbedScreenLayout } from "../../../components/layout/TabbedScreenLayout";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useMenuList } from "../application/useMenuList";
 import { MenuCategoryFilter } from "../components/MenuCategoryFilter";
@@ -37,18 +36,7 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
         : null;
 
   return (
-    <TabbedScreenLayout
-      activeTabKey="list"
-      className="menu-list-screen"
-      description={t("screen.menu.description")}
-      tabAriaLabel={t("menu.tabs.label")}
-      tabs={[
-        { key: "list", label: t("menu.tabs.list") },
-        { disabled: true, key: "variants", label: t("menu.tabs.variants") },
-      ]}
-      title={t("screen.menu.title")}
-      titleId="menu-list-title"
-    >
+    <>
       <MenuListToolbar
         allCount={menuList.allCount}
         availability={menuList.filters.availability}
@@ -105,6 +93,6 @@ export function MenuListScreen({ repository = menuCatalogRepository }: MenuListS
           />
         </div>
       </div>
-    </TabbedScreenLayout>
+    </>
   );
 }

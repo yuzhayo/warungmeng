@@ -26,4 +26,17 @@ describe("admin foundation", () => {
     );
     expect(screen.getByText("Pilihan Tema")).toBeInTheDocument();
   });
+
+  it("routes Menu through reusable tabs to the variant category list", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/menu/variants";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Pengaturan Menu" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Kategori Varian" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(await screen.findByText("EXTRA")).toBeInTheDocument();
+  });
 });

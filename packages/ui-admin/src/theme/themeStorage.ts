@@ -6,9 +6,10 @@ import {
   type AdminThemeFontSize,
   type AdminThemeMode,
   type AdminThemeSettings,
+  type AdminThemeTextColorMode,
 } from "./themeTypes";
 
-export const ADMIN_THEME_STORAGE_KEY = "warungmeng.admin.theme.v1";
+export const ADMIN_THEME_STORAGE_KEY = "warungmeng.admin.theme.v2";
 
 type ThemeStorage = Pick<Storage, "getItem" | "setItem">;
 
@@ -16,12 +17,20 @@ const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const FONT_SIZES: readonly AdminThemeFontSize[] = [14, 16, 18];
 const DENSITIES: readonly AdminThemeDensity[] = ["normal", "compact"];
 const MODES: readonly AdminThemeMode[] = ["default", "custom"];
+const TEXT_COLOR_MODES: readonly AdminThemeTextColorMode[] = ["auto", "manual"];
+const LEGACY_ADMIN_THEME_SCHEMA_VERSION = 1;
+const LEGACY_ADMIN_THEME_STORAGE_KEY = "warungmeng.admin.theme.v1";
+
+type LegacyAdminCustomThemeSettings = Omit<
+  AdminCustomThemeSettings,
+  "colorTextBase" | "textColorMode"
+>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isCustomThemeSettings(value: unknown): value is AdminCustomThemeSettings {
+function isLegacyCustomThemeSettings(value: unknown): value is LegacyAdminCustomThemeSettings {
   if (!isRecord(value)) return false;
 
   return (
@@ -38,21 +47,45 @@ function isCustomThemeSettings(value: unknown): value is AdminCustomThemeSetting
   );
 }
 
+function isCustomThemeSettings(value: unknown): value is AdminCustomThemeSettings {
+  if (!isLegacyCustomThemeSettings(value) || !isRecord(value)) return false;
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    TEXT_COLOR_MODES.includes(candidate.textColorMode as AdminThemeTextColorMode) &&
+    typeof candidate.colorTextBase === "string" &&
+    HEX_COLOR_PATTERN.test(candidate.colorTextBase)
+  );
+}
+
 export function parseAdminThemeSettings(value: unknown): AdminThemeSettings | null {
   if (!isRecord(value)) return null;
-  if (value.schemaVersion !== ADMIN_THEME_SCHEMA_VERSION) return null;
   if (!MODES.includes(value.mode as AdminThemeMode)) return null;
-  if (!isCustomThemeSettings(value.custom)) return null;
+
+  const isLegacy = value.schemaVersion === LEGACY_ADMIN_THEME_SCHEMA_VERSION;
+  if (!isLegacy && value.schemaVersion !== ADMIN_THEME_SCHEMA_VERSION) return null;
+  if (
+    isLegacy ? !isLegacyCustomThemeSettings(value.custom) : !isCustomThemeSettings(value.custom)
+  ) {
+    return null;
+  }
+
+  const custom = value.custom as LegacyAdminCustomThemeSettings &
+    Partial<Pick<AdminCustomThemeSettings, "colorTextBase" | "textColorMode">>;
 
   return {
     schemaVersion: ADMIN_THEME_SCHEMA_VERSION,
     mode: value.mode as AdminThemeMode,
     custom: {
-      colorPrimary: value.custom.colorPrimary.toLowerCase(),
-      colorBgBase: value.custom.colorBgBase.toLowerCase(),
-      fontSize: value.custom.fontSize,
-      density: value.custom.density,
-      borderRadius: value.custom.borderRadius,
+      colorPrimary: custom.colorPrimary.toLowerCase(),
+      colorBgBase: custom.colorBgBase.toLowerCase(),
+      textColorMode: custom.textColorMode ?? DEFAULT_ADMIN_THEME_SETTINGS.custom.textColorMode,
+      colorTextBase: (
+        custom.colorTextBase ?? DEFAULT_ADMIN_THEME_SETTINGS.custom.colorTextBase
+      ).toLowerCase(),
+      fontSize: custom.fontSize,
+      density: custom.density,
+      borderRadius: custom.borderRadius,
     },
   };
 }
@@ -61,7 +94,8 @@ export function loadAdminThemeSettings(storage: ThemeStorage | null): AdminTheme
   if (!storage) return DEFAULT_ADMIN_THEME_SETTINGS;
 
   try {
-    const storedValue = storage.getItem(ADMIN_THEME_STORAGE_KEY);
+    const storedValue =
+      storage.getItem(ADMIN_THEME_STORAGE_KEY) ?? storage.getItem(LEGACY_ADMIN_THEME_STORAGE_KEY);
     if (!storedValue) return DEFAULT_ADMIN_THEME_SETTINGS;
     return parseAdminThemeSettings(JSON.parse(storedValue)) ?? DEFAULT_ADMIN_THEME_SETTINGS;
   } catch {
