@@ -113,4 +113,74 @@ describe("MenuListScreen", () => {
       expect.arrayContaining([expect.objectContaining({ name: "Camilan", slug: "camilan" })]),
     );
   });
+
+  it("edits a category from the category rail", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderMenuList();
+    await screen.findByText("GADO-GADO");
+    const foodCategory = (await repository.listCategories()).find(
+      (category) => category.name === "Makanan",
+    );
+    expect(foodCategory).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Ubah Makanan" }));
+    const nameInput = screen.getByLabelText("Nama Kategori");
+    expect(nameInput).toHaveValue("Makanan");
+
+    await user.clear(nameInput);
+    await user.type(nameInput, "Menu Utama");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
+
+    expect(await screen.findByTitle(/Menu Utama \(\d+\)/)).toBeInTheDocument();
+    await expect(repository.getCategoryById(foodCategory!.id)).resolves.toMatchObject({
+      name: "Menu Utama",
+      slug: "menu-utama",
+    });
+  });
+
+  it("does not delete a category that is still used by menus", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderMenuList();
+    await screen.findByText("GADO-GADO");
+    const foodCategory = (await repository.listCategories()).find(
+      (category) => category.name === "Makanan",
+    );
+    expect(foodCategory).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Ubah Makanan" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
+
+    const deleteButtons = await screen.findAllByRole("button", { name: "Hapus" });
+    await user.click(deleteButtons.at(-1)!);
+
+    expect(await screen.findByText(/Kategori masih digunakan oleh \d+ menu/)).toBeInTheDocument();
+    await expect(repository.getCategoryById(foodCategory!.id)).resolves.not.toBeNull();
+    expect(screen.getByRole("dialog", { name: "Ubah Kategori" })).toBeInTheDocument();
+  });
+
+  it("deletes an unused category from the editor dialog", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderMenuList();
+    await screen.findByText("GADO-GADO");
+
+    await user.click(screen.getByRole("button", { name: /Buat Kategori/ }));
+    await user.type(screen.getByLabelText("Nama Kategori"), "Camilan");
+    await user.click(screen.getByRole("button", { name: /^Buat$/ }));
+    await screen.findByTitle("Camilan (0)");
+
+    const createdCategory = (await repository.listCategories()).find(
+      (category) => category.name === "Camilan",
+    );
+    expect(createdCategory).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Ubah Camilan" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
+    const deleteButtons = await screen.findAllByRole("button", { name: "Hapus" });
+    await user.click(deleteButtons.at(-1)!);
+
+    await waitFor(() => {
+      expect(screen.queryByTitle("Camilan (0)")).not.toBeInTheDocument();
+    });
+    await expect(repository.getCategoryById(createdCategory!.id)).resolves.toBeNull();
+  });
 });
