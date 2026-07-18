@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "../components/layout/AdminShell";
 import { MenuListScreen } from "../features/menu/screens/MenuListScreen";
 import { MenuScreen } from "../features/menu/screens/MenuScreen";
+import { VariantCategoryEditorScreen } from "../features/menu/screens/VariantCategoryEditorScreen";
 import { VariantListView } from "../features/menu/views/VariantListView";
 import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
@@ -16,6 +17,11 @@ export function AppRoutes() {
         <Route path="menu" element={<MenuScreen />}>
           <Route index element={<MenuListScreen />} />
           <Route path="variants" element={<VariantListView />} />
+          <Route path="variants/new" element={<VariantCategoryEditorScreen mode="create" />} />
+          <Route
+            path="variants/:variantGroupId/edit"
+            element={<VariantCategoryEditorScreen mode="edit" />}
+          />
         </Route>
         <Route
           path="finance"

@@ -1,0 +1,98 @@
+.variant-category-editor {
+  max-width: 78rem;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.variant-category-editor .ant-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-space-lg, 1.5rem);
+}
+
+.variant-category-editor .ant-typography {
+  margin-block: 0;
+}
+
+.variant-category-editor__loading {
+  min-height: 24rem;
+}
+
+.variant-category-editor__details {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  gap: var(--wm-space-lg, 1.5rem);
+}
+
+.variant-option-editor__header,
+.variant-option-editor__row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 2fr) minmax(10rem, 1fr) minmax(11rem, 1fr) auto;
+  align-items: start;
+  gap: var(--wm-space-md, 1rem);
+}
+
+.variant-option-editor__header {
+  padding: var(--wm-space-sm, 0.75rem) var(--wm-space-md, 1rem);
+  font-weight: 600;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  border-block-end: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.variant-option-editor__rows {
+  margin-block-end: var(--wm-space-md, 1rem);
+}
+
+.variant-option-editor__row {
+  padding: var(--wm-space-md, 1rem);
+  border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.variant-option-editor__row .ant-form-item {
+  margin-block-end: 0;
+}
+
+.variant-option-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-space-xs, 0.5rem);
+}
+
+.variant-selection-rules {
+  width: 100%;
+}
+
+.variant-selection-rules .ant-form-item {
+  margin-block-end: 0;
+}
+
+@media (max-width: 52rem) {
+  .variant-category-editor__details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .variant-option-editor__header {
+    display: none;
+  }
+
+  .variant-option-editor__row {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.7fr);
+  }
+
+  .variant-option-editor__row > :nth-child(4),
+  .variant-option-editor__actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 32rem) {
+  .variant-option-editor__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .variant-option-editor__row > :nth-child(4),
+  .variant-option-editor__actions {
+    grid-column: auto;
+  }
+}

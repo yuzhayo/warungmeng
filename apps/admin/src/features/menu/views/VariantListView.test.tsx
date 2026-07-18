@@ -4,14 +4,23 @@ import { createWarungMengMockRepository } from "@warungmeng/data";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
 import { AdminUiProvider } from "@warungmeng/ui-admin";
 import { describe, expect, it } from "vitest";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { VariantListView } from "./VariantListView";
+
+function LocationProbe() {
+  const location = useLocation();
+  return <output data-testid="current-location">{location.pathname}</output>;
+}
 
 function renderVariantList() {
   const repository = createWarungMengMockRepository();
   const result = render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
-        <VariantListView repository={repository} />
+        <MemoryRouter>
+          <VariantListView repository={repository} />
+          <LocationProbe />
+        </MemoryRouter>
       </AdminUiProvider>
     </WarungMengI18nProvider>,
   );
@@ -55,6 +64,24 @@ describe("VariantListView", () => {
     expect(allCategories).not.toBeNull();
     expect(allCategories).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByLabelText("Ubah EXTRA")).toBeInTheDocument();
+  });
+
+  it("navigates to the create category screen", async () => {
+    renderVariantList();
+    await screen.findByText("BUMBU 50ml");
+
+    fireEvent.click(screen.getByRole("button", { name: /Buat Kategori Varian/ }));
+    expect(screen.getByTestId("current-location")).toHaveTextContent("/menu/variants/new");
+  });
+
+  it("navigates to the selected category editor", async () => {
+    renderVariantList();
+    await screen.findByText("BUMBU 50ml");
+
+    fireEvent.click(screen.getByRole("button", { name: "Ubah EXTRA" }));
+    expect(screen.getByTestId("current-location")).toHaveTextContent(
+      "/menu/variants/3106667766346240/edit",
+    );
   });
 
   it("filters by option name and unavailable options", async () => {

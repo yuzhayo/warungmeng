@@ -1,8 +1,8 @@
 import type { MenuCatalogRepository } from "@warungmeng/data";
-import type { MenuVariantGroup } from "@warungmeng/domain";
-import { Alert, App, Button } from "antd";
+import { Alert, Button } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { menuCatalogRepository } from "../application/menuCatalogRepository";
 import { useVariantGroupList } from "../application/useVariantGroupList";
 import { CatalogSplitTableLayout } from "../components/CatalogSplitTableLayout";
@@ -14,18 +14,10 @@ export interface VariantListViewProps {
 }
 
 export function VariantListView({ repository = menuCatalogRepository }: VariantListViewProps) {
-  const { message } = App.useApp();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const variantList = useVariantGroupList(repository);
   const [categoryCollapsed, setCategoryCollapsed] = useState(false);
-
-  function showComingSoon(feature: string): void {
-    void message.info(t("menu.feedback.comingSoon", { feature }));
-  }
-
-  function handleEditCategory(group: MenuVariantGroup): void {
-    showComingSoon(t("variants.actions.edit", { name: group.name }));
-  }
 
   const errorMessage =
     variantList.error === "load"
@@ -40,7 +32,7 @@ export function VariantListView({ repository = menuCatalogRepository }: VariantL
         allCount={variantList.allCount}
         availability={variantList.filters.availability}
         onAvailabilityChange={variantList.setAvailability}
-        onCreate={() => showComingSoon(t("variants.actions.create"))}
+        onCreate={() => navigate("/menu/variants/new")}
         onSearchChange={variantList.setSearch}
         search={variantList.filters.search}
         unavailableCount={variantList.unavailableCount}
@@ -78,7 +70,7 @@ export function VariantListView({ repository = menuCatalogRepository }: VariantL
         onCollapsedChange={setCategoryCollapsed}
         onEditCategory={(category) => {
           const group = variantList.groups.find((item) => item.id === category.id);
-          if (group) handleEditCategory(group);
+          if (group) navigate(`/menu/variants/${encodeURIComponent(group.id)}/edit`);
         }}
         selectedCategoryId={variantList.filters.groupId}
       >
