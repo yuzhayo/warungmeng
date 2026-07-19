@@ -59,6 +59,15 @@ export default tseslint.config(
     },
   },
   {
+    files: ["tools/**/*.{ts,js}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2022,
+      },
+    },
+  },
+  {
     files: ["**/*.{test,spec}.{ts,tsx}"],
     languageOptions: {
       globals: {

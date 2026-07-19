@@ -32,3 +32,4 @@ CLAUDE.md
 .claude
 .mcp.json
 .playwright-mcp/
+.codex-claude-bridge/
