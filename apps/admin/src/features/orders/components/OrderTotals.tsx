@@ -11,6 +11,7 @@ export function OrderTotals({ totals }: { readonly totals: OrderTotalsValue }) {
     [t("orders.detail.discount"), -totals.discount.amount],
     [t("orders.detail.tax"), totals.tax.amount],
     [t("orders.detail.serviceCharge"), totals.serviceCharge.amount],
+    [t("orders.detail.rounding"), totals.rounding.amount],
   ] as const;
 
   return (

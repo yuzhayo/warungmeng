@@ -1,11 +1,13 @@
 import { transitionOrderStatus, type Order, type OrderStatus } from "@warungmeng/domain";
 import type {
+  CreateOrderInput,
   OrderListQuery,
   OrderRepository,
   OrderStatusUpdateResult,
 } from "../repositories/OrderRepository";
 
 export type OrderEventIdFactory = () => string;
+export type OrderIdFactory = () => string;
 export type OrderClock = () => string;
 
 function clone<TEntity>(value: TEntity): TEntity {
@@ -16,6 +18,10 @@ function defaultEventIdFactory(): string {
   return `order-event-${crypto.randomUUID()}`;
 }
 
+function defaultOrderIdFactory(): string {
+  return `order-${crypto.randomUUID()}`;
+}
+
 function defaultClock(): string {
   return new Date().toISOString();
 }
@@ -24,15 +30,18 @@ export class InMemoryOrderRepository implements OrderRepository {
   #orders: Order[];
   readonly #clock: OrderClock;
   readonly #eventIdFactory: OrderEventIdFactory;
+  readonly #orderIdFactory: OrderIdFactory;
 
   constructor(
     seed: readonly Order[] = [],
     clock: OrderClock = defaultClock,
     eventIdFactory: OrderEventIdFactory = defaultEventIdFactory,
+    orderIdFactory: OrderIdFactory = defaultOrderIdFactory,
   ) {
     this.#orders = seed.map((order) => clone(order));
     this.#clock = clock;
     this.#eventIdFactory = eventIdFactory;
+    this.#orderIdFactory = orderIdFactory;
   }
 
   async listOrders(query: OrderListQuery = {}): Promise<readonly Order[]> {
@@ -62,6 +71,12 @@ export class InMemoryOrderRepository implements OrderRepository {
   async getOrderById(id: string): Promise<Order | null> {
     const order = this.#orders.find((candidate) => candidate.id === id);
     return order ? clone(order) : null;
+  }
+
+  async createOrder(input: CreateOrderInput): Promise<Order> {
+    const order: Order = { ...clone(input), id: this.#orderIdFactory() };
+    this.#orders.push(order);
+    return clone(order);
   }
 
   async updateOrderStatus(id: string, nextStatus: OrderStatus): Promise<OrderStatusUpdateResult> {

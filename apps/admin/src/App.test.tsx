@@ -56,4 +56,14 @@ describe("admin foundation", () => {
     expect(screen.getByText("Ringkasan")).toBeInTheDocument();
     expect(screen.getByText("Riwayat Status")).toBeInTheDocument();
   });
+
+  it("routes POS Cashier inside the admin shell", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/pos";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "POS Kasir" })).toBeInTheDocument();
+    expect(screen.getByText("Sesi Kasir")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
+  });
 });

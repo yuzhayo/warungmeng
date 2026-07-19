@@ -156,6 +156,11 @@ export function OrderDetailScreen({ repository = orderRepository }: OrderDetailS
               children: <OrderPaymentStatusTag status={order.paymentStatus} />,
             },
             {
+              key: "paymentMethod",
+              label: t("orders.detail.paymentMethod"),
+              children: t(`orders.paymentMethod.${order.paymentMethod}`),
+            },
+            {
               key: "customer",
               label: t("orders.table.customer"),
               children: order.customer?.name || t("orders.customer.walkIn"),

@@ -10,6 +10,7 @@ import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScr
 import { BusinessHoursScreen } from "../features/settings/business-hours/screens/BusinessHoursScreen";
 import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
 import { OrderListScreen } from "../features/orders/screens/OrderListScreen";
+import { PosCashierScreen } from "../features/pos/screens/PosCashierScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -48,15 +49,7 @@ export function AppRoutes() {
           }
         />
         <Route path="calculator" element={<Navigate replace to="/inventory" />} />
-        <Route
-          path="pos"
-          element={
-            <AdminPlaceholderScreen
-              descriptionKey="screen.pos.description"
-              titleKey="screen.pos.title"
-            />
-          }
-        />
+        <Route path="pos" element={<PosCashierScreen />} />
         <Route path="orders" element={<OrderListScreen />} />
         <Route path="orders/:orderId" element={<OrderDetailScreen />} />
         <Route path="settings" element={<SettingsScreen />}>

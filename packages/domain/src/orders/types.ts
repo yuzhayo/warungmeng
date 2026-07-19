@@ -13,6 +13,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type OrderChannel = "pos" | "storefront" | "manual";
 export type OrderFulfillment = "dine-in" | "takeaway" | "delivery";
 export type OrderPaymentStatus = "unpaid" | "paid" | "refunded";
+export type OrderPaymentMethod = "cash" | "qris" | "card" | "unknown";
 
 export interface OrderCustomer {
   readonly name: string;
@@ -43,6 +44,7 @@ export interface OrderTotals {
   readonly discount: Money;
   readonly tax: Money;
   readonly serviceCharge: Money;
+  readonly rounding: Money;
   readonly total: Money;
 }
 
@@ -61,6 +63,7 @@ export interface Order {
   readonly channel: OrderChannel;
   readonly fulfillment: OrderFulfillment;
   readonly paymentStatus: OrderPaymentStatus;
+  readonly paymentMethod: OrderPaymentMethod;
   readonly status: OrderStatus;
   readonly customer: OrderCustomer | null;
   readonly items: readonly OrderItem[];

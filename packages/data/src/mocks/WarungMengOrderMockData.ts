@@ -45,6 +45,8 @@ function createOrderFixture(input: OrderFixtureInput): Order {
     channel: input.channel,
     fulfillment: input.fulfillment,
     paymentStatus: input.paymentStatus,
+    paymentMethod:
+      input.channel === "pos" ? "cash" : input.channel === "storefront" ? "qris" : "unknown",
     status: input.status,
     customer,
     items: [
@@ -64,6 +66,7 @@ function createOrderFixture(input: OrderFixtureInput): Order {
       discount: money(0),
       tax: money(tax),
       serviceCharge: money(0),
+      rounding: money(0),
       total: money(total),
     },
     customerNote: "",

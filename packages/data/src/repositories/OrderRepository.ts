@@ -1,5 +1,7 @@
 import type { Order, OrderChannel, OrderStatus } from "@warungmeng/domain";
 
+export type CreateOrderInput = Omit<Order, "id">;
+
 export interface OrderListQuery {
   readonly search?: string;
   readonly status?: OrderStatus;
@@ -17,5 +19,6 @@ export type OrderStatusUpdateResult =
 export interface OrderRepository {
   listOrders(query?: OrderListQuery): Promise<readonly Order[]>;
   getOrderById(id: string): Promise<Order | null>;
+  createOrder(input: CreateOrderInput): Promise<Order>;
   updateOrderStatus(id: string, nextStatus: OrderStatus): Promise<OrderStatusUpdateResult>;
 }

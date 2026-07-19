@@ -7,6 +7,7 @@ function createRepository(): InMemoryOrderRepository {
     WARUNG_MENG_ORDER_FIXTURES,
     () => "2026-07-19T14:00:00.000Z",
     () => "event-generated",
+    () => "order-generated",
   );
 }
 
@@ -43,6 +44,23 @@ describe("InMemoryOrderRepository", () => {
 
     await expect(repository.getOrderById("order-1008")).resolves.not.toMatchObject({
       customerNote: "Changed externally",
+    });
+  });
+
+  it("creates a new order and makes it available to subsequent queries", async () => {
+    const repository = createRepository();
+    const source = WARUNG_MENG_ORDER_FIXTURES[0];
+    expect(source).toBeDefined();
+    const { id: _ignored, ...input } = source!;
+
+    await expect(
+      repository.createOrder({ ...input, orderNumber: "POS-0001" }),
+    ).resolves.toMatchObject({
+      id: "order-generated",
+      orderNumber: "POS-0001",
+    });
+    await expect(repository.getOrderById("order-generated")).resolves.toMatchObject({
+      orderNumber: "POS-0001",
     });
   });
 

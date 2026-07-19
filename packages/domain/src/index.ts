@@ -3,3 +3,8 @@ export * from "./catalog/validation";
 export * from "./catalog/variantSelectionRule";
 export * from "./orders/types";
 export * from "./orders/transitions";
+export * from "./pos/types";
+export * from "./pos/session";
+export * from "./pos/pricing";
+export * from "./pos/cart";
+export * from "./pos/checkout";
