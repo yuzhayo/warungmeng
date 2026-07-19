@@ -17,7 +17,6 @@ export function SettingsScreen() {
     () => [
       { key: THEME_TAB_KEY, label: t("settings.tabs.theme") },
       {
-        disabled: true,
         key: BUSINESS_HOURS_TAB_KEY,
         label: t("settings.tabs.businessHours"),
       },

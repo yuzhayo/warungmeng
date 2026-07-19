@@ -1,0 +1,9 @@
+.outlet-detail {
+  min-height: 0;
+}
+
+.special-schedule-card {
+  padding: var(--wm-space-md, 1rem);
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: var(--wm-radius-md, 8px);
+}

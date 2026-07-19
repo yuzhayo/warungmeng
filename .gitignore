@@ -33,3 +33,4 @@ CLAUDE.md
 .mcp.json
 .playwright-mcp/
 .codex-claude-bridge/
+kill-ports.bat

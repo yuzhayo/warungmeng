@@ -20,10 +20,7 @@ describe("admin foundation", () => {
 
     expect(await screen.findByRole("heading", { name: "Pengaturan" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Tema" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "Jam Operasional" })).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
+    expect(screen.getByRole("tab", { name: "Jam Operasional" })).toBeInTheDocument();
     expect(screen.getByText("Pilihan Tema")).toBeInTheDocument();
   });
 

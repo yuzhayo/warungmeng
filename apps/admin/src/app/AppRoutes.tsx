@@ -7,6 +7,7 @@ import { VariantCategoryEditorScreen } from "../features/menu/screens/VariantCat
 import { VariantListView } from "../features/menu/views/VariantListView";
 import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
+import { BusinessHoursScreen } from "../features/settings/business-hours/screens/BusinessHoursScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -56,6 +57,7 @@ export function AppRoutes() {
         <Route path="settings" element={<SettingsScreen />}>
           <Route index element={<Navigate replace to="theme" />} />
           <Route path="theme" element={<ThemeSettingsScreen />} />
+          <Route path="business-hours" element={<BusinessHoursScreen />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate replace to="/" />} />
