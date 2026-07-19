@@ -6,6 +6,8 @@ describe("getSelectedNavigationKey", () => {
     ["/", "/"],
     ["/menu", "/menu"],
     ["/menu/new", "/menu"],
+    ["/inventory", "/inventory"],
+    ["/pos", "/pos"],
     ["/settings/theme", "/settings"],
     ["/unknown", "/"],
   ])("maps %s to %s", (pathname, expectedKey) => {

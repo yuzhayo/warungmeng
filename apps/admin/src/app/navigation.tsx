@@ -1,8 +1,9 @@
 import {
   AppstoreOutlined,
   BarChartOutlined,
-  CalculatorOutlined,
+  DatabaseOutlined,
   SettingOutlined,
+  ShopOutlined,
   ShoppingCartOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
@@ -32,9 +33,14 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     icon: <WalletOutlined aria-hidden />,
   },
   {
-    key: "/calculator",
-    labelKey: "navigation.calculator",
-    icon: <CalculatorOutlined aria-hidden />,
+    key: "/inventory",
+    labelKey: "navigation.inventory",
+    icon: <DatabaseOutlined aria-hidden />,
+  },
+  {
+    key: "/pos",
+    labelKey: "navigation.pos",
+    icon: <ShopOutlined aria-hidden />,
   },
   {
     key: "/orders",

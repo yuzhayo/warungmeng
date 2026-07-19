@@ -37,11 +37,21 @@ export function AppRoutes() {
           }
         />
         <Route
-          path="calculator"
+          path="inventory"
           element={
             <AdminPlaceholderScreen
-              descriptionKey="screen.calculator.description"
-              titleKey="screen.calculator.title"
+              descriptionKey="screen.inventory.description"
+              titleKey="screen.inventory.title"
+            />
+          }
+        />
+        <Route path="calculator" element={<Navigate replace to="/inventory" />} />
+        <Route
+          path="pos"
+          element={
+            <AdminPlaceholderScreen
+              descriptionKey="screen.pos.description"
+              titleKey="screen.pos.title"
             />
           }
         />
