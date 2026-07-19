@@ -9,6 +9,8 @@ import {
   isAllowedValidationCommand,
   normalizeAllowedPaths,
 } from "./policy.js";
+import { parseClaudeResult } from "./claudeStream.js";
+import { launchWatcherTerminal } from "./watcherLauncher.js";
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
@@ -216,14 +218,8 @@ async function finalizeRun(projectRoot, state, exitCode, stdout, stderr) {
       return;
     }
 
-    let parsedOutput = null;
-    try {
-      parsedOutput = JSON.parse(stdout);
-    } catch {
-      // Preserve raw output when Claude did not return a JSON envelope.
-    }
-    const resultText =
-      typeof parsedOutput?.result === "string" ? parsedOutput.result : stdout.trim();
+    const parsedOutput = parseClaudeResult(stdout);
+    const resultText = parsedOutput.resultText;
     const changedFiles = await getChangedFiles(projectRoot);
     const scopeViolations =
       state.mode === "write" ? findScopeViolations(changedFiles, state.allowedPaths) : [];
@@ -233,7 +229,7 @@ async function finalizeRun(projectRoot, state, exitCode, stdout, stderr) {
     await writeJson(path.join(runPath(projectRoot, state.runId), "result.json"), {
       exitCode,
       resultText,
-      sessionId: parsedOutput?.session_id ?? null,
+      sessionId: parsedOutput.sessionId,
       changedFiles,
       scopeViolations,
     });
@@ -290,7 +286,8 @@ async function launchClaude(projectRoot, state, prompt) {
   const args = [
     "--print",
     "--output-format",
-    "json",
+    "stream-json",
+    "--verbose",
     "--no-session-persistence",
     "--permission-mode",
     state.mode === "write" ? "acceptEdits" : "plan",
@@ -336,6 +333,10 @@ async function launchClaude(projectRoot, state, prompt) {
   try {
     state = await saveState(projectRoot, state, { pid: child.pid, status: "WORKER_RUNNING" });
     await recordEvent(projectRoot, state.runId, "worker_started", { pid: child.pid });
+    if (state.openWatcher) {
+      const watcherOpened = await launchWatcherTerminal(projectRoot, state.runId);
+      await recordEvent(projectRoot, state.runId, "watcher_requested", { watcherOpened });
+    }
     child.stdin.end(prompt);
     timeout = setTimeout(() => {
       void saveState(projectRoot, state, { status: "CANCELLING", error: "Worker timed out" });
@@ -387,6 +388,7 @@ export async function startRun(projectRoot, input) {
       attempt: 1,
       maxAttempts: input.maxAttempts ?? 3,
       timeoutSeconds: input.timeoutSeconds ?? 1_800,
+      openWatcher: input.openWatcher ?? true,
       allowedPaths,
       validationCommands,
       changedFiles: [],

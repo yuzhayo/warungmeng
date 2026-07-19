@@ -32,6 +32,7 @@ export function createBridgeServer(projectRoot = process.cwd()) {
         effort: z.enum(["low", "medium", "high", "xhigh", "max"]).default("high"),
         timeoutSeconds: z.number().int().min(30).max(3_600).default(1_800),
         maxAttempts: z.number().int().min(1).max(3).default(3),
+        openWatcher: z.boolean().default(true),
       },
       annotations: {
         readOnlyHint: false,

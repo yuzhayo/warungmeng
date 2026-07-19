@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bridge:start": "node tools/codex-claude-bridge/src/index.js",
+    "bridge:watch": "node tools/codex-claude-bridge/src/watch.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

@@ -11,6 +11,7 @@ Project-local MCP server that lets Codex delegate one bounded task to Claude CLI
 - A run has at most three attempts.
 - The bridge never commits, pushes, merges, deploys, installs dependencies, or discards changes.
 - Runtime prompts, logs, status, and diffs are stored in the ignored `.codex-claude-bridge/` directory.
+- On Windows, each run opens a visible Command Prompt watcher by default. Set `CLAUDE_BRIDGE_AUTO_WATCHER=false` to disable it.
 
 ## Project configuration
 
@@ -38,3 +39,9 @@ Restart Codex after changing MCP configuration. The project-local delegation wor
 - `claude_interrupt`: stop an active worker.
 
 Run the server directly with `npm run bridge:start`.
+
+To reopen a watcher manually:
+
+```powershell
+npm run bridge:watch -- <run-id>
+```
