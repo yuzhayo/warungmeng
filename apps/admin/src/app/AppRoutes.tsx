@@ -8,6 +8,8 @@ import { VariantListView } from "../features/menu/views/VariantListView";
 import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
 import { BusinessHoursScreen } from "../features/settings/business-hours/screens/BusinessHoursScreen";
+import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
+import { OrderListScreen } from "../features/orders/screens/OrderListScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -55,15 +57,8 @@ export function AppRoutes() {
             />
           }
         />
-        <Route
-          path="orders"
-          element={
-            <AdminPlaceholderScreen
-              descriptionKey="screen.orders.description"
-              titleKey="screen.orders.title"
-            />
-          }
-        />
+        <Route path="orders" element={<OrderListScreen />} />
+        <Route path="orders/:orderId" element={<OrderDetailScreen />} />
         <Route path="settings" element={<SettingsScreen />}>
           <Route index element={<Navigate replace to="theme" />} />
           <Route path="theme" element={<ThemeSettingsScreen />} />

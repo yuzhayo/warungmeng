@@ -36,4 +36,24 @@ describe("admin foundation", () => {
     );
     expect(await screen.findByText("BUMBU 50ml")).toBeInTheDocument();
   });
+
+  it("routes Order Management to the order list inside the admin shell", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/orders";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Manajemen Pesanan" })).toBeInTheDocument();
+    expect(await screen.findByText("WM-1008")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
+  });
+
+  it("routes a selected order to its detail screen", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/orders/order-1008";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "WM-1008" })).toBeInTheDocument();
+    expect(screen.getByText("Ringkasan")).toBeInTheDocument();
+    expect(screen.getByText("Riwayat Status")).toBeInTheDocument();
+  });
 });
