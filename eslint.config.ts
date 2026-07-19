@@ -11,6 +11,7 @@ export default tseslint.config(
       "**/coverage/**",
       "**/node_modules/**",
       ".agents/**",
+      ".claude/worktrees/**",
       ".codex/**",
       ".meng2/**",
     ],

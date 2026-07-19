@@ -11,6 +11,10 @@ import { BusinessHoursScreen } from "../features/settings/business-hours/screens
 import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
 import { OrderListScreen } from "../features/orders/screens/OrderListScreen";
 import { PosCashierScreen } from "../features/pos/screens/PosCashierScreen";
+import { InventoryScreen } from "../features/inventory/screens/InventoryScreen";
+import { InventoryMaterialsScreen } from "../features/inventory/screens/InventoryMaterialsScreen";
+import { InventoryMovementsScreen } from "../features/inventory/screens/InventoryMovementsScreen";
+import { InventoryHppScreen } from "../features/inventory/screens/InventoryHppScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -39,15 +43,11 @@ export function AppRoutes() {
             />
           }
         />
-        <Route
-          path="inventory"
-          element={
-            <AdminPlaceholderScreen
-              descriptionKey="screen.inventory.description"
-              titleKey="screen.inventory.title"
-            />
-          }
-        />
+        <Route path="inventory" element={<InventoryScreen />}>
+          <Route index element={<InventoryMaterialsScreen />} />
+          <Route path="movements" element={<InventoryMovementsScreen />} />
+          <Route path="hpp" element={<InventoryHppScreen />} />
+        </Route>
         <Route path="calculator" element={<Navigate replace to="/inventory" />} />
         <Route path="pos" element={<PosCashierScreen />} />
         <Route path="orders" element={<OrderListScreen />} />

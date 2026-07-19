@@ -66,4 +66,17 @@ describe("admin foundation", () => {
     expect(screen.getByText("Sesi Kasir")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
   });
+
+  it("routes Inventory through materials, movement, and HPP tabs", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/inventory/hpp";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Inventory" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Resep & HPP" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(await screen.findByText("GADO-GADO")).toBeInTheDocument();
+  });
 });

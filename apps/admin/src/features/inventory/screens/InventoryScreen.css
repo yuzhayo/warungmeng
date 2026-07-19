@@ -1,0 +1,76 @@
+.inventory-view {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--wm-space-md, 1rem);
+}
+
+.inventory-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-space-sm, 0.75rem);
+}
+
+.inventory-toolbar__search {
+  min-width: min(100%, 18rem);
+  flex: 1 1 20rem;
+}
+
+.inventory-toolbar__select {
+  min-width: 11rem;
+}
+
+.inventory-toolbar__action {
+  margin-inline-start: auto;
+}
+
+.inventory-table {
+  min-height: 0;
+  flex: 1;
+}
+
+.inventory-table__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.inventory-table__number {
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--wm-space-sm, 0.75rem);
+}
+
+.inventory-recipe-row {
+  display: grid;
+  grid-template-columns:
+    minmax(10rem, 2fr) minmax(6rem, 1fr) minmax(7rem, 1fr) minmax(6rem, 1fr)
+    auto;
+  align-items: start;
+  gap: var(--wm-space-sm, 0.75rem);
+}
+
+.inventory-recipe-row .ant-form-item {
+  margin-block-end: 0.75rem;
+}
+
+@media (max-width: 48rem) {
+  .inventory-toolbar > *,
+  .inventory-toolbar__search,
+  .inventory-toolbar__select,
+  .inventory-toolbar__action {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .inventory-form-row,
+  .inventory-recipe-row {
+    grid-template-columns: 1fr;
+  }
+}

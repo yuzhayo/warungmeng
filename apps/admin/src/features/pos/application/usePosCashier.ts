@@ -1,4 +1,4 @@
-import type { OrderRepository } from "@warungmeng/data";
+import type { InventoryRepository, OrderRepository } from "@warungmeng/data";
 import {
   addPosCartItem,
   calculatePosChange,
@@ -26,6 +26,11 @@ export interface PosCashierRuntime {
   readonly id: () => string;
 }
 
+export interface PosCheckoutResult {
+  readonly receipt: PosReceipt;
+  readonly inventorySyncError: boolean;
+}
+
 const DEFAULT_RUNTIME: PosCashierRuntime = {
   now: () => new Date(),
   id: () => crypto.randomUUID(),
@@ -35,6 +40,7 @@ export function usePosCashier(
   repository: OrderRepository,
   initialOutlet: PosOutlet,
   runtime: PosCashierRuntime = DEFAULT_RUNTIME,
+  inventory?: InventoryRepository,
 ) {
   const [session, setSession] = useState(() => createClosedPosSession(initialOutlet));
   const [selectedOutlet, setSelectedOutlet] = useState(initialOutlet);
@@ -43,6 +49,7 @@ export function usePosCashier(
   const [checkout, setCheckout] = useState<PosCheckoutDraft>(DEFAULT_POS_CHECKOUT);
   const [processing, setProcessing] = useState(false);
   const [receipt, setReceipt] = useState<PosReceipt | null>(null);
+  const [inventorySyncError, setInventorySyncError] = useState(false);
   const sequenceRef = useRef(1);
   const totals = useMemo(
     () => calculatePosTotals(items, checkout.pricing),
@@ -95,7 +102,7 @@ export function usePosCashier(
     }));
   }
 
-  async function completeCheckout(): Promise<PosReceipt | null> {
+  async function completeCheckout(): Promise<PosCheckoutResult | null> {
     if (session.status !== "open" || items.length === 0) return null;
     if (
       checkout.paymentMethod === "cash" &&
@@ -105,6 +112,7 @@ export function usePosCashier(
     }
 
     setProcessing(true);
+    setInventorySyncError(false);
     try {
       const now = runtime.now();
       const orderNumber = createPosOrderNumber(now, sequenceRef.current);
@@ -118,6 +126,13 @@ export function usePosCashier(
         eventId: `order-event-${runtime.id()}`,
       });
       const order = await repository.createOrder(input);
+      let inventorySyncFailed = false;
+      try {
+        await inventory?.consumeOrder(order);
+      } catch {
+        inventorySyncFailed = true;
+        setInventorySyncError(true);
+      }
       sequenceRef.current += 1;
       const cashReceived =
         checkout.paymentMethod === "cash" ? checkout.cashReceived : totals.total.amount;
@@ -136,7 +151,7 @@ export function usePosCashier(
       setReceipt(nextReceipt);
       setItems([]);
       setCheckout(DEFAULT_POS_CHECKOUT);
-      return nextReceipt;
+      return { receipt: nextReceipt, inventorySyncError: inventorySyncFailed };
     } finally {
       setProcessing(false);
     }
@@ -151,6 +166,7 @@ export function usePosCashier(
     totals,
     processing,
     receipt,
+    inventorySyncError,
     setOpeningBalance,
     selectOutlet,
     startSession,

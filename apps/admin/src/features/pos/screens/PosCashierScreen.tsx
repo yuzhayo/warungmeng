@@ -1,10 +1,11 @@
-import type { MenuCatalogRepository, OrderRepository } from "@warungmeng/data";
+import type { InventoryRepository, MenuCatalogRepository, OrderRepository } from "@warungmeng/data";
 import type { MenuItem, PosCartItem } from "@warungmeng/domain";
 import { Alert, App as AntApp, Button, Spin } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { menuCatalogRepository } from "../../menu/application/menuCatalogRepository";
 import { orderRepository } from "../../orders/application/orderRepository";
+import { inventoryRepository } from "../../inventory/application/inventoryRepository";
 import { POS_OUTLETS } from "../application/posFixtures";
 import { usePosCashier } from "../application/usePosCashier";
 import { usePosCatalog } from "../application/usePosCatalog";
@@ -19,6 +20,7 @@ import "./PosCashierScreen.css";
 interface PosCashierScreenProps {
   readonly catalogRepository?: MenuCatalogRepository;
   readonly orders?: OrderRepository;
+  readonly inventory?: InventoryRepository;
 }
 
 interface ActiveConfiguration {
@@ -29,11 +31,12 @@ interface ActiveConfiguration {
 export function PosCashierScreen({
   catalogRepository = menuCatalogRepository,
   orders = orderRepository,
+  inventory = inventoryRepository,
 }: PosCashierScreenProps) {
   const { t } = useTranslation();
   const { message, modal } = AntApp.useApp();
   const catalog = usePosCatalog(catalogRepository);
-  const cashier = usePosCashier(orders, POS_OUTLETS[0]!);
+  const cashier = usePosCashier(orders, POS_OUTLETS[0]!, undefined, inventory);
   const [activeConfiguration, setActiveConfiguration] = useState<ActiveConfiguration | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const sessionOpen = cashier.session.status === "open";
@@ -71,10 +74,13 @@ export function PosCashierScreen({
 
   async function handleCompleteCheckout(): Promise<void> {
     try {
-      const receipt = await cashier.completeCheckout();
-      if (!receipt) return;
+      const result = await cashier.completeCheckout();
+      if (!result) return;
       setCheckoutOpen(false);
       void message.success(t("pos.feedback.orderCreated"));
+      if (result.inventorySyncError) {
+        void message.warning(t("pos.feedback.inventorySyncFailed"));
+      }
     } catch {
       void message.error(t("pos.checkout.failed"));
     }

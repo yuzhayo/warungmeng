@@ -4,3 +4,6 @@ export * from "./repositories/MenuCatalogRepository";
 export * from "./repositories/OrderRepository";
 export * from "./mocks/InMemoryOrderRepository";
 export * from "./mocks/WarungMengOrderMockData";
+export * from "./repositories/InventoryRepository";
+export * from "./mocks/InMemoryInventoryRepository";
+export * from "./mocks/WarungMengInventoryMockData";

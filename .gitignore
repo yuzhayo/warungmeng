@@ -34,3 +34,4 @@ CLAUDE.md
 .playwright-mcp/
 .codex-claude-bridge/
 kill-ports.bat
+temp
