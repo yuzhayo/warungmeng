@@ -17,6 +17,7 @@ interface FinanceTransactionToolbarProps {
   readonly onChange: (query: FinanceTransactionQuery) => void;
   readonly onCreate: (direction: FinanceDirection) => void;
   readonly onReset: () => void;
+  readonly variant?: "transactions" | "expenses";
 }
 
 function categoryLabelKey(id: string): TranslationKey {
@@ -28,10 +29,15 @@ export function FinanceTransactionToolbar({
   onChange,
   onCreate,
   onReset,
+  variant = "transactions",
 }: FinanceTransactionToolbarProps) {
   const { t } = useTranslation();
+  const expenseMode = variant === "expenses";
   const rangeValue: [Dayjs, Dayjs] | null =
     query.dateFrom && query.dateTo ? [dayjs(query.dateFrom), dayjs(query.dateTo)] : null;
+  const categories = expenseMode
+    ? FINANCE_CATEGORIES.filter((category) => category.direction === "outflow")
+    : FINANCE_CATEGORIES;
 
   return (
     <div className="finance-transaction-toolbar">
@@ -43,33 +49,37 @@ export function FinanceTransactionToolbar({
         prefix={<SearchOutlined />}
         value={query.search ?? ""}
       />
-      <DatePicker.RangePicker
-        aria-label={t("finance.filters.dateRange")}
-        onChange={(range) =>
-          onChange({
-            ...query,
-            dateFrom: range?.[0]?.format("YYYY-MM-DD"),
-            dateTo: range?.[1]?.format("YYYY-MM-DD"),
-          })
-        }
-        value={rangeValue}
-      />
-      <Select
-        allowClear
-        aria-label={t("finance.filters.direction")}
-        onChange={(direction) => onChange({ ...query, direction })}
-        options={(["inflow", "outflow"] as const).map((direction) => ({
-          value: direction,
-          label: t(`finance.direction.${direction}` as TranslationKey),
-        }))}
-        placeholder={t("finance.filters.direction")}
-        value={query.direction}
-      />
+      {expenseMode ? null : (
+        <>
+          <DatePicker.RangePicker
+            aria-label={t("finance.filters.dateRange")}
+            onChange={(range) =>
+              onChange({
+                ...query,
+                dateFrom: range?.[0]?.format("YYYY-MM-DD"),
+                dateTo: range?.[1]?.format("YYYY-MM-DD"),
+              })
+            }
+            value={rangeValue}
+          />
+          <Select
+            allowClear
+            aria-label={t("finance.filters.direction")}
+            onChange={(direction) => onChange({ ...query, direction })}
+            options={(["inflow", "outflow"] as const).map((direction) => ({
+              value: direction,
+              label: t(`finance.direction.${direction}` as TranslationKey),
+            }))}
+            placeholder={t("finance.filters.direction")}
+            value={query.direction}
+          />
+        </>
+      )}
       <Select
         allowClear
         aria-label={t("finance.filters.category")}
         onChange={(categoryId) => onChange({ ...query, categoryId })}
-        options={FINANCE_CATEGORIES.map((category) => ({
+        options={categories.map((category) => ({
           value: category.id,
           label: t(categoryLabelKey(category.id)),
         }))}
@@ -114,9 +124,11 @@ export function FinanceTransactionToolbar({
         {t("finance.actions.reset")}
       </Button>
       <div className="finance-transaction-toolbar__actions">
-        <Button icon={<PlusOutlined />} onClick={() => onCreate("inflow")}>
-          {t("finance.actions.addIncome")}
-        </Button>
+        {expenseMode ? null : (
+          <Button icon={<PlusOutlined />} onClick={() => onCreate("inflow")}>
+            {t("finance.actions.addIncome")}
+          </Button>
+        )}
         <Button icon={<PlusOutlined />} onClick={() => onCreate("outflow")} type="primary">
           {t("finance.actions.addExpense")}
         </Button>

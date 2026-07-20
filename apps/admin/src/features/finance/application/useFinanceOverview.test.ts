@@ -46,6 +46,22 @@ describe("finance overview view model", () => {
       categoryId: "ingredients",
       total: { amount: 185_000, currency: "IDR" },
     });
+    expect(
+      viewModel.expenseCategories.reduce((total, category) => total + category.total.amount, 0),
+    ).toBe(viewModel.summary.totalOutflow.amount);
     expect(source).toEqual(snapshot);
+  });
+
+  it("keeps an expense query restricted to valid outflows", () => {
+    const viewModel = buildFinanceOverviewViewModel(
+      [...WARUNG_MENG_FINANCE_FIXTURES, createAutomaticSale()],
+      { direction: "outflow" },
+    );
+
+    expect(viewModel.transactions.length).toBeGreaterThan(0);
+    expect(viewModel.transactions.every((transaction) => transaction.direction === "outflow")).toBe(
+      true,
+    );
+    expect(viewModel.summary.totalInflow.amount).toBe(0);
   });
 });

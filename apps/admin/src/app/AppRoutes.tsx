@@ -16,9 +16,10 @@ import { InventoryMaterialsScreen } from "../features/inventory/screens/Inventor
 import { InventoryMovementsScreen } from "../features/inventory/screens/InventoryMovementsScreen";
 import { InventoryHppScreen } from "../features/inventory/screens/InventoryHppScreen";
 import { FinanceScreen } from "../features/finance/screens/FinanceScreen";
+import { FinanceExpenseScreen } from "../features/finance/screens/FinanceExpenseScreen";
+import { FinanceOverviewScreen } from "../features/finance/screens/FinanceOverviewScreen";
 import { FinanceTransactionListScreen } from "../features/finance/screens/FinanceTransactionListScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
-import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
 export function AppRoutes() {
   return (
@@ -38,25 +39,9 @@ export function AppRoutes() {
         </Route>
         <Route path="finance" element={<FinanceScreen />}>
           <Route index element={<Navigate replace to="overview" />} />
-          <Route
-            path="overview"
-            element={
-              <AdminPlaceholderScreen
-                descriptionKey="finance.overview.description"
-                titleKey="finance.overview.title"
-              />
-            }
-          />
+          <Route path="overview" element={<FinanceOverviewScreen />} />
           <Route path="transactions" element={<FinanceTransactionListScreen />} />
-          <Route
-            path="expenses"
-            element={
-              <AdminPlaceholderScreen
-                descriptionKey="finance.expenses.description"
-                titleKey="finance.expenses.title"
-              />
-            }
-          />
+          <Route path="expenses" element={<FinanceExpenseScreen />} />
         </Route>
         <Route path="inventory" element={<InventoryScreen />}>
           <Route index element={<InventoryMaterialsScreen />} />

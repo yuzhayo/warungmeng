@@ -14,19 +14,21 @@ import { FinanceTransactionStatusTag } from "./FinanceTransactionStatusTag";
 interface FinanceTransactionTableProps {
   readonly loading: boolean;
   readonly transactions: readonly FinanceTransaction[];
-  readonly mutatingId: string | null;
-  readonly onEdit: (transaction: FinanceTransaction) => void;
-  readonly onOpenOrder: (orderId: string) => void;
-  readonly onVoid: (transaction: FinanceTransaction) => Promise<void>;
+  readonly mutatingId?: string | null;
+  readonly onEdit?: (transaction: FinanceTransaction) => void;
+  readonly onOpenOrder?: (orderId: string) => void;
+  readonly onVoid?: (transaction: FinanceTransaction) => Promise<void>;
+  readonly showActions?: boolean;
 }
 
 export function FinanceTransactionTable({
   loading,
   transactions,
-  mutatingId,
+  mutatingId = null,
   onEdit,
   onOpenOrder,
   onVoid,
+  showActions = true,
 }: FinanceTransactionTableProps) {
   const { t } = useTranslation();
   const { regionalFormat } = useLocaleSettings();
@@ -118,57 +120,68 @@ export function FinanceTransactionTable({
       width: "8rem",
       render: (_, transaction) => <FinanceTransactionStatusTag status={transaction.status} />,
     },
-    {
-      align: "center",
-      fixed: "right",
-      key: "actions",
-      title: t("finance.table.actions"),
-      width: "7rem",
-      render: (_, transaction) => {
-        if (transaction.source === "automatic") {
-          return transaction.sourceReference ? (
-            <Button
-              aria-label={t("finance.actions.openOrder", {
-                reference: transaction.referenceNumber,
-              })}
-              icon={<EyeOutlined />}
-              onClick={() => onOpenOrder(transaction.sourceReference!)}
-              type="text"
-            />
-          ) : null;
-        }
-        if (transaction.status === "voided") return "—";
-        return (
-          <Space size="small">
-            <Button
-              aria-label={t("finance.actions.edit", { description: transaction.description })}
-              disabled={mutatingId === transaction.id}
-              icon={<EditOutlined />}
-              onClick={() => onEdit(transaction)}
-              type="text"
-            />
-            <Popconfirm
-              cancelText={t("finance.actions.cancel")}
-              description={t("finance.actions.voidDescription")}
-              okButtonProps={{ danger: true }}
-              okText={t("finance.actions.void")}
-              onConfirm={() => onVoid(transaction)}
-              title={t("finance.actions.voidConfirm")}
-            >
-              <Button
-                aria-label={t("finance.actions.voidFor", {
-                  description: transaction.description,
-                })}
-                danger
-                icon={<DeleteOutlined />}
-                loading={mutatingId === transaction.id}
-                type="text"
-              />
-            </Popconfirm>
-          </Space>
-        );
-      },
-    },
+    ...(showActions
+      ? [
+          {
+            align: "center" as const,
+            fixed: "right" as const,
+            key: "actions",
+            title: t("finance.table.actions"),
+            width: "7rem",
+            render: (_: unknown, transaction: FinanceTransaction) => {
+              if (transaction.source === "automatic") {
+                return transaction.sourceReference && onOpenOrder ? (
+                  <Button
+                    aria-label={t("finance.actions.openOrder", {
+                      reference: transaction.referenceNumber,
+                    })}
+                    icon={<EyeOutlined />}
+                    onClick={() => onOpenOrder(transaction.sourceReference!)}
+                    type="text"
+                  />
+                ) : null;
+              }
+              if (transaction.status === "voided") return "—";
+              if (!onEdit && !onVoid) return "—";
+              return (
+                <Space size="small">
+                  {onEdit ? (
+                    <Button
+                      aria-label={t("finance.actions.edit", {
+                        description: transaction.description,
+                      })}
+                      disabled={mutatingId === transaction.id}
+                      icon={<EditOutlined />}
+                      onClick={() => onEdit(transaction)}
+                      type="text"
+                    />
+                  ) : null}
+                  {onVoid ? (
+                    <Popconfirm
+                      cancelText={t("finance.actions.cancel")}
+                      description={t("finance.actions.voidDescription")}
+                      okButtonProps={{ danger: true }}
+                      okText={t("finance.actions.void")}
+                      onConfirm={() => onVoid(transaction)}
+                      title={t("finance.actions.voidConfirm")}
+                    >
+                      <Button
+                        aria-label={t("finance.actions.voidFor", {
+                          description: transaction.description,
+                        })}
+                        danger
+                        icon={<DeleteOutlined />}
+                        loading={mutatingId === transaction.id}
+                        type="text"
+                      />
+                    </Popconfirm>
+                  ) : null}
+                </Space>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
