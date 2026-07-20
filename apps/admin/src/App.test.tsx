@@ -9,7 +9,7 @@ describe("admin foundation", () => {
     render(<App />);
 
     expect(screen.getByText("WARUNG MENG")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Performa Outlet" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Dashboard & Laporan" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
   });
 

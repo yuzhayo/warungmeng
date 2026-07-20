@@ -1,0 +1,49 @@
+.dashboard-screen {
+  min-width: 0;
+}
+
+.dashboard-period-control {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-space-sm, 0.75rem);
+  min-width: 0;
+}
+
+.dashboard-period-control > .ant-segmented {
+  flex: 1 1 36rem;
+  min-width: 0;
+}
+
+.dashboard-period-control > .ant-picker {
+  flex: 0 1 18rem;
+}
+
+.dashboard-state-stack,
+.dashboard-overview {
+  width: 100%;
+}
+
+.dashboard-kpi-card {
+  height: 100%;
+}
+
+.dashboard-kpi-card .ant-statistic-content {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 56rem) {
+  .dashboard-period-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-period-control > .ant-segmented,
+  .dashboard-period-control > .ant-picker {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .dashboard-period-control .ant-segmented-group {
+    overflow-x: auto;
+  }
+}

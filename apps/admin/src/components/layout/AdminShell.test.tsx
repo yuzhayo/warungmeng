@@ -74,7 +74,7 @@ describe("AdminShell", () => {
     expect(
       await screen.findByRole("navigation", { name: "Primary navigation" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: "Outlet Performance" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Dashboard & Reports" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Language: English" })).toBeInTheDocument();
     expect(screen.getByLabelText(/\d{2}\/\d{2}\/\d{4}/)).toBeInTheDocument();
   });

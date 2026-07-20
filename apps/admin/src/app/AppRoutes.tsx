@@ -19,13 +19,18 @@ import { FinanceScreen } from "../features/finance/screens/FinanceScreen";
 import { FinanceExpenseScreen } from "../features/finance/screens/FinanceExpenseScreen";
 import { FinanceOverviewScreen } from "../features/finance/screens/FinanceOverviewScreen";
 import { FinanceTransactionListScreen } from "../features/finance/screens/FinanceTransactionListScreen";
-import { AdminHomeScreen } from "../screens/AdminHomeScreen";
+import { DashboardScreen } from "../features/dashboard/screens/DashboardScreen";
+import { DashboardOverviewScreen } from "../features/dashboard/screens/DashboardOverviewScreen";
+import { DashboardReportsPlaceholder } from "../features/dashboard/screens/DashboardReportsPlaceholder";
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<AdminShell />}>
-        <Route index element={<AdminHomeScreen />} />
+        <Route element={<DashboardScreen />}>
+          <Route index element={<DashboardOverviewScreen />} />
+          <Route path="reports" element={<DashboardReportsPlaceholder />} />
+        </Route>
         <Route path="menu" element={<MenuScreen />}>
           <Route index element={<MenuListScreen />} />
           <Route path="new" element={<MenuEditorScreen mode="create" />} />
