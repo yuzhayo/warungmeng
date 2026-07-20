@@ -47,9 +47,9 @@ export interface BusinessHoursState {
 
 export type InternalTab = "regular" | "special";
 
-export function useBusinessHours() {
+export function useBusinessHours(initialOutlets: readonly OutletSchedule[] = INITIAL_OUTLETS) {
   const [outlets, setOutlets] = useState<OutletSchedule[]>(() =>
-    [...INITIAL_OUTLETS].map((o) => cloneOutletSchedule(o)),
+    [...initialOutlets].map((o) => cloneOutletSchedule(o)),
   );
   const [selectedOutletId, setSelectedOutletId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState<EditMode>("readonly");

@@ -1,10 +1,18 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useBusinessHours } from "./useBusinessHours";
+import { OUTLET_WM } from "./businessHoursFixtures";
+import type { OutletSchedule } from "./businessHoursModel";
+
+const TEST_OUTLET_2: OutletSchedule = {
+  ...OUTLET_WM,
+  id: "test-outlet-2",
+  name: "TEST OUTLET 2",
+};
 
 describe("useBusinessHours hook — dirty outlet switch", () => {
   it("selecting another outlet while dirty opens confirmation with correct pending intent", () => {
-    const { result } = renderHook(() => useBusinessHours());
+    const { result } = renderHook(() => useBusinessHours([OUTLET_WM, TEST_OUTLET_2]));
 
     // Select first outlet
     act(() => {
@@ -27,13 +35,13 @@ describe("useBusinessHours hook — dirty outlet switch", () => {
 
     // Attempt to switch to second outlet while dirty
     act(() => {
-      result.current.selectOutlet("wm-2");
+      result.current.selectOutlet("test-outlet-2");
     });
 
     // Should open confirmation, not switch immediately
     expect(result.current.state.confirmOpen).toBe(true);
     expect(result.current.state.dirtyIntent).toBe("outlet");
-    expect(result.current.state.pendingOutletSwitch).toEqual({ outletId: "wm-2" });
+    expect(result.current.state.pendingOutletSwitch).toEqual({ outletId: "test-outlet-2" });
     // Draft is preserved
     expect(result.current.state.draft).not.toBeNull();
     // Still on first outlet in editing mode
@@ -44,13 +52,13 @@ describe("useBusinessHours hook — dirty outlet switch", () => {
       result.current.confirmDiscard();
     });
     expect(result.current.state.confirmOpen).toBe(false);
-    expect(result.current.state.selectedOutletId).toBe("wm-2");
+    expect(result.current.state.selectedOutletId).toBe("test-outlet-2");
     expect(result.current.state.editMode).toBe("readonly");
     expect(result.current.state.draft).toBeNull();
   });
 
   it("keeping editing preserves current outlet and draft", () => {
-    const { result } = renderHook(() => useBusinessHours());
+    const { result } = renderHook(() => useBusinessHours([OUTLET_WM, TEST_OUTLET_2]));
 
     act(() => {
       result.current.selectOutlet("wm-1");
@@ -63,7 +71,7 @@ describe("useBusinessHours hook — dirty outlet switch", () => {
     });
 
     act(() => {
-      result.current.selectOutlet("wm-2");
+      result.current.selectOutlet("test-outlet-2");
     });
     expect(result.current.state.confirmOpen).toBe(true);
 

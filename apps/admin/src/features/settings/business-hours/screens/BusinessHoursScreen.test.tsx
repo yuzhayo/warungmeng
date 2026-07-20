@@ -23,11 +23,11 @@ function renderBusinessHours(initialPath = "/settings/business-hours") {
 }
 
 describe("BusinessHoursScreen", () => {
-  it("shows exactly two outlet cards", () => {
+  it("shows only the active Warung Meng outlet", () => {
     renderBusinessHours();
     expect(screen.getByText("WARUNG MENG")).toBeInTheDocument();
-    expect(screen.getByText("WARUNG MENG 2")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /WARUNG MENG/ })).toHaveLength(2);
+    expect(screen.queryByText("WARUNG MENG 2")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /WARUNG MENG/ })).toHaveLength(1);
   });
 
   it("selects an outlet by click and enters detail view", async () => {
@@ -40,10 +40,10 @@ describe("BusinessHoursScreen", () => {
 
   it("selects an outlet by keyboard Enter", async () => {
     renderBusinessHours();
-    const outletCard = screen.getByRole("button", { name: "WARUNG MENG 2" });
+    const outletCard = screen.getByRole("button", { name: "WARUNG MENG" });
     outletCard.focus();
     fireEvent.keyDown(outletCard, { key: "Enter" });
-    expect(await screen.findByText("WARUNG MENG 2")).toBeInTheDocument();
+    expect(await screen.findByText("WARUNG MENG")).toBeInTheDocument();
   });
 
   it("starts in read-only state with edit button only", async () => {
