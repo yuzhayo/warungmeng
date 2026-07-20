@@ -35,3 +35,6 @@ CLAUDE.md
 .codex-claude-bridge/
 kill-ports.bat
 temp
+apps/storefront/PLAN.md
+apps/storefront/TECHNICAL-DEBT.md
+memory/progress-checkpoint-juli-2026.md
