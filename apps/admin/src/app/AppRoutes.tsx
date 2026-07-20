@@ -21,7 +21,7 @@ import { FinanceOverviewScreen } from "../features/finance/screens/FinanceOvervi
 import { FinanceTransactionListScreen } from "../features/finance/screens/FinanceTransactionListScreen";
 import { DashboardScreen } from "../features/dashboard/screens/DashboardScreen";
 import { DashboardOverviewScreen } from "../features/dashboard/screens/DashboardOverviewScreen";
-import { DashboardReportsPlaceholder } from "../features/dashboard/screens/DashboardReportsPlaceholder";
+import { DashboardReportsScreen } from "../features/dashboard/screens/DashboardReportsScreen";
 
 export function AppRoutes() {
   return (
@@ -29,7 +29,7 @@ export function AppRoutes() {
       <Route element={<AdminShell />}>
         <Route element={<DashboardScreen />}>
           <Route index element={<DashboardOverviewScreen />} />
-          <Route path="reports" element={<DashboardReportsPlaceholder />} />
+          <Route path="reports" element={<DashboardReportsScreen />} />
         </Route>
         <Route path="menu" element={<MenuScreen />}>
           <Route index element={<MenuListScreen />} />

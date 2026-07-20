@@ -19,7 +19,7 @@ import type { DashboardReportRepositories } from "../application/dashboardReport
 import type { DashboardReportDataResult } from "../application/useDashboardReportData";
 import { DashboardDataState } from "../components/DashboardDataState";
 import { DashboardOverviewScreen } from "./DashboardOverviewScreen";
-import { DashboardReportsPlaceholder } from "./DashboardReportsPlaceholder";
+import { DashboardReportsScreen } from "./DashboardReportsScreen";
 import { DashboardScreen } from "./DashboardScreen";
 
 const clock = () => new Date("2026-07-20T12:00:00.000Z");
@@ -60,7 +60,7 @@ function renderDashboard(
           <Routes>
             <Route element={<DashboardScreen clock={clock} repositories={repositories()} />}>
               <Route index element={<DashboardOverviewScreen />} />
-              <Route path="reports" element={<DashboardReportsPlaceholder />} />
+              <Route path="reports" element={<DashboardReportsScreen />} />
             </Route>
           </Routes>
           <LocationProbe />
@@ -97,7 +97,7 @@ describe("DashboardScreen", () => {
     expect(screen.getAllByText(/Rp\s*[\d.]+/).length).toBeGreaterThan(0);
   });
 
-  it("preserves the period query when navigating to the reports placeholder", async () => {
+  it("preserves the period query when navigating to the reports screen", async () => {
     const user = userEvent.setup();
     renderDashboard();
     await screen.findByText("Omzet Bersih");
@@ -107,7 +107,7 @@ describe("DashboardScreen", () => {
     expect(screen.getByTestId("location")).toHaveTextContent(
       "/reports?period=last-30-days&source=test",
     );
-    expect(screen.getByText(/Phase 4/)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Penjualan" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("renders English labels without changing the Rupiah regional format", async () => {
@@ -115,6 +115,46 @@ describe("DashboardScreen", () => {
 
     expect(screen.getByRole("heading", { name: "Dashboard & Reports" })).toBeInTheDocument();
     expect(await screen.findByText("Net Revenue")).toBeInTheDocument();
+    expect(screen.getAllByText(/Rp\s*[\d.]+/).length).toBeGreaterThan(0);
+  });
+
+  it("switches report views while preserving period, custom dates, and unrelated queries", async () => {
+    const user = userEvent.setup();
+    renderDashboard(
+      "/reports?period=custom&from=2026-07-01&to=2026-07-20&source=test&report=sales",
+    );
+
+    await screen.findByRole("tab", { name: "Penjualan" });
+    await user.click(screen.getByRole("tab", { name: "Performa Menu" }));
+
+    expect(screen.getByTestId("location")).toHaveTextContent(
+      "/reports?period=custom&from=2026-07-01&to=2026-07-20&source=test&report=menu",
+    );
+    expect(screen.getByRole("tab", { name: "Performa Menu" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(await screen.findByText("Performa Kategori")).toBeInTheDocument();
+  });
+
+  it("falls back to the sales report for an unknown report query", async () => {
+    renderDashboard("/reports?period=last-30-days&report=unknown");
+
+    expect(await screen.findByRole("tab", { name: "Penjualan" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(await screen.findByText("Penjualan Harian")).toBeInTheDocument();
+  });
+
+  it("renders English report labels while retaining Indonesian Rupiah separators", async () => {
+    renderDashboard("/reports?period=last-30-days&report=menu", "en");
+
+    expect(await screen.findByRole("tab", { name: "Menu Performance" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(await screen.findByText("Category Performance")).toBeInTheDocument();
     expect(screen.getAllByText(/Rp\s*[\d.]+/).length).toBeGreaterThan(0);
   });
 });

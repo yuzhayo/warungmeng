@@ -1,0 +1,36 @@
+.dashboard-reports,
+.dashboard-report-view {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-report-grid .ant-card,
+.dashboard-report-table-card {
+  height: 100%;
+}
+
+.dashboard-report-table-card .ant-card-body {
+  min-width: 0;
+  padding: 0;
+}
+
+.dashboard-report-table-card .ant-card-head {
+  min-width: 0;
+}
+
+.dashboard-report-name {
+  display: block;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-report-money,
+.dashboard-report-number {
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-report-money {
+  white-space: nowrap;
+}
