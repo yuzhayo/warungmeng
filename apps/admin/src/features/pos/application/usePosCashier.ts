@@ -1,10 +1,10 @@
 import type { InventoryRepository, OrderRepository } from "@warungmeng/data";
 import {
   addPosCartItem,
+  calculateExpectedPosCash,
   calculatePosChange,
   calculatePosTotals,
   closePosSession,
-  createClosedPosSession,
   createPosOrder,
   isPosPaymentSufficient,
   openPosSession,
@@ -17,9 +17,11 @@ import {
   type PosCheckoutDraft,
   type PosOutlet,
   type PosReceipt,
+  type PosSessionCloseRecord,
 } from "@warungmeng/domain";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { DEFAULT_POS_CHECKOUT, createPosOrderNumber } from "./posCashierModel";
+import { posSessionStore, type PosSessionStore } from "./posSessionStore";
 
 export interface PosCashierRuntime {
   readonly now: () => Date;
@@ -38,40 +40,58 @@ const DEFAULT_RUNTIME: PosCashierRuntime = {
 
 export function usePosCashier(
   repository: OrderRepository,
-  initialOutlet: PosOutlet,
   runtime: PosCashierRuntime = DEFAULT_RUNTIME,
   inventory?: InventoryRepository,
+  store: PosSessionStore = posSessionStore,
 ) {
-  const [session, setSession] = useState(() => createClosedPosSession(initialOutlet));
-  const [selectedOutlet, setSelectedOutlet] = useState(initialOutlet);
-  const [openingBalance, setOpeningBalance] = useState(0);
-  const [items, setItems] = useState<readonly PosCartItem[]>([]);
-  const [checkout, setCheckout] = useState<PosCheckoutDraft>(DEFAULT_POS_CHECKOUT);
-  const [processing, setProcessing] = useState(false);
-  const [receipt, setReceipt] = useState<PosReceipt | null>(null);
-  const [inventorySyncError, setInventorySyncError] = useState(false);
-  const sequenceRef = useRef(1);
+  const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
+  const { session, selectedOutlet, openingBalance, items, checkout, receipt, inventorySyncError } =
+    state;
   const totals = useMemo(
     () => calculatePosTotals(items, checkout.pricing),
     [checkout.pricing, items],
   );
 
   function selectOutlet(outlet: PosOutlet): void {
-    if (session.status === "closed") {
-      setSelectedOutlet(outlet);
-      setSession(createClosedPosSession(outlet));
-    }
+    store.update((current) =>
+      current.session.status === "closed" ? { ...current, selectedOutlet: outlet } : current,
+    );
   }
 
   function startSession(): void {
-    setSession(openPosSession(selectedOutlet, openingBalance, runtime.now().toISOString()));
+    const openedAt = runtime.now().toISOString();
+    store.update((current) => ({
+      ...current,
+      session: openPosSession(current.selectedOutlet, current.openingBalance, openedAt),
+      cashSales: 0,
+      lastCloseRecord: null,
+    }));
   }
 
-  function endSession(): void {
-    setSession((current) => closePosSession(current));
-    setItems([]);
-    setCheckout(DEFAULT_POS_CHECKOUT);
-    setReceipt(null);
+  function endSession(actualCash: number): PosSessionCloseRecord | null {
+    let record: PosSessionCloseRecord | null = null;
+    const closedAt = runtime.now().toISOString();
+    store.update((current) => {
+      if (current.session.status !== "open") return current;
+      const outcome = closePosSession(current.session, {
+        actualCash,
+        cashSales: current.cashSales,
+        closedAt,
+      });
+      record = outcome.record;
+      return {
+        ...current,
+        session: outcome.session,
+        openingBalance: 0,
+        items: [],
+        checkout: DEFAULT_POS_CHECKOUT,
+        receipt: null,
+        inventorySyncError: false,
+        cashSales: 0,
+        lastCloseRecord: outcome.record,
+      };
+    });
+    return record;
   }
 
   function addMenu(
@@ -88,40 +108,44 @@ export function usePosCashier(
       quantity: 1,
       note,
     };
-    setItems((current) => addPosCartItem(current, item));
+    store.update((current) => ({ ...current, items: addPosCartItem(current.items, item) }));
   }
 
   function updateCheckout(patch: Partial<PosCheckoutDraft>): void {
-    setCheckout((current) => ({ ...current, ...patch }));
+    store.update((current) => ({ ...current, checkout: { ...current.checkout, ...patch } }));
   }
 
   function updatePricing(patch: Partial<PosCheckoutDraft["pricing"]>): void {
-    setCheckout((current) => ({
+    store.update((current) => ({
       ...current,
-      pricing: { ...current.pricing, ...patch },
+      checkout: {
+        ...current.checkout,
+        pricing: { ...current.checkout.pricing, ...patch },
+      },
     }));
   }
 
   async function completeCheckout(): Promise<PosCheckoutResult | null> {
-    if (session.status !== "open" || items.length === 0) return null;
+    const current = store.getState();
+    if (current.session.status !== "open" || current.items.length === 0) return null;
+    const currentTotals = calculatePosTotals(current.items, current.checkout.pricing);
     if (
-      checkout.paymentMethod === "cash" &&
-      !isPosPaymentSufficient(totals.total.amount, checkout.cashReceived)
+      current.checkout.paymentMethod === "cash" &&
+      !isPosPaymentSufficient(currentTotals.total.amount, current.checkout.cashReceived)
     ) {
       return null;
     }
 
-    setProcessing(true);
-    setInventorySyncError(false);
+    store.update((state) => ({ ...state, processing: true }));
     try {
       const now = runtime.now();
-      const orderNumber = createPosOrderNumber(now, sequenceRef.current);
+      const orderNumber = createPosOrderNumber(now, current.sequence);
       const input = createPosOrder({
         orderNumber,
-        session,
-        items,
-        checkout,
-        totals,
+        session: current.session,
+        items: current.items,
+        checkout: current.checkout,
+        totals: currentTotals,
         occurredAt: now.toISOString(),
         eventId: `order-event-${runtime.id()}`,
       });
@@ -131,15 +155,15 @@ export function usePosCashier(
         await inventory?.consumeOrder(order);
       } catch {
         inventorySyncFailed = true;
-        setInventorySyncError(true);
       }
-      sequenceRef.current += 1;
       const cashReceived =
-        checkout.paymentMethod === "cash" ? checkout.cashReceived : totals.total.amount;
+        current.checkout.paymentMethod === "cash"
+          ? current.checkout.cashReceived
+          : currentTotals.total.amount;
       const nextReceipt: PosReceipt = {
         orderId: order.id,
         orderNumber: order.orderNumber,
-        paymentMethod: checkout.paymentMethod,
+        paymentMethod: current.checkout.paymentMethod,
         totals: order.totals,
         cashReceived: { amount: cashReceived, currency: "IDR" },
         change: {
@@ -148,12 +172,21 @@ export function usePosCashier(
         },
         issuedAt: now.toISOString(),
       };
-      setReceipt(nextReceipt);
-      setItems([]);
-      setCheckout(DEFAULT_POS_CHECKOUT);
+      store.update((state) => ({
+        ...state,
+        sequence: state.sequence + 1,
+        cashSales:
+          current.checkout.paymentMethod === "cash"
+            ? state.cashSales + order.totals.total.amount
+            : state.cashSales,
+        receipt: nextReceipt,
+        items: [],
+        checkout: DEFAULT_POS_CHECKOUT,
+        inventorySyncError: inventorySyncFailed,
+      }));
       return { receipt: nextReceipt, inventorySyncError: inventorySyncFailed };
     } finally {
-      setProcessing(false);
+      store.update((state) => ({ ...state, processing: false }));
     }
   }
 
@@ -164,28 +197,45 @@ export function usePosCashier(
     items,
     checkout,
     totals,
-    processing,
+    processing: state.processing,
     receipt,
     inventorySyncError,
-    setOpeningBalance,
+    cashSales: state.cashSales,
+    expectedCash:
+      session.status === "open"
+        ? calculateExpectedPosCash(session.openingBalance.amount, state.cashSales)
+        : 0,
+    lastCloseRecord: state.lastCloseRecord,
+    setOpeningBalance: (value: number) =>
+      store.update((current) =>
+        current.session.status === "closed" ? { ...current, openingBalance: value } : current,
+      ),
     selectOutlet,
     startSession,
     endSession,
     addMenu,
     setItemQuantity: (itemId: string, quantity: number) =>
-      setItems((current) => setPosCartItemQuantity(current, itemId, quantity)),
-    removeItem: (itemId: string) => setItems((current) => removePosCartItem(current, itemId)),
+      store.update((current) => ({
+        ...current,
+        items: setPosCartItemQuantity(current.items, itemId, quantity),
+      })),
+    removeItem: (itemId: string) =>
+      store.update((current) => ({
+        ...current,
+        items: removePosCartItem(current.items, itemId),
+      })),
     updateItem: (
       itemId: string,
       variantSelections: readonly OrderVariantSelection[],
       note: string,
     ) =>
-      setItems((current) =>
-        updatePosCartItemConfiguration(current, itemId, variantSelections, note),
-      ),
+      store.update((current) => ({
+        ...current,
+        items: updatePosCartItemConfiguration(current.items, itemId, variantSelections, note),
+      })),
     updateCheckout,
     updatePricing,
     completeCheckout,
-    dismissReceipt: () => setReceipt(null),
+    dismissReceipt: () => store.update((current) => ({ ...current, receipt: null })),
   };
 }

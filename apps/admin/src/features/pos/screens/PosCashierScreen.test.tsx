@@ -4,18 +4,24 @@ import { AdminUiProvider } from "@warungmeng/ui-admin";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import { PosSessionStore } from "../application/posSessionStore";
 import { PosCashierScreen } from "./PosCashierScreen";
 
 function renderPos() {
   const orders = new InMemoryOrderRepository();
+  const sessionStore = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
   const result = render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
-        <PosCashierScreen catalogRepository={createWarungMengMockRepository()} orders={orders} />
+        <PosCashierScreen
+          catalogRepository={createWarungMengMockRepository()}
+          orders={orders}
+          sessionStore={sessionStore}
+        />
       </AdminUiProvider>
     </WarungMengI18nProvider>,
   );
-  return { orders, ...result };
+  return { orders, sessionStore, ...result };
 }
 
 describe("PosCashierScreen", () => {
@@ -42,5 +48,25 @@ describe("PosCashierScreen", () => {
     await waitFor(async () => {
       await expect(orders.listOrders({ channel: "pos" })).resolves.toHaveLength(1);
     });
+  });
+
+  it("closes the session through the cash reconciliation dialog", async () => {
+    const user = userEvent.setup();
+    renderPos();
+    await screen.findByRole("button", { name: "Tambah ES TELER CREAMY" });
+
+    await user.click(screen.getByRole("button", { name: "Buka Sesi" }));
+    await user.click(screen.getByRole("button", { name: "Tutup Sesi" }));
+
+    expect(await screen.findByText("Rekonsiliasi Tutup Sesi")).toBeInTheDocument();
+    expect(screen.getByText("Kas Seharusnya")).toBeInTheDocument();
+    const actualCash = screen.getByRole("spinbutton", { name: "Kas Aktual" });
+    await user.clear(actualCash);
+    await user.type(actualCash, "5000");
+    expect(await screen.findByText("Kas aktual lebih besar dari kas seharusnya.")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Konfirmasi Tutup Sesi" }));
+    expect(await screen.findByText("Sesi kasir ditutup.")).toBeInTheDocument();
+    expect(screen.getByText(/selisih -?Rp/)).toBeInTheDocument();
   });
 });

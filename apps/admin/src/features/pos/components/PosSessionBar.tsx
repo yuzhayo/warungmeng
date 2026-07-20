@@ -1,5 +1,5 @@
-import type { PosOutlet, PosSession } from "@warungmeng/domain";
-import { formatTime, useLocaleSettings } from "@warungmeng/i18n";
+import type { PosOutlet, PosSession, PosSessionCloseRecord } from "@warungmeng/domain";
+import { formatRupiah, formatTime, useLocaleSettings } from "@warungmeng/i18n";
 import { Button, Card, Flex, InputNumber, Select, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +8,7 @@ interface PosSessionBarProps {
   readonly session: PosSession;
   readonly selectedOutlet: PosOutlet;
   readonly openingBalance: number;
+  readonly lastCloseRecord: PosSessionCloseRecord | null;
   readonly onOutletChange: (outlet: PosOutlet) => void;
   readonly onOpeningBalanceChange: (value: number) => void;
   readonly onStart: () => void;
@@ -19,6 +20,7 @@ export function PosSessionBar({
   session,
   selectedOutlet,
   openingBalance,
+  lastCloseRecord,
   onOutletChange,
   onOpeningBalanceChange,
   onStart,
@@ -75,6 +77,16 @@ export function PosSessionBar({
           </>
         )}
       </Flex>
+      {!isOpen && lastCloseRecord ? (
+        <Typography.Paragraph className="pos-session__last-close" type="secondary">
+          {t("pos.session.lastCloseSummary", {
+            time: formatTime(new Date(lastCloseRecord.closedAt), { regionalFormat }),
+            expected: formatRupiah(lastCloseRecord.expectedCash.amount, { regionalFormat }),
+            actual: formatRupiah(lastCloseRecord.actualCash.amount, { regionalFormat }),
+            variance: formatRupiah(lastCloseRecord.variance.amount, { regionalFormat }),
+          })}
+        </Typography.Paragraph>
+      ) : null}
     </Card>
   );
 }

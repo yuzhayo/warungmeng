@@ -108,10 +108,24 @@
 
 .pos-cart__totals,
 .pos-checkout__summary,
-.pos-receipt__summary {
+.pos-receipt__summary,
+.pos-session-close__summary {
   display: grid;
   gap: var(--wm-space-xs) var(--wm-space-md);
   grid-template-columns: 1fr auto;
+}
+
+.pos-session-close {
+  display: grid;
+  gap: var(--wm-space-md);
+}
+
+.pos-session-close .ant-input-number {
+  width: 100%;
+}
+
+.pos-session__last-close {
+  margin: var(--wm-space-sm) 0 0;
 }
 
 .pos-variant-modal,

@@ -7,6 +7,7 @@ import { menuCatalogRepository } from "../../menu/application/menuCatalogReposit
 import { orderRepository } from "../../orders/application/orderRepository";
 import { inventoryRepository } from "../../inventory/application/inventoryRepository";
 import { POS_OUTLETS } from "../application/posFixtures";
+import type { PosSessionStore } from "../application/posSessionStore";
 import { usePosCashier } from "../application/usePosCashier";
 import { usePosCatalog } from "../application/usePosCatalog";
 import { PosCart } from "../components/PosCart";
@@ -14,6 +15,7 @@ import { PosCatalog } from "../components/PosCatalog";
 import { PosCheckoutModal } from "../components/PosCheckoutModal";
 import { PosReceiptModal } from "../components/PosReceiptModal";
 import { PosSessionBar } from "../components/PosSessionBar";
+import { PosSessionCloseModal } from "../components/PosSessionCloseModal";
 import { PosVariantModal } from "../components/PosVariantModal";
 import "./PosCashierScreen.css";
 
@@ -21,6 +23,7 @@ interface PosCashierScreenProps {
   readonly catalogRepository?: MenuCatalogRepository;
   readonly orders?: OrderRepository;
   readonly inventory?: InventoryRepository;
+  readonly sessionStore?: PosSessionStore;
 }
 
 interface ActiveConfiguration {
@@ -32,13 +35,15 @@ export function PosCashierScreen({
   catalogRepository = menuCatalogRepository,
   orders = orderRepository,
   inventory = inventoryRepository,
+  sessionStore,
 }: PosCashierScreenProps) {
   const { t } = useTranslation();
-  const { message, modal } = AntApp.useApp();
+  const { message } = AntApp.useApp();
   const catalog = usePosCatalog(catalogRepository);
-  const cashier = usePosCashier(orders, POS_OUTLETS[0]!, undefined, inventory);
+  const cashier = usePosCashier(orders, undefined, inventory, sessionStore);
   const [activeConfiguration, setActiveConfiguration] = useState<ActiveConfiguration | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [closeSessionOpen, setCloseSessionOpen] = useState(false);
   const sessionOpen = cashier.session.status === "open";
 
   function handleSelectMenu(menu: MenuItem): void {
@@ -55,21 +60,10 @@ export function PosCashierScreen({
     if (menu) setActiveConfiguration({ menu, item });
   }
 
-  function handleCloseSession(): void {
-    const close = () => {
-      cashier.endSession();
-      void message.success(t("pos.feedback.sessionClosed"));
-    };
-    if (cashier.items.length === 0) {
-      close();
-      return;
-    }
-    modal.confirm({
-      title: t("pos.session.confirmCloseTitle"),
-      content: t("pos.session.confirmCloseDescription"),
-      okButtonProps: { danger: true },
-      onOk: close,
-    });
+  function handleConfirmCloseSession(actualCash: number): void {
+    const record = cashier.endSession(actualCash);
+    setCloseSessionOpen(false);
+    if (record) void message.success(t("pos.feedback.sessionClosed"));
   }
 
   async function handleCompleteCheckout(): Promise<void> {
@@ -96,7 +90,8 @@ export function PosCashierScreen({
       </header>
 
       <PosSessionBar
-        onEnd={handleCloseSession}
+        lastCloseRecord={cashier.lastCloseRecord}
+        onEnd={() => setCloseSessionOpen(true)}
         onOpeningBalanceChange={cashier.setOpeningBalance}
         onOutletChange={cashier.selectOutlet}
         onStart={() => {
@@ -170,6 +165,15 @@ export function PosCashierScreen({
           onPricingChange={cashier.updatePricing}
           processing={cashier.processing}
           totals={cashier.totals}
+        />
+      ) : null}
+      {closeSessionOpen && cashier.session.status === "open" ? (
+        <PosSessionCloseModal
+          cartItemCount={cashier.items.length}
+          cashSales={cashier.cashSales}
+          onCancel={() => setCloseSessionOpen(false)}
+          onConfirm={handleConfirmCloseSession}
+          session={cashier.session}
         />
       ) : null}
       {cashier.receipt ? (

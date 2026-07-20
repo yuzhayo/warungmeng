@@ -25,6 +25,28 @@ export type PosSession =
       readonly openedAt: string;
     };
 
+export interface PosSessionCloseInput {
+  readonly actualCash: number;
+  readonly cashSales: number;
+  readonly closedAt: string;
+}
+
+export interface PosSessionCloseRecord {
+  readonly outlet: PosOutlet;
+  readonly openedAt: string;
+  readonly closedAt: string;
+  readonly openingBalance: Money;
+  readonly cashSales: Money;
+  readonly expectedCash: Money;
+  readonly actualCash: Money;
+  readonly variance: Money;
+}
+
+export interface PosSessionCloseOutcome {
+  readonly session: PosSession;
+  readonly record: PosSessionCloseRecord;
+}
+
 export interface PosCartItem {
   readonly id: string;
   readonly menuItemId: string;
