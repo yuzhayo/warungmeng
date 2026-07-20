@@ -1,8 +1,10 @@
+import { ApplicationProviders } from "./app/ApplicationProviders";
+import { AppRoutes } from "./app/AppRoutes";
+
 export default function App() {
   return (
-    <div>
-      <h1>Warung Meng</h1>
-      <p>Storefront</p>
-    </div>
+    <ApplicationProviders>
+      <AppRoutes />
+    </ApplicationProviders>
   );
 }
