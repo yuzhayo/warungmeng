@@ -16,6 +16,7 @@ import { InventoryMaterialsScreen } from "../features/inventory/screens/Inventor
 import { InventoryMovementsScreen } from "../features/inventory/screens/InventoryMovementsScreen";
 import { InventoryHppScreen } from "../features/inventory/screens/InventoryHppScreen";
 import { FinanceScreen } from "../features/finance/screens/FinanceScreen";
+import { FinanceTransactionListScreen } from "../features/finance/screens/FinanceTransactionListScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -46,15 +47,7 @@ export function AppRoutes() {
               />
             }
           />
-          <Route
-            path="transactions"
-            element={
-              <AdminPlaceholderScreen
-                descriptionKey="finance.transactions.description"
-                titleKey="finance.transactions.title"
-              />
-            }
-          />
+          <Route path="transactions" element={<FinanceTransactionListScreen />} />
           <Route
             path="expenses"
             element={
