@@ -6,6 +6,7 @@ describe("getSelectedNavigationKey", () => {
     ["/", "/"],
     ["/menu", "/menu"],
     ["/menu/new", "/menu"],
+    ["/finance/expenses", "/finance"],
     ["/inventory", "/inventory"],
     ["/pos", "/pos"],
     ["/settings/theme", "/settings"],

@@ -79,4 +79,24 @@ describe("admin foundation", () => {
     );
     expect(await screen.findByText("GADO-GADO")).toBeInTheDocument();
   });
+
+  it("redirects Finance to its route-driven overview tab", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/finance";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Keuangan" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Ringkasan" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeInTheDocument();
+  });
+
+  it("selects the Finance transaction tab from the child route", async () => {
+    window.localStorage.clear();
+    window.location.hash = "#/finance/transactions";
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Keuangan" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Transaksi" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("heading", { name: "Daftar Transaksi" })).toBeInTheDocument();
+  });
 });

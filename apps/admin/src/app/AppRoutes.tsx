@@ -15,6 +15,7 @@ import { InventoryScreen } from "../features/inventory/screens/InventoryScreen";
 import { InventoryMaterialsScreen } from "../features/inventory/screens/InventoryMaterialsScreen";
 import { InventoryMovementsScreen } from "../features/inventory/screens/InventoryMovementsScreen";
 import { InventoryHppScreen } from "../features/inventory/screens/InventoryHppScreen";
+import { FinanceScreen } from "../features/finance/screens/FinanceScreen";
 import { AdminHomeScreen } from "../screens/AdminHomeScreen";
 import { AdminPlaceholderScreen } from "../screens/AdminPlaceholderScreen";
 
@@ -34,15 +35,36 @@ export function AppRoutes() {
             element={<VariantCategoryEditorScreen mode="edit" />}
           />
         </Route>
-        <Route
-          path="finance"
-          element={
-            <AdminPlaceholderScreen
-              descriptionKey="screen.finance.description"
-              titleKey="screen.finance.title"
-            />
-          }
-        />
+        <Route path="finance" element={<FinanceScreen />}>
+          <Route index element={<Navigate replace to="overview" />} />
+          <Route
+            path="overview"
+            element={
+              <AdminPlaceholderScreen
+                descriptionKey="finance.overview.description"
+                titleKey="finance.overview.title"
+              />
+            }
+          />
+          <Route
+            path="transactions"
+            element={
+              <AdminPlaceholderScreen
+                descriptionKey="finance.transactions.description"
+                titleKey="finance.transactions.title"
+              />
+            }
+          />
+          <Route
+            path="expenses"
+            element={
+              <AdminPlaceholderScreen
+                descriptionKey="finance.expenses.description"
+                titleKey="finance.expenses.title"
+              />
+            }
+          />
+        </Route>
         <Route path="inventory" element={<InventoryScreen />}>
           <Route index element={<InventoryMaterialsScreen />} />
           <Route path="movements" element={<InventoryMovementsScreen />} />
