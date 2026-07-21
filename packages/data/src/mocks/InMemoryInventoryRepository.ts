@@ -210,6 +210,11 @@ export class InMemoryInventoryRepository implements InventoryRepository {
   }
 
   async consumeOrder(order: Order) {
+    const existing = this.#movements.filter(
+      (movement) => movement.referenceId === order.id && movement.type === "consumption",
+    );
+    if (existing.length > 0) return clone(existing);
+
     const planned: CreateInventoryMovementInput[] = [];
     for (const item of order.items) {
       const recipe = this.#recipes.find((candidate) => candidate.menuItemId === item.menuItemId);
@@ -250,6 +255,36 @@ export class InMemoryInventoryRepository implements InventoryRepository {
 
     const recorded: InventoryMovement[] = [];
     for (const movement of planned) recorded.push(await this.recordMovement(movement));
+    return recorded;
+  }
+
+  async revertOrderConsumption(order: Order) {
+    const consumed = this.#movements.filter(
+      (movement) => movement.referenceId === order.id && movement.type === "consumption",
+    );
+    if (consumed.length === 0) return [];
+
+    const alreadyReverted = this.#movements.filter(
+      (movement) => movement.referenceId === order.id && movement.type === "adjustment-in",
+    );
+    if (alreadyReverted.length > 0) return clone(alreadyReverted);
+
+    const recorded: InventoryMovement[] = [];
+    for (const movement of consumed) {
+      recorded.push(
+        await this.recordMovement({
+          ingredientId: movement.ingredientId,
+          outletId: movement.outletId,
+          type: "adjustment-in",
+          quantity: movement.quantity,
+          unit: movement.unit,
+          unitCost: null,
+          referenceId: order.id,
+          note: `Pembatalan ${order.orderNumber}`,
+          occurredAt: order.updatedAt,
+        }),
+      );
+    }
     return recorded;
   }
 }

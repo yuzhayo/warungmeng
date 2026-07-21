@@ -80,6 +80,15 @@ export function PosCashierScreen({
     }
   }
 
+  async function handleRetryInventorySync(orderId: string): Promise<void> {
+    const succeeded = await cashier.retryInventorySync(orderId);
+    if (succeeded) {
+      void message.success(t("pos.sync.retrySucceeded"));
+    } else {
+      void message.error(t("pos.sync.retryFailed"));
+    }
+  }
+
   return (
     <section aria-labelledby="pos-cashier-title" className="pos-cashier-screen">
       <header className="pos-cashier-screen__header">
@@ -105,6 +114,19 @@ export function PosCashierScreen({
       />
 
       {!sessionOpen ? <Alert title={t("pos.session.closed")} showIcon type="info" /> : null}
+      {cashier.pendingInventorySyncs.map((pending) => (
+        <Alert
+          action={
+            <Button onClick={() => void handleRetryInventorySync(pending.orderId)} size="small">
+              {t("pos.sync.retry")}
+            </Button>
+          }
+          key={pending.orderId}
+          showIcon
+          title={t("pos.sync.pendingTitle", { orderNumber: pending.orderNumber })}
+          type="warning"
+        />
+      ))}
       {catalog.error ? (
         <Alert
           action={<Button onClick={catalog.retry}>{t("pos.catalog.retry")}</Button>}

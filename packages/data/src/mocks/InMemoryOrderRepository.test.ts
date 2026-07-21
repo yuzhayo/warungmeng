@@ -87,4 +87,17 @@ describe("InMemoryOrderRepository", () => {
       status: "not-found",
     });
   });
+
+  it("refunds a paid order when it is cancelled and keeps unpaid orders unpaid (QA-ADM-005)", async () => {
+    const repository = createRepository();
+
+    await expect(repository.updateOrderStatus("order-1008", "cancelled")).resolves.toMatchObject({
+      status: "updated",
+      order: { status: "cancelled", paymentStatus: "refunded" },
+    });
+    await expect(repository.updateOrderStatus("order-1006", "cancelled")).resolves.toMatchObject({
+      status: "updated",
+      order: { status: "cancelled", paymentStatus: "unpaid" },
+    });
+  });
 });

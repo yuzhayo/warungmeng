@@ -176,11 +176,40 @@ describe("usePosCashier", () => {
       inventorySyncError: true,
     });
     expect(result.current.items).toEqual([]);
-    expect(result.current.inventorySyncError).toBe(true);
+    expect(result.current.pendingInventorySyncs).toMatchObject([
+      { orderId: "order-pos-2", orderNumber: "WM-POS-260719-100000-001" },
+    ]);
     await expect(repository.listOrders()).resolves.toHaveLength(1);
     await expect(inventory.listStockBalances("wm-1")).resolves.toMatchObject([
       { ingredientId: "ingredient-tea", quantity: 0 },
     ]);
+
+    // QA-ADM-006: after restocking, the failed sync can be retried safely.
+    await inventory.recordMovement({
+      ingredientId: "ingredient-tea",
+      outletId: "wm-1",
+      type: "purchase",
+      quantity: 100,
+      unit: "g",
+      unitCost: { amount: 100, currency: "IDR" },
+      referenceId: null,
+      note: "Restock",
+      occurredAt: "2026-07-19T11:00:00.000Z",
+    });
+    await act(async () => {
+      await expect(result.current.retryInventorySync("order-pos-2")).resolves.toBe(true);
+    });
+    expect(result.current.pendingInventorySyncs).toEqual([]);
+    await expect(inventory.listMovements({ type: "consumption" })).resolves.toHaveLength(1);
+    await expect(inventory.listStockBalances("wm-1")).resolves.toMatchObject([
+      { ingredientId: "ingredient-tea", quantity: 92 },
+    ]);
+
+    // A second retry is a no-op: the order is no longer pending.
+    await act(async () => {
+      await expect(result.current.retryInventorySync("order-pos-2")).resolves.toBe(false);
+    });
+    await expect(inventory.listMovements({ type: "consumption" })).resolves.toHaveLength(1);
   });
 
   it("keeps the open session, cart, and opening balance across unmount/remount (QA-ADM-003)", () => {

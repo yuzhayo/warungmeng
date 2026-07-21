@@ -59,5 +59,12 @@ export interface InventoryRepository {
   getRecipeByMenuItemId(menuItemId: string): Promise<MenuRecipe | null>;
   saveRecipe(recipe: MenuRecipe): Promise<MenuRecipe>;
   calculateHpp(menuItemId: string): Promise<MenuHppBreakdown | null>;
+  /** Idempotent by order id: repeated calls never duplicate consumption movements. */
   consumeOrder(order: Order): Promise<readonly InventoryMovement[]>;
+  /**
+   * Reverses this order's recorded consumption with one adjustment-in per
+   * original movement. Idempotent by order id; a no-op when the order never
+   * consumed stock.
+   */
+  revertOrderConsumption(order: Order): Promise<readonly InventoryMovement[]>;
 }

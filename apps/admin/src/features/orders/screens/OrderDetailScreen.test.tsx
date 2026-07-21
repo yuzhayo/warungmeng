@@ -1,7 +1,7 @@
-import { createWarungMengOrderRepository } from "@warungmeng/data";
+import { createWarungMengOrderRepository, InMemoryInventoryRepository } from "@warungmeng/data";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
 import { AdminUiProvider } from "@warungmeng/ui-admin";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -9,6 +9,7 @@ import { OrderDetailScreen } from "./OrderDetailScreen";
 
 function renderOrderDetail(orderId = "order-1008") {
   const repository = createWarungMengOrderRepository();
+  const inventory = new InMemoryInventoryRepository();
   const result = render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
@@ -17,7 +18,7 @@ function renderOrderDetail(orderId = "order-1008") {
             <Route path="/orders" element={<div>ORDER LIST</div>} />
             <Route
               path="/orders/:orderId"
-              element={<OrderDetailScreen repository={repository} />}
+              element={<OrderDetailScreen inventory={inventory} repository={repository} />}
             />
           </Routes>
         </MemoryRouter>
@@ -25,7 +26,7 @@ function renderOrderDetail(orderId = "order-1008") {
     </WarungMengI18nProvider>,
   );
 
-  return { repository, ...result };
+  return { repository, inventory, ...result };
 }
 
 describe("OrderDetailScreen", () => {
@@ -58,5 +59,28 @@ describe("OrderDetailScreen", () => {
 
     expect(await screen.findByText("Pesanan tidak ditemukan")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Kembali ke daftar pesanan" })).toBeInTheDocument();
+  });
+
+  it("cancels a paid order as a refund with the paid-cancel warning (QA-ADM-005)", async () => {
+    const user = userEvent.setup();
+    const { repository } = renderOrderDetail();
+    await screen.findByRole("heading", { name: "WM-1008" });
+
+    await user.click(screen.getByRole("button", { name: "Batalkan Pesanan" }));
+    const confirm = await screen.findByRole("tooltip");
+    expect(
+      within(confirm).getByText(/Pembayaran akan dicatat sebagai refund/),
+    ).toBeInTheDocument();
+    await user.click(within(confirm).getByRole("button", { name: "Batalkan Pesanan" }));
+
+    expect(
+      await screen.findByText("Pesanan dibatalkan. Refund dan pengembalian stok telah dicatat."),
+    ).toBeInTheDocument();
+    await waitFor(async () => {
+      await expect(repository.getOrderById("order-1008")).resolves.toMatchObject({
+        status: "cancelled",
+        paymentStatus: "refunded",
+      });
+    });
   });
 });

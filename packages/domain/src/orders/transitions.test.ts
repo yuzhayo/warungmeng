@@ -79,4 +79,25 @@ describe("order status transitions", () => {
       ),
     ).toBeNull();
   });
+
+  it("settles a paid order as refunded when it is cancelled (QA-ADM-005)", () => {
+    const order = createOrder();
+    const cancelled = transitionOrderStatus(order, "cancelled", "2026-07-19T11:00:00.000Z", "e-2");
+
+    expect(cancelled).toMatchObject({ status: "cancelled", paymentStatus: "refunded" });
+  });
+
+  it("keeps the payment status when cancelling an unpaid order", () => {
+    const order = { ...createOrder(), paymentStatus: "unpaid" as const };
+    const cancelled = transitionOrderStatus(order, "cancelled", "2026-07-19T11:00:00.000Z", "e-2");
+
+    expect(cancelled).toMatchObject({ status: "cancelled", paymentStatus: "unpaid" });
+  });
+
+  it("does not touch the payment status on non-cancel transitions", () => {
+    const order = createOrder();
+    const accepted = transitionOrderStatus(order, "accepted", "2026-07-19T11:00:00.000Z", "e-2");
+
+    expect(accepted).toMatchObject({ status: "accepted", paymentStatus: "paid" });
+  });
 });

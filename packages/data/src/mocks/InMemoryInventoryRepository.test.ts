@@ -158,4 +158,46 @@ describe("InMemoryInventoryRepository", () => {
     await expect(repository.consumeOrder(order)).rejects.toThrow(RangeError);
     expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
   });
+
+  it("consumes an order idempotently by order reference (QA-ADM-006)", async () => {
+    const repository = createRepository();
+    const order = createOrder(2);
+
+    await repository.consumeOrder(order);
+    const repeat = await repository.consumeOrder(order);
+
+    expect(repeat).toHaveLength(1);
+    const movements = await repository.listMovements({ type: "consumption" });
+    expect(movements).toHaveLength(1);
+    expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(800);
+  });
+
+  it("reverses order consumption once with one adjustment per movement (QA-ADM-005)", async () => {
+    const repository = createRepository();
+    const order = createOrder(2);
+    await repository.consumeOrder(order);
+
+    const reversal = await repository.revertOrderConsumption(order);
+    expect(reversal).toHaveLength(1);
+    expect(reversal[0]).toMatchObject({
+      type: "adjustment-in",
+      referenceId: "order-1",
+      quantity: 200,
+      unit: "g",
+    });
+    expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
+
+    const repeat = await repository.revertOrderConsumption(order);
+    expect(repeat).toHaveLength(1);
+    expect(await repository.listMovements({ type: "adjustment-in" })).toHaveLength(1);
+    expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
+  });
+
+  it("does nothing when reversing an order that never consumed stock", async () => {
+    const repository = createRepository();
+
+    await expect(repository.revertOrderConsumption(createOrder(1))).resolves.toEqual([]);
+    expect(await repository.listMovements()).toHaveLength(0);
+    expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
+  });
 });

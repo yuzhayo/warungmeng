@@ -10,6 +10,11 @@ import {
 import { DEFAULT_POS_CHECKOUT } from "./posCashierModel";
 import { POS_OUTLETS } from "./posFixtures";
 
+export interface PosPendingInventorySync {
+  readonly orderId: string;
+  readonly orderNumber: string;
+}
+
 export interface PosCashierState {
   readonly session: PosSession;
   readonly selectedOutlet: PosOutlet;
@@ -17,7 +22,7 @@ export interface PosCashierState {
   readonly items: readonly PosCartItem[];
   readonly checkout: PosCheckoutDraft;
   readonly receipt: PosReceipt | null;
-  readonly inventorySyncError: boolean;
+  readonly pendingInventorySyncs: readonly PosPendingInventorySync[];
   readonly processing: boolean;
   readonly cashSales: number;
   readonly sequence: number;
@@ -32,7 +37,7 @@ export function createInitialPosCashierState(outlet: PosOutlet): PosCashierState
     items: [],
     checkout: DEFAULT_POS_CHECKOUT,
     receipt: null,
-    inventorySyncError: false,
+    pendingInventorySyncs: [],
     processing: false,
     cashSales: 0,
     sequence: 1,

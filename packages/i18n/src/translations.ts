@@ -638,6 +638,10 @@ export const idTranslations = {
   "pos.feedback.itemAdded": "Item ditambahkan ke keranjang.",
   "pos.feedback.orderCreated": "Transaksi berhasil dibuat.",
   "pos.feedback.inventorySyncFailed": "Transaksi tersimpan, tetapi stok perlu disinkronkan ulang.",
+  "pos.sync.pendingTitle": "Stok untuk transaksi {{orderNumber}} belum tersinkron.",
+  "pos.sync.retry": "Sinkronkan Stok",
+  "pos.sync.retrySucceeded": "Stok berhasil disinkronkan.",
+  "pos.sync.retryFailed": "Sinkronisasi stok masih gagal. Coba lagi.",
   "screen.orders.title": "Manajemen Pesanan",
   "screen.orders.description": "Pengelolaan pesanan outlet.",
   "orders.summary.count": "{{count}} pesanan",
@@ -699,6 +703,12 @@ export const idTranslations = {
   "orders.feedback.updateFailed": "Status pesanan gagal diperbarui.",
   "orders.confirm.cancelTitle": "Batalkan pesanan ini?",
   "orders.confirm.cancelDescription": "Pesanan yang dibatalkan tidak dapat diproses kembali.",
+  "orders.confirm.cancelPaidDescription":
+    "Pembayaran akan dicatat sebagai refund dan stok bahan dikembalikan. Pesanan tidak dapat diproses kembali.",
+  "orders.feedback.cancelledRefunded":
+    "Pesanan dibatalkan. Refund dan pengembalian stok telah dicatat.",
+  "orders.feedback.stockReversalFailed":
+    "Pesanan dibatalkan dan refund dicatat, tetapi pengembalian stok gagal. Periksa pergerakan stok di menu Inventori.",
   "orders.detail.title": "Detail Pesanan",
   "orders.detail.summary": "Ringkasan",
   "orders.detail.fulfillment": "Pemenuhan",
@@ -1485,6 +1495,10 @@ export const enTranslations: Record<TranslationKey, string> = {
   "pos.feedback.itemAdded": "Item added to cart.",
   "pos.feedback.orderCreated": "Transaction created successfully.",
   "pos.feedback.inventorySyncFailed": "Transaction saved, but stock needs to be resynced.",
+  "pos.sync.pendingTitle": "Stock for transaction {{orderNumber}} is not synced yet.",
+  "pos.sync.retry": "Sync Stock",
+  "pos.sync.retrySucceeded": "Stock synced successfully.",
+  "pos.sync.retryFailed": "Stock sync still failed. Try again.",
   "screen.orders.title": "Order Management",
   "screen.orders.description": "Manage outlet orders.",
   "orders.summary.count": "{{count}} orders",
@@ -1546,6 +1560,12 @@ export const enTranslations: Record<TranslationKey, string> = {
   "orders.feedback.updateFailed": "Order status could not be updated.",
   "orders.confirm.cancelTitle": "Cancel this order?",
   "orders.confirm.cancelDescription": "A cancelled order cannot be processed again.",
+  "orders.confirm.cancelPaidDescription":
+    "The payment will be recorded as a refund and ingredient stock will be returned. The order cannot be processed again.",
+  "orders.feedback.cancelledRefunded":
+    "Order cancelled. The refund and stock return have been recorded.",
+  "orders.feedback.stockReversalFailed":
+    "Order cancelled and refund recorded, but the stock return failed. Check stock movements in Inventory.",
   "orders.detail.title": "Order Details",
   "orders.detail.summary": "Summary",
   "orders.detail.fulfillment": "Fulfillment",

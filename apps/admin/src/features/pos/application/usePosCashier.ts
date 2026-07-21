@@ -45,8 +45,7 @@ export function usePosCashier(
   store: PosSessionStore = posSessionStore,
 ) {
   const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
-  const { session, selectedOutlet, openingBalance, items, checkout, receipt, inventorySyncError } =
-    state;
+  const { session, selectedOutlet, openingBalance, items, checkout, receipt } = state;
   const totals = useMemo(
     () => calculatePosTotals(items, checkout.pricing),
     [checkout.pricing, items],
@@ -86,7 +85,6 @@ export function usePosCashier(
         items: [],
         checkout: DEFAULT_POS_CHECKOUT,
         receipt: null,
-        inventorySyncError: false,
         cashSales: 0,
         lastCloseRecord: outcome.record,
       };
@@ -155,6 +153,17 @@ export function usePosCashier(
         await inventory?.consumeOrder(order);
       } catch {
         inventorySyncFailed = true;
+        store.update((state) => ({
+          ...state,
+          pendingInventorySyncs: state.pendingInventorySyncs.some(
+            (pending) => pending.orderId === order.id,
+          )
+            ? state.pendingInventorySyncs
+            : [
+                ...state.pendingInventorySyncs,
+                { orderId: order.id, orderNumber: order.orderNumber },
+              ],
+        }));
       }
       const cashReceived =
         current.checkout.paymentMethod === "cash"
@@ -182,12 +191,33 @@ export function usePosCashier(
         receipt: nextReceipt,
         items: [],
         checkout: DEFAULT_POS_CHECKOUT,
-        inventorySyncError: inventorySyncFailed,
       }));
       return { receipt: nextReceipt, inventorySyncError: inventorySyncFailed };
     } finally {
       store.update((state) => ({ ...state, processing: false }));
     }
+  }
+
+  async function retryInventorySync(orderId: string): Promise<boolean> {
+    if (!inventory) return false;
+    const pending = store
+      .getState()
+      .pendingInventorySyncs.find((candidate) => candidate.orderId === orderId);
+    if (!pending) return false;
+    const order = await repository.getOrderById(orderId);
+    if (!order) return false;
+    try {
+      await inventory.consumeOrder(order);
+    } catch {
+      return false;
+    }
+    store.update((current) => ({
+      ...current,
+      pendingInventorySyncs: current.pendingInventorySyncs.filter(
+        (candidate) => candidate.orderId !== orderId,
+      ),
+    }));
+    return true;
   }
 
   return {
@@ -199,7 +229,8 @@ export function usePosCashier(
     totals,
     processing: state.processing,
     receipt,
-    inventorySyncError,
+    pendingInventorySyncs: state.pendingInventorySyncs,
+    retryInventorySync,
     cashSales: state.cashSales,
     expectedCash:
       session.status === "open"
