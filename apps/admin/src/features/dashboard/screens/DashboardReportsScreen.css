@@ -4,6 +4,15 @@
   min-width: 0;
 }
 
+.dashboard-report-navigation {
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-report-navigation-mobile {
+  display: none;
+}
+
 .dashboard-report-grid .ant-card,
 .dashboard-report-table-card {
   height: 100%;
@@ -33,4 +42,15 @@
 
 .dashboard-report-money {
   white-space: nowrap;
+}
+
+@media (max-width: 56rem) {
+  .dashboard-report-navigation-desktop {
+    display: none;
+  }
+
+  .dashboard-report-navigation-mobile {
+    display: block;
+    width: 100%;
+  }
 }

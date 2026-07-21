@@ -18,6 +18,10 @@
   flex: 0 1 18rem;
 }
 
+.dashboard-period-control-mobile {
+  display: none;
+}
+
 .dashboard-state-stack,
 .dashboard-overview {
   width: 100%;
@@ -31,19 +35,35 @@
   overflow-wrap: anywhere;
 }
 
+.dashboard-overview-entry-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dashboard-overview-entries .ant-descriptions-item-content {
+  justify-content: flex-end;
+  text-align: end;
+  white-space: nowrap;
+}
+
 @media (max-width: 56rem) {
   .dashboard-period-control {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .dashboard-period-control > .ant-segmented,
   .dashboard-period-control > .ant-picker {
     flex-basis: auto;
     width: 100%;
   }
 
-  .dashboard-period-control .ant-segmented-group {
-    overflow-x: auto;
+  .dashboard-period-control > .dashboard-period-control-desktop {
+    display: none;
+  }
+
+  .dashboard-period-control-mobile {
+    display: block;
+    width: 100%;
   }
 }

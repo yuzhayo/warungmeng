@@ -1,4 +1,4 @@
-import { DatePicker, Segmented } from "antd";
+import { DatePicker, Segmented, Select } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,6 +21,13 @@ export function DashboardPeriodControl({
   onChange,
 }: DashboardPeriodControlProps) {
   const { t } = useTranslation();
+  const periodOptions = [
+    { label: t("dashboard.period.today"), value: "today" },
+    { label: t("dashboard.period.last7"), value: "last-7-days" },
+    { label: t("dashboard.period.last30"), value: "last-30-days" },
+    { label: t("dashboard.period.thisMonth"), value: "this-month" },
+    { label: t("dashboard.period.custom"), value: "custom" },
+  ];
 
   function handlePresetChange(value: string | number): void {
     if (value === "custom") {
@@ -42,14 +49,16 @@ export function DashboardPeriodControl({
     <div aria-label={t("dashboard.period.label")} className="dashboard-period-control" role="group">
       <Segmented
         block
+        className="dashboard-period-control-desktop"
         onChange={handlePresetChange}
-        options={[
-          { label: t("dashboard.period.today"), value: "today" },
-          { label: t("dashboard.period.last7"), value: "last-7-days" },
-          { label: t("dashboard.period.last30"), value: "last-30-days" },
-          { label: t("dashboard.period.thisMonth"), value: "this-month" },
-          { label: t("dashboard.period.custom"), value: "custom" },
-        ]}
+        options={periodOptions}
+        value={selection.preset}
+      />
+      <Select
+        aria-label={t("dashboard.period.label")}
+        className="dashboard-period-control-mobile"
+        onChange={handlePresetChange}
+        options={periodOptions}
         value={selection.preset}
       />
       {selection.preset === "custom" ? (
