@@ -45,9 +45,7 @@ export function PosSessionCloseModal({
           <span>{t("pos.session.cashSales")}</span>
           <span>{formatRupiah(cashSales, { regionalFormat })}</span>
           <Typography.Text strong>{t("pos.session.expectedCash")}</Typography.Text>
-          <Typography.Text strong>
-            {formatRupiah(expectedCash, { regionalFormat })}
-          </Typography.Text>
+          <Typography.Text strong>{formatRupiah(expectedCash, { regionalFormat })}</Typography.Text>
         </div>
         <label className="pos-session__field">
           <Typography.Text>{t("pos.session.actualCash")}</Typography.Text>
@@ -62,7 +60,10 @@ export function PosSessionCloseModal({
         </label>
         <div className="pos-session-close__summary">
           <Typography.Text strong>{t("pos.session.variance")}</Typography.Text>
-          <Typography.Text strong type={variance < 0 ? "danger" : variance > 0 ? "warning" : undefined}>
+          <Typography.Text
+            strong
+            type={variance < 0 ? "danger" : variance > 0 ? "warning" : undefined}
+          >
             {formatRupiah(variance, { regionalFormat })}
           </Typography.Text>
         </div>

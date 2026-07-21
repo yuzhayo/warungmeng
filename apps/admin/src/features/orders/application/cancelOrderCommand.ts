@@ -1,4 +1,8 @@
-import type { InventoryRepository, OrderRepository, OrderStatusUpdateResult } from "@warungmeng/data";
+import type {
+  InventoryRepository,
+  OrderRepository,
+  OrderStatusUpdateResult,
+} from "@warungmeng/data";
 
 export interface CancelOrderOutcome {
   readonly result: OrderStatusUpdateResult;

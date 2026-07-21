@@ -68,9 +68,7 @@ describe("OrderDetailScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "Batalkan Pesanan" }));
     const confirm = await screen.findByRole("tooltip");
-    expect(
-      within(confirm).getByText(/Pembayaran akan dicatat sebagai refund/),
-    ).toBeInTheDocument();
+    expect(within(confirm).getByText(/Pembayaran akan dicatat sebagai refund/)).toBeInTheDocument();
     await user.click(within(confirm).getByRole("button", { name: "Batalkan Pesanan" }));
 
     expect(

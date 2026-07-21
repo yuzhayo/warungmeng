@@ -1,7 +1,4 @@
-import {
-  InMemoryInventoryRepository,
-  InMemoryOrderRepository,
-} from "@warungmeng/data";
+import { InMemoryInventoryRepository, InMemoryOrderRepository } from "@warungmeng/data";
 import { projectOrderToFinanceTransactions, type Order } from "@warungmeng/domain";
 import { describe, expect, it } from "vitest";
 import { cancelOrderWithSettlement } from "./cancelOrderCommand";

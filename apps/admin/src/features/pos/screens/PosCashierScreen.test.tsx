@@ -63,7 +63,9 @@ describe("PosCashierScreen", () => {
     const actualCash = screen.getByRole("spinbutton", { name: "Kas Aktual" });
     await user.clear(actualCash);
     await user.type(actualCash, "5000");
-    expect(await screen.findByText("Kas aktual lebih besar dari kas seharusnya.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Kas aktual lebih besar dari kas seharusnya."),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Konfirmasi Tutup Sesi" }));
     expect(await screen.findByText("Sesi kasir ditutup.")).toBeInTheDocument();

@@ -1,10 +1,5 @@
 import type { Money } from "../catalog/types";
-import type {
-  PosOutlet,
-  PosSession,
-  PosSessionCloseInput,
-  PosSessionCloseOutcome,
-} from "./types";
+import type { PosOutlet, PosSession, PosSessionCloseInput, PosSessionCloseOutcome } from "./types";
 
 function money(amount: number): Money {
   return { amount, currency: "IDR" };
