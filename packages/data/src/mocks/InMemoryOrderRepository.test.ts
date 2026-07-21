@@ -25,7 +25,7 @@ describe("InMemoryOrderRepository", () => {
       { id: "order-1005" },
     ]);
     await expect(
-      repository.listOrders({ outletId: "wm-2", channel: "manual" }),
+      repository.listOrders({ outletId: "wm-1", channel: "manual" }),
     ).resolves.toMatchObject([{ id: "order-1006" }]);
     await expect(repository.listOrders({ search: "rina" })).resolves.toMatchObject([
       { id: "order-1008" },

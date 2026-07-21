@@ -1,7 +1,8 @@
-import { Card, Flex, List, Tag, Typography } from "antd";
+import { Card, Flex, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import type { OutletSchedule } from "../application/businessHoursModel";
 import { daySummary } from "../application/businessHoursModel";
+import "./OutletList.css";
 
 interface OutletListProps {
   readonly outlets: readonly OutletSchedule[];
@@ -37,14 +38,12 @@ export function OutletList({ outlets, selectedOutletId, onSelect }: OutletListPr
     <Flex gap="middle" vertical>
       <Title level={4}>{t("bh.outlets.title")}</Title>
       <Text type="secondary">{t("bh.outlets.timezone")}</Text>
-      <List
-        grid={{ gutter: 16, xs: 1, sm: 2 }}
-        dataSource={[...outlets]}
-        renderItem={(outlet) => {
+      <ul className="bh-outlet-list">
+        {outlets.map((outlet) => {
           const status = outletCurrentStatus(outlet);
           const isSelected = outlet.id === selectedOutletId;
           return (
-            <List.Item>
+            <li key={outlet.id}>
               <Card
                 hoverable
                 role="button"
@@ -82,10 +81,10 @@ export function OutletList({ outlets, selectedOutletId, onSelect }: OutletListPr
                   )}
                 </Flex>
               </Card>
-            </List.Item>
+            </li>
           );
-        }}
-      />
+        })}
+      </ul>
     </Flex>
   );
 }

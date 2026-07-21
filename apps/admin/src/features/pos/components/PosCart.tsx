@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { calculatePosItemLineTotal, type OrderTotals, type PosCartItem } from "@warungmeng/domain";
 import { formatRupiah, useLocaleSettings } from "@warungmeng/i18n";
-import { Button, Card, Empty, Flex, InputNumber, List, Typography } from "antd";
+import { Button, Card, Empty, Flex, InputNumber, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
 interface PosCartProps {
@@ -36,10 +36,9 @@ export function PosCart({
       {items.length === 0 ? (
         <Empty description={t("pos.cart.empty")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
-        <List
-          dataSource={[...items]}
-          renderItem={(item) => (
-            <List.Item className="pos-cart__item" key={item.id}>
+        <ul className="pos-cart__list">
+          {items.map((item) => (
+            <li className="pos-cart__item" key={item.id}>
               <div className="pos-cart__item-main">
                 <Typography.Text strong>{item.name}</Typography.Text>
                 {item.variantSelections.length > 0 ? (
@@ -76,9 +75,9 @@ export function PosCart({
                   size="small"
                 />
               </Flex>
-            </List.Item>
-          )}
-        />
+            </li>
+          ))}
+        </ul>
       )}
 
       <div className="pos-cart__totals">

@@ -4,7 +4,6 @@ import type { InventoryIngredient, InventoryIngredientStatus } from "@warungmeng
 import { App as AntdApp, Alert, Button, Checkbox, Input, Select } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { INVENTORY_OUTLETS } from "../application/inventoryConstants";
 import { inventoryRepository } from "../application/inventoryRepository";
 import { useInventoryMaterials } from "../application/useInventoryMaterials";
 import { InventoryMaterialEditorDialog } from "../components/InventoryMaterialEditorDialog";
@@ -40,16 +39,6 @@ export function InventoryMaterialsScreen({
           placeholder={t("inventory.materials.search")}
           prefix={<SearchOutlined />}
           value={materials.filters.search}
-        />
-        <Select
-          aria-label={t("inventory.outlet")}
-          className="inventory-toolbar__select"
-          onChange={(outletId: string) => materials.updateFilters({ outletId })}
-          options={INVENTORY_OUTLETS.map((outlet) => ({
-            value: outlet.id,
-            label: t(outlet.nameKey),
-          }))}
-          value={materials.filters.outletId}
         />
         <Select
           allowClear

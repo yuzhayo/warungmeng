@@ -1,27 +1,23 @@
 import type { PosOutlet, PosSession, PosSessionCloseRecord } from "@warungmeng/domain";
 import { formatRupiah, formatTime, useLocaleSettings } from "@warungmeng/i18n";
-import { Button, Card, Flex, InputNumber, Select, Tag, Typography } from "antd";
+import { Button, Card, Flex, InputNumber, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
 interface PosSessionBarProps {
-  readonly outlets: readonly PosOutlet[];
   readonly session: PosSession;
   readonly selectedOutlet: PosOutlet;
   readonly openingBalance: number;
   readonly lastCloseRecord: PosSessionCloseRecord | null;
-  readonly onOutletChange: (outlet: PosOutlet) => void;
   readonly onOpeningBalanceChange: (value: number) => void;
   readonly onStart: () => void;
   readonly onEnd: () => void;
 }
 
 export function PosSessionBar({
-  outlets,
   session,
   selectedOutlet,
   openingBalance,
   lastCloseRecord,
-  onOutletChange,
   onOpeningBalanceChange,
   onStart,
   onEnd,
@@ -33,19 +29,10 @@ export function PosSessionBar({
   return (
     <Card className="pos-session" size="small" title={t("pos.session.title")}>
       <Flex align="end" gap="middle" wrap>
-        <label className="pos-session__field">
+        <div className="pos-session__field">
           <Typography.Text>{t("pos.session.outlet")}</Typography.Text>
-          <Select
-            aria-label={t("pos.session.outlet")}
-            disabled={isOpen}
-            onChange={(outletId) => {
-              const outlet = outlets.find((candidate) => candidate.id === outletId);
-              if (outlet) onOutletChange(outlet);
-            }}
-            options={outlets.map((outlet) => ({ label: outlet.name, value: outlet.id }))}
-            value={selectedOutlet.id}
-          />
-        </label>
+          <Typography.Text strong>{selectedOutlet.name}</Typography.Text>
+        </div>
         <label className="pos-session__field">
           <Typography.Text>{t("pos.session.openingBalance")}</Typography.Text>
           <InputNumber

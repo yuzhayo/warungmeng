@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { menuCatalogRepository } from "../../menu/application/menuCatalogRepository";
 import { orderRepository } from "../../orders/application/orderRepository";
 import { inventoryRepository } from "../../inventory/application/inventoryRepository";
-import { POS_OUTLETS } from "../application/posFixtures";
 import type { PosSessionStore } from "../application/posSessionStore";
 import { usePosCashier } from "../application/usePosCashier";
 import { usePosCatalog } from "../application/usePosCatalog";
@@ -102,13 +101,11 @@ export function PosCashierScreen({
         lastCloseRecord={cashier.lastCloseRecord}
         onEnd={() => setCloseSessionOpen(true)}
         onOpeningBalanceChange={cashier.setOpeningBalance}
-        onOutletChange={cashier.selectOutlet}
         onStart={() => {
           cashier.startSession();
           void message.success(t("pos.feedback.sessionOpened"));
         }}
         openingBalance={cashier.openingBalance}
-        outlets={POS_OUTLETS}
         selectedOutlet={cashier.selectedOutlet}
         session={cashier.session}
       />

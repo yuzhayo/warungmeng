@@ -1,9 +1,8 @@
 import type { InventoryMovementType } from "@warungmeng/domain";
 
-export const INVENTORY_OUTLETS = [
-  { id: "wm-1", nameKey: "inventory.outlet.wm1" as const },
-  { id: "wm-2", nameKey: "inventory.outlet.wm2" as const },
-] as const;
+// Admin is currently pinned to a single outlet; repository contracts keep
+// outlet ids so a future multi-outlet rollout stays possible.
+export const INVENTORY_OUTLET = { id: "wm-1", nameKey: "inventory.outlet.wm1" as const };
 
 export const INVENTORY_MOVEMENT_TYPES: readonly InventoryMovementType[] = [
   "purchase",

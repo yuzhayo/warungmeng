@@ -52,17 +52,6 @@ export function OrderListToolbar({ filters, onChange, onReset }: OrderListToolba
       />
       <Select
         allowClear
-        aria-label={t("orders.filter.outlet")}
-        onChange={(outletId: string | undefined) => onChange({ outletId: outletId ?? null })}
-        options={[
-          { label: "WARUNG MENG", value: "wm-1" },
-          { label: "WARUNG MENG 2", value: "wm-2" },
-        ]}
-        placeholder={t("orders.filter.outlet")}
-        value={filters.outletId ?? undefined}
-      />
-      <Select
-        allowClear
         aria-label={t("orders.filter.channel")}
         onChange={(channel: OrderChannel | undefined) => onChange({ channel: channel ?? null })}
         options={channelOptions}

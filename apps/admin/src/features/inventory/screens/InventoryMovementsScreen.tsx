@@ -5,7 +5,7 @@ import type { TranslationKey } from "@warungmeng/i18n";
 import { App as AntdApp, Alert, Button, Select } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { INVENTORY_MOVEMENT_TYPES, INVENTORY_OUTLETS } from "../application/inventoryConstants";
+import { INVENTORY_MOVEMENT_TYPES } from "../application/inventoryConstants";
 import { inventoryRepository } from "../application/inventoryRepository";
 import { useInventoryMovements } from "../application/useInventoryMovements";
 import { InventoryMovementDialog } from "../components/InventoryMovementDialog";
@@ -27,16 +27,6 @@ export function InventoryMovementsScreen({
   return (
     <div className="inventory-view">
       <div className="inventory-toolbar">
-        <Select
-          aria-label={t("inventory.outlet")}
-          className="inventory-toolbar__select"
-          onChange={(outletId: string) => inventory.updateFilters({ outletId })}
-          options={INVENTORY_OUTLETS.map((outlet) => ({
-            value: outlet.id,
-            label: t(outlet.nameKey),
-          }))}
-          value={inventory.filters.outletId}
-        />
         <Select
           allowClear
           aria-label={t("inventory.movements.ingredient")}

@@ -10,11 +10,10 @@ import type { TranslationKey } from "@warungmeng/i18n";
 import { Form, Input, InputNumber, Modal, Select } from "antd";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { INVENTORY_MOVEMENT_TYPES, INVENTORY_OUTLETS } from "../application/inventoryConstants";
+import { INVENTORY_MOVEMENT_TYPES, INVENTORY_OUTLET } from "../application/inventoryConstants";
 
 interface MovementFormValues {
   readonly ingredientId: string;
-  readonly outletId: string;
   readonly type: InventoryMovementType;
   readonly quantity: number;
   readonly unit: InventoryUnit;
@@ -50,7 +49,6 @@ export function InventoryMovementDialog({
     if (!open) return;
     form.resetFields();
     form.setFieldsValue({
-      outletId: "wm-1",
       type: "purchase",
       quantity: 1,
       unit: "g",
@@ -65,7 +63,7 @@ export function InventoryMovementDialog({
   async function submit(values: MovementFormValues): Promise<void> {
     await onSubmit({
       ingredientId: values.ingredientId,
-      outletId: values.outletId,
+      outletId: INVENTORY_OUTLET.id,
       type: values.type,
       quantity: values.quantity,
       unit: values.unit,
@@ -99,18 +97,6 @@ export function InventoryMovementDialog({
               autoFocus
               options={ingredients.map((item) => ({ value: item.id, label: item.name }))}
               showSearch={{ optionFilterProp: "label" }}
-            />
-          </Form.Item>
-          <Form.Item
-            label={t("inventory.outlet")}
-            name="outletId"
-            rules={[{ required: true, message: t("inventory.validation.required") }]}
-          >
-            <Select
-              options={INVENTORY_OUTLETS.map((outlet) => ({
-                value: outlet.id,
-                label: t(outlet.nameKey),
-              }))}
             />
           </Form.Item>
         </div>

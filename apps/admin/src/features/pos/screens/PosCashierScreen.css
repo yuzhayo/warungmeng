@@ -85,14 +85,25 @@
   gap: var(--wm-space-xs);
 }
 
-.pos-cart .ant-list {
+.pos-cart__list {
   max-height: 49vh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   overflow: auto;
 }
 
 .pos-cart__item {
-  align-items: flex-start !important;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--wm-space-sm);
+  padding-block: var(--wm-space-sm);
+  border-block-end: 1px solid var(--ant-color-split);
+}
+
+.pos-cart__item:last-child {
+  border-block-end: none;
 }
 
 .pos-cart__item-main {
@@ -177,7 +188,7 @@
   }
 
   .pos-catalog__grid,
-  .pos-cart .ant-list {
+  .pos-cart__list {
     max-height: none;
   }
 }

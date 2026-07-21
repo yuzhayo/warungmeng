@@ -15,7 +15,6 @@ import {
   type OrderVariantSelection,
   type PosCartItem,
   type PosCheckoutDraft,
-  type PosOutlet,
   type PosReceipt,
   type PosSessionCloseRecord,
 } from "@warungmeng/domain";
@@ -50,12 +49,6 @@ export function usePosCashier(
     () => calculatePosTotals(items, checkout.pricing),
     [checkout.pricing, items],
   );
-
-  function selectOutlet(outlet: PosOutlet): void {
-    store.update((current) =>
-      current.session.status === "closed" ? { ...current, selectedOutlet: outlet } : current,
-    );
-  }
 
   function startSession(): void {
     const openedAt = runtime.now().toISOString();
@@ -241,7 +234,6 @@ export function usePosCashier(
       store.update((current) =>
         current.session.status === "closed" ? { ...current, openingBalance: value } : current,
       ),
-    selectOutlet,
     startSession,
     endSession,
     addMenu,

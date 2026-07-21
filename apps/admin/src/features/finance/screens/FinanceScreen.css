@@ -190,6 +190,7 @@
 
   .finance-transaction-toolbar__actions .ant-btn {
     flex: 1;
+    min-width: 0;
   }
 }
 
@@ -214,5 +215,15 @@
   .finance-editor-form__row {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
+  }
+
+  .finance-transaction-toolbar__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .finance-transaction-toolbar__actions .ant-btn {
+    width: 100%;
+    min-width: 0;
   }
 }

@@ -138,6 +138,20 @@ describe("MenuListScreen", () => {
     });
   });
 
+  it("hydrates the edit dialog for two categories opened in sequence (QA-ADM-007)", async () => {
+    const user = userEvent.setup();
+    renderMenuList();
+    await screen.findByText("GADO-GADO");
+
+    await user.click(screen.getByRole("button", { name: "Ubah Makanan" }));
+    expect(screen.getByLabelText("Nama Kategori")).toHaveValue("Makanan");
+    expect(screen.getByRole("switch", { name: "Tampilan Kategori" })).toBeChecked();
+    await user.click(screen.getByRole("button", { name: "Batal" }));
+
+    await user.click(await screen.findByRole("button", { name: "Ubah Minuman" }));
+    expect(await screen.findByLabelText("Nama Kategori")).toHaveValue("Minuman");
+  });
+
   it("does not delete a category that is still used by menus", async () => {
     const user = userEvent.setup();
     const { repository } = renderMenuList();

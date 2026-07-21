@@ -55,20 +55,14 @@ const STOCK_WM_1: Record<string, number> = {
   "ingredient-cup": 120,
 };
 
-export const warungMengStockBalances: readonly InventoryStockBalance[] = [
-  ...Object.entries(STOCK_WM_1).map(([ingredientId, quantity]) => ({
-    ingredientId,
-    outletId: "wm-1",
-    quantity,
-    updatedAt: CREATED_AT,
-  })),
-  ...Object.entries(STOCK_WM_1).map(([ingredientId, quantity]) => ({
-    ingredientId,
-    outletId: "wm-2",
-    quantity: Math.round(quantity * 0.6),
-    updatedAt: CREATED_AT,
-  })),
-];
+export const warungMengStockBalances: readonly InventoryStockBalance[] = Object.entries(
+  STOCK_WM_1,
+).map(([ingredientId, quantity]) => ({
+  ingredientId,
+  outletId: "wm-1",
+  quantity,
+  updatedAt: CREATED_AT,
+}));
 
 export const warungMengRecipes: readonly MenuRecipe[] = [
   {

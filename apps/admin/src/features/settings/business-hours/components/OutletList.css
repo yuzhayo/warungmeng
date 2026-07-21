@@ -1,0 +1,14 @@
+.bh-outlet-list {
+  display: grid;
+  gap: var(--wm-space-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 36rem) {
+  .bh-outlet-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

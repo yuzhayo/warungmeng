@@ -38,15 +38,12 @@ export function MenuCategoryEditorDialog({
   const visible = Form.useWatch("visible", form) ?? category?.visibility !== "hidden";
   const mode = category ? "edit" : "create";
 
+  // The dialog can reopen for another category before the closing modal has
+  // finished unmounting its fields, so the shared form store may still hold
+  // the previous values. Resetting after the open render forces the fields
+  // back to the current category's initialValues.
   useEffect(() => {
-    if (open) {
-      form.setFieldsValue({
-        name: category?.name ?? "",
-        visible: category?.visibility !== "hidden",
-      });
-    } else {
-      form.resetFields();
-    }
+    if (open) form.resetFields();
   }, [category, form, open]);
 
   return (
@@ -92,7 +89,11 @@ export function MenuCategoryEditorDialog({
     >
       <Form
         form={form}
-        initialValues={{ name: "", visible: true }}
+        initialValues={{
+          name: category?.name ?? "",
+          visible: category?.visibility !== "hidden",
+        }}
+        key={category?.id ?? "create"}
         layout="vertical"
         onFinish={(values) =>
           void onSubmit({
