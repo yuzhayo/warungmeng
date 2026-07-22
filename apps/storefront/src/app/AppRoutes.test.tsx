@@ -23,6 +23,10 @@ vi.mock("../features/cart/screens/CartScreen", () => ({
   CartScreen: () => <div data-testid="cart-screen">Cart</div>,
 }));
 
+vi.mock("../features/checkout/screens/CheckoutScreen", () => ({
+  CheckoutScreen: () => <div data-testid="checkout-screen">Checkout</div>,
+}));
+
 vi.mock("../screens/NotFoundScreen", () => ({
   NotFoundScreen: () => <div data-testid="not-found">404</div>,
 }));
@@ -57,6 +61,14 @@ describe("AppRoutes", () => {
 
     expect(await screen.findByTestId("storefront-shell")).toBeInTheDocument();
     expect(await screen.findByTestId("cart-screen")).toBeInTheDocument();
+    expect(screen.queryByTestId("not-found")).not.toBeInTheDocument();
+  });
+
+  it("renders the checkout screen through the shared shell at /checkout", async () => {
+    renderRoute("/checkout");
+
+    expect(await screen.findByTestId("storefront-shell")).toBeInTheDocument();
+    expect(await screen.findByTestId("checkout-screen")).toBeInTheDocument();
     expect(screen.queryByTestId("not-found")).not.toBeInTheDocument();
   });
 

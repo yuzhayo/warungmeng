@@ -17,6 +17,11 @@ const CartScreen = lazy(() =>
     default: module.CartScreen,
   })),
 );
+const CheckoutScreen = lazy(() =>
+  import("../features/checkout/screens/CheckoutScreen").then((module) => ({
+    default: module.CheckoutScreen,
+  })),
+);
 const NotFoundScreen = lazy(() =>
   import("../screens/NotFoundScreen").then((module) => ({ default: module.NotFoundScreen })),
 );
@@ -33,6 +38,7 @@ export function AppRoutes() {
           <Route index element={<StorefrontCatalogScreen />} />
           <Route path="menu/:menuSlug" element={<MenuDetailScreen />} />
           <Route path="cart" element={<CartScreen />} />
+          <Route path="checkout" element={<CheckoutScreen />} />
           <Route path="*" element={<NotFoundScreen />} />
         </Route>
       </Routes>

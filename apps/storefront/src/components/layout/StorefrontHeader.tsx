@@ -1,5 +1,5 @@
-import { useLocaleSettings, type SupportedLanguage } from "@warungmeng/i18n";
-import { Segmented } from "antd";
+import { useLocaleSettings } from "@warungmeng/i18n";
+import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import styles from "./StorefrontShell.module.css";
 
@@ -15,16 +15,15 @@ export function StorefrontHeader() {
           <p className={styles.tagline}>{t("storefront.header.tagline")}</p>
         </div>
         <div className={styles.controls}>
-          <Segmented<SupportedLanguage>
+          <Button
             aria-label={t("storefront.header.languageLabel")}
             size="small"
-            value={language}
-            onChange={setLanguage}
-            options={[
-              { label: t("language.id"), value: "id" },
-              { label: t("language.en"), value: "en" },
-            ]}
-          />
+            className={styles.languageButton}
+            title={language === "id" ? t("language.en") : t("language.id")}
+            onClick={() => setLanguage(language === "id" ? "en" : "id")}
+          >
+            {language.toUpperCase()}
+          </Button>
         </div>
       </div>
     </header>

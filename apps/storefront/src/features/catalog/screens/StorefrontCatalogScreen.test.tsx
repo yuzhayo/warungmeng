@@ -261,9 +261,11 @@ describe("StorefrontCatalogScreen", () => {
     );
 
     expect(screen.getByLabelText("Pilih bahasa")).toBeInTheDocument();
-    await user.click(screen.getByText("English"));
+    expect(screen.getByRole("button", { name: "Pilih bahasa" })).toHaveTextContent("ID");
+    await user.click(screen.getByRole("button", { name: "Pilih bahasa" }));
 
     expect(screen.getByLabelText("Choose language")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choose language" })).toHaveTextContent("EN");
     expect(screen.getByPlaceholderText("Search menu or description")).toBeInTheDocument();
     expect(screen.getAllByText("Comfortable Food Stall")).toHaveLength(2);
     expect(screen.getByText("Nasi Goreng")).toBeInTheDocument();

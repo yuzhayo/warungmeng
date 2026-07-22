@@ -146,6 +146,7 @@ function renderCartScreen(
           <MemoryRouter initialEntries={["/cart"]}>
             <Routes>
               <Route path="/cart" element={<CartScreen repository={repository} />} />
+              <Route path="/checkout" element={<div data-testid="checkout-route" />} />
               <Route path="/" element={<div data-testid="catalog-route" />} />
             </Routes>
           </MemoryRouter>
@@ -183,6 +184,15 @@ describe("CartScreen", () => {
     // (25.000 + 2.000) × 2 appears as the line total and again as the subtotal.
     expect(screen.getAllByText("Rp 54.000")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Lanjut ke Checkout" })).toBeEnabled();
+  });
+
+  it("navigates a valid cart to checkout", async () => {
+    const user = userEvent.setup();
+    renderCartScreen({ storedItems: [createStoredItem()] });
+
+    await user.click(await screen.findByRole("button", { name: "Lanjut ke Checkout" }));
+
+    expect(screen.getByTestId("checkout-route")).toBeInTheDocument();
   });
 
   it("updates the line total and subtotal when quantity changes", async () => {
