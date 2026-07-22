@@ -5,6 +5,7 @@ import enUS from "antd/locale/en_US";
 import { App as AntdApp } from "antd";
 import { BrowserRouter } from "react-router-dom";
 import type { PropsWithChildren } from "react";
+import { StorefrontCartProvider } from "../features/cart/application/StorefrontCartProvider";
 import { storefrontTheme } from "./storefrontTheme";
 
 function AntdLocaleProvider({ children }: PropsWithChildren) {
@@ -22,7 +23,9 @@ export function ApplicationProviders({ children }: PropsWithChildren) {
   return (
     <WarungMengI18nProvider>
       <AntdLocaleProvider>
-        <BrowserRouter>{children}</BrowserRouter>
+        <StorefrontCartProvider>
+          <BrowserRouter>{children}</BrowserRouter>
+        </StorefrontCartProvider>
       </AntdLocaleProvider>
     </WarungMengI18nProvider>
   );

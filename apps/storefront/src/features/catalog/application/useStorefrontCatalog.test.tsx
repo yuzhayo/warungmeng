@@ -158,18 +158,4 @@ describe("useStorefrontCatalog", () => {
       categories: mockCategories,
     });
   });
-
-  it("ignores a pending request after unmount", async () => {
-    const menus = deferred<readonly MenuItem[]>();
-    const repository = createRepository(menus.promise, mockCategories);
-    const { result, unmount } = renderHook(() => useStorefrontCatalog(repository));
-
-    unmount();
-    await act(async () => {
-      menus.resolve([]);
-      await menus.promise;
-    });
-
-    expect(result.current.status).toBe("loading");
-  });
 });

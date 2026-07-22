@@ -8,10 +8,14 @@ import {
   searchCatalogMenus,
 } from "../application/storefrontCatalogModel";
 import { useStorefrontCatalog } from "../application/useStorefrontCatalog";
-import type { StorefrontCatalogRepository } from "../application/storefrontCatalogRepository";
+import type {
+  StorefrontCatalogRepository,
+  StorefrontMenuDetailRepository,
+} from "../application/storefrontCatalogRepository";
 import { CatalogToolbar } from "../components/CatalogToolbar";
 import { CategoryMenuList } from "../components/CategoryMenuList";
 import { FeaturedMenuGrid } from "../components/FeaturedMenuGrid";
+import { MenuDetailDrawer } from "../components/MenuDetailDrawer";
 import { MerchantHero } from "../components/MerchantHero";
 import styles from "../StorefrontCatalog.module.css";
 
@@ -19,53 +23,64 @@ const LOADING_CARD_KEYS = ["first", "second", "third", "fourth"] as const;
 
 interface StorefrontCatalogScreenProps {
   repository?: StorefrontCatalogRepository;
+  detailRepository?: StorefrontMenuDetailRepository;
 }
 
-export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenProps) {
+export function StorefrontCatalogScreen({
+  repository,
+  detailRepository,
+}: StorefrontCatalogScreenProps) {
   const { t } = useTranslation();
   const state = useStorefrontCatalog(repository);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("featured");
+  const [drawerSlug, setDrawerSlug] = useState<string | null>(null);
 
   // Compute view model and filtered menus
-  const { viewModel, filteredMenus } = useMemo(() => {
+  const { viewModel, filteredMenus, effectiveCategory } = useMemo(() => {
     if (state.status !== "ready") {
-      return { viewModel: null, filteredMenus: [] };
+      return { viewModel: null, filteredMenus: [], effectiveCategory: "featured" };
     }
 
     const viewModel = buildCatalogViewModel(state.menus, state.categories);
+
+    // A previously selected category can disappear after fresh data; fall back to featured
+    // instead of leaving a dangling tab key and an unlabeled content section.
+    const effectiveCategory =
+      activeCategory === "featured" ||
+      viewModel.categories.some((category) => category.id === activeCategory)
+        ? activeCategory
+        : "featured";
 
     // If there's a search query, filter across all menus
     if (searchQuery.trim()) {
       return {
         viewModel,
         filteredMenus: searchCatalogMenus(viewModel, searchQuery),
+        effectiveCategory,
       };
     }
 
     // Otherwise, show featured or category-specific menus
-    if (activeCategory === "featured") {
+    if (effectiveCategory === "featured") {
       return {
         viewModel,
         filteredMenus: getFeaturedMenus(viewModel),
+        effectiveCategory,
       };
     }
 
     return {
       viewModel,
-      filteredMenus: filterMenusByCategory(viewModel, activeCategory),
+      filteredMenus: filterMenusByCategory(viewModel, effectiveCategory),
+      effectiveCategory,
     };
   }, [state, searchQuery, activeCategory]);
 
   // Handle loading state
   if (state.status === "loading") {
     return (
-      <div
-        className={styles.loadingState}
-        role="status"
-        aria-label={t("storefront.loading")}
-        aria-live="polite"
-      >
+      <div className={styles.loadingState} role="status" aria-label={t("storefront.loading")}>
         <div className={styles.loadingGrid}>
           {LOADING_CARD_KEYS.map((key) => (
             <div className={styles.loadingCard} key={key} aria-hidden="true">
@@ -74,7 +89,6 @@ export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenP
             </div>
           ))}
         </div>
-        <span className={styles.visuallyHidden}>{t("storefront.loading")}</span>
       </div>
     );
   }
@@ -84,13 +98,13 @@ export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenP
     return (
       <Alert
         title={t("storefront.error.load")}
-        description={
-          <Button type="primary" onClick={state.retry}>
+        type="error"
+        showIcon
+        action={
+          <Button size="small" type="primary" onClick={state.retry}>
             {t("storefront.error.retry")}
           </Button>
         }
-        type="error"
-        showIcon
       />
     );
   }
@@ -102,9 +116,9 @@ export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenP
 
   const contentLabel = searchQuery
     ? t("storefront.search.results", { query: searchQuery })
-    : activeCategory === "featured"
+    : effectiveCategory === "featured"
       ? t("storefront.featured.tab")
-      : viewModel.categories.find((category) => category.id === activeCategory)?.name;
+      : viewModel.categories.find((category) => category.id === effectiveCategory)?.name;
 
   return (
     <>
@@ -112,7 +126,7 @@ export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenP
       <CatalogToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        activeCategory={activeCategory}
+        activeCategory={effectiveCategory}
         onCategoryChange={setActiveCategory}
         categories={viewModel.categories}
       />
@@ -126,12 +140,24 @@ export function StorefrontCatalogScreen({ repository }: StorefrontCatalogScreenP
                 : t("storefront.empty.catalog")
             }
           />
-        ) : activeCategory === "featured" && !searchQuery ? (
-          <FeaturedMenuGrid menus={filteredMenus} />
+        ) : effectiveCategory === "featured" && !searchQuery ? (
+          <FeaturedMenuGrid
+            menus={filteredMenus}
+            onAddAction={(menu) => setDrawerSlug(menu.slug)}
+          />
         ) : (
-          <CategoryMenuList menus={filteredMenus} />
+          <CategoryMenuList
+            menus={filteredMenus}
+            onAddAction={(menu) => setDrawerSlug(menu.slug)}
+          />
         )}
       </section>
+
+      <MenuDetailDrawer
+        menuSlug={drawerSlug}
+        onClose={() => setDrawerSlug(null)}
+        repository={detailRepository}
+      />
     </>
   );
 }

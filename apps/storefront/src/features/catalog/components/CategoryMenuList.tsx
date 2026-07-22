@@ -5,14 +5,15 @@ import styles from "../StorefrontCatalog.module.css";
 
 interface CategoryMenuListProps {
   menus: readonly MenuItem[];
+  onAddAction?: (menu: MenuItem) => void;
 }
 
-export function CategoryMenuList({ menus }: CategoryMenuListProps) {
+export function CategoryMenuList({ menus, onAddAction }: CategoryMenuListProps) {
   return (
     <List
       className={styles.categoryList}
       dataSource={[...menus]}
-      renderItem={(menu) => <MenuListItem menu={menu} />}
+      renderItem={(menu) => <MenuListItem menu={menu} onAddAction={onAddAction} />}
       rowKey="id"
     />
   );

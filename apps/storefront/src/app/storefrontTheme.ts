@@ -18,10 +18,6 @@ export const storefrontTheme: ThemeConfig = {
     borderRadius: 6, // Slightly rounded corners
   },
   components: {
-    Layout: {
-      colorBgHeader: "#ffffff",
-      colorBgBody: "#fffaf0",
-    },
     Card: {
       borderRadiusLG: 8,
     },

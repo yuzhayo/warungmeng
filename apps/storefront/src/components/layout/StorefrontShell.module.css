@@ -1,5 +1,7 @@
 .shell {
+  /* Shared shell layout constants; consumed by feature CSS for sticky offsets and gutters. */
   --storefront-header-height: 4.5rem;
+  --storefront-gutter: clamp(0.75rem, 3vw, 1.5rem);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -21,7 +23,7 @@
   width: min(100%, 76rem);
   height: var(--storefront-header-height);
   margin-inline: auto;
-  padding-inline: clamp(0.75rem, 3vw, 1.5rem);
+  padding-inline: var(--storefront-gutter);
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -58,7 +60,7 @@
   width: min(100%, 76rem);
   margin-inline: auto;
   box-sizing: border-box;
-  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding: var(--storefront-gutter);
   padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 

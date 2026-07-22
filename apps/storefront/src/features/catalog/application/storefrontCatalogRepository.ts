@@ -6,5 +6,14 @@ export type StorefrontCatalogRepository = Pick<
   "listMenus" | "listCategories"
 >;
 
-export const storefrontCatalogRepository: StorefrontCatalogRepository =
-  createWarungMengMockRepository();
+export type StorefrontMenuDetailRepository = Pick<
+  MenuCatalogRepository,
+  "listMenus" | "listCategories" | "listVariantGroups"
+>;
+
+// One shared mock instance keeps catalog and detail reads consistent in-process.
+const mockRepository = createWarungMengMockRepository();
+
+export const storefrontCatalogRepository: StorefrontCatalogRepository = mockRepository;
+
+export const storefrontMenuDetailRepository: StorefrontMenuDetailRepository = mockRepository;

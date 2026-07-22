@@ -1,0 +1,133 @@
+.detailColumn {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.identityImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.identityName {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.identityDescription {
+  margin: 0;
+  color: var(--ant-color-text-secondary, #666);
+}
+
+.identityPrice {
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+.groupFieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  min-width: 0;
+}
+
+.groupLegend {
+  padding: 0;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.groupGuidance {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--ant-color-text-secondary, #666);
+}
+
+.groupError {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ant-color-error, #ff4d4f);
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+}
+
+.optionMeta {
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--ant-color-text-secondary, #666);
+}
+
+.quantityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.quantityLabel {
+  font-weight: 600;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quantityInput {
+  width: 4.5rem;
+}
+
+.noteRow {
+  margin-bottom: 1.25rem;
+}
+
+.notePreview {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ant-color-text-secondary, #666);
+  overflow-wrap: anywhere;
+}
+
+.actionBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  background: var(--ant-color-bg-container, #fff);
+}
+
+.actionTotal {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.drawerBody {
+  padding-bottom: 0.5rem;
+}

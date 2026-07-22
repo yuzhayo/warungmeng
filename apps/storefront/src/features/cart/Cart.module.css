@@ -1,0 +1,118 @@
+.bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  background: var(--ant-color-bg-container, #fff);
+  border-top: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.barInner {
+  width: min(100%, 76rem);
+  margin-inline: auto;
+  padding: 0.75rem var(--storefront-gutter, 1rem);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.barSummary {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartColumn {
+  width: min(100%, 40rem);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.screenTitle {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.itemName {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.itemLineTotal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.itemVariants {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ant-color-text-secondary, #666);
+}
+
+.itemNote {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ant-color-text-secondary, #666);
+  overflow-wrap: anywhere;
+}
+
+.itemIssues {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.itemFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.totals {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  background: var(--ant-color-bg-layout, #fffaf0);
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}

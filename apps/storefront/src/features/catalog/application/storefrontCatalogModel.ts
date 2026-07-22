@@ -28,7 +28,7 @@ export function buildCatalogViewModel(
 
 export function getFeaturedMenus(viewModel: CatalogViewModel, limit = 4): readonly MenuItem[] {
   // Get first N available menus
-  return viewModel.menus.filter((menu) => menu.availability.status === "available").slice(0, limit);
+  return viewModel.menus.filter(isMenuAvailableForDisplay).slice(0, limit);
 }
 
 export function filterMenusByCategory(

@@ -16,9 +16,9 @@
   position: sticky;
   top: calc(var(--storefront-header-height, 4.5rem) + env(safe-area-inset-top));
   z-index: 10;
-  margin-inline: clamp(-1.5rem, -3vw, -0.75rem);
+  margin-inline: calc(-1 * var(--storefront-gutter, clamp(0.75rem, 3vw, 1.5rem)));
   margin-bottom: 1rem;
-  padding: 0.75rem clamp(0.75rem, 3vw, 1.5rem) 0;
+  padding: 0.75rem var(--storefront-gutter, clamp(0.75rem, 3vw, 1.5rem)) 0;
   background: var(--ant-color-bg-layout, #fffaf0);
 }
 
@@ -45,7 +45,7 @@
 
 .cardImage {
   width: 100%;
-  height: 120px;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
@@ -64,6 +64,26 @@
   margin-top: 0.5rem;
 }
 
+.cardTitleLink,
+.listItemTitleLink {
+  color: inherit;
+}
+
+.cardTitleLink:hover,
+.listItemTitleLink:hover {
+  color: var(--ant-color-primary, #d4af37);
+}
+
+.cardAddAction {
+  margin-top: 0.5rem;
+}
+
+.listItemAddAction {
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+  align-self: center;
+}
+
 .unavailableBadge {
   font-size: 0.75rem;
   margin-top: 0.25rem;
@@ -74,6 +94,14 @@
   align-items: flex-start;
   padding: 1rem 0;
   min-width: 0;
+}
+
+/* Subdue unavailable rows without reducing the unavailable label's contrast. */
+.listItemUnavailable .listItemImage,
+.listItemUnavailable .listItemTitle,
+.listItemUnavailable .listItemDescription,
+.listItemUnavailable .listItemPrice {
+  opacity: 0.55;
 }
 
 .listItemImage {
@@ -132,18 +160,6 @@
 .categoryList :global(.ant-list-items) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 @media (min-width: 48rem) {

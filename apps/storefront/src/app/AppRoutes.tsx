@@ -1,15 +1,41 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { StorefrontShell } from "../components/layout/StorefrontShell";
-import { StorefrontCatalogScreen } from "../features/catalog/screens/StorefrontCatalogScreen";
-import { NotFoundScreen } from "../screens/NotFoundScreen";
+
+const StorefrontCatalogScreen = lazy(() =>
+  import("../features/catalog/screens/StorefrontCatalogScreen").then((module) => ({
+    default: module.StorefrontCatalogScreen,
+  })),
+);
+const MenuDetailScreen = lazy(() =>
+  import("../features/catalog/screens/MenuDetailScreen").then((module) => ({
+    default: module.MenuDetailScreen,
+  })),
+);
+const CartScreen = lazy(() =>
+  import("../features/cart/screens/CartScreen").then((module) => ({
+    default: module.CartScreen,
+  })),
+);
+const NotFoundScreen = lazy(() =>
+  import("../screens/NotFoundScreen").then((module) => ({ default: module.NotFoundScreen })),
+);
+
+function RouteLoadingFallback() {
+  return <div role="status" aria-label="Loading" />;
+}
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<StorefrontShell />}>
-        <Route index element={<StorefrontCatalogScreen />} />
-        <Route path="*" element={<NotFoundScreen />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<RouteLoadingFallback />}>
+      <Routes>
+        <Route element={<StorefrontShell />}>
+          <Route index element={<StorefrontCatalogScreen />} />
+          <Route path="menu/:menuSlug" element={<MenuDetailScreen />} />
+          <Route path="cart" element={<CartScreen />} />
+          <Route path="*" element={<NotFoundScreen />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
