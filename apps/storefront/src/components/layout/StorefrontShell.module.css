@@ -46,9 +46,6 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--ant-color-text-secondary, #666);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .controls {

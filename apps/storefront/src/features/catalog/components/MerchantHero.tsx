@@ -8,7 +8,7 @@ export function MerchantHero() {
   return (
     <Card className={styles.merchantHero} variant="outlined">
       <div className={styles.heroContent}>
-        <h2>WARUNG MENG</h2>
+        <h2>{t("storefront.merchant.name")}</h2>
         <p>{t("storefront.header.tagline")}</p>
       </div>
     </Card>

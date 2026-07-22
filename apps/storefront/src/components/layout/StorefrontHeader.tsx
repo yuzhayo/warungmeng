@@ -11,7 +11,7 @@ export function StorefrontHeader() {
     <header className={styles.header}>
       <div className={styles.headerInner}>
         <div className={styles.merchantInfo}>
-          <h1 className={styles.merchantName}>WARUNG MENG</h1>
+          <h1 className={styles.merchantName}>{t("storefront.merchant.name")}</h1>
           <p className={styles.tagline}>{t("storefront.header.tagline")}</p>
         </div>
         <div className={styles.controls}>

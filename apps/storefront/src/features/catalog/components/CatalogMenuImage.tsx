@@ -31,6 +31,7 @@ export function CatalogMenuImage({ image, className }: CatalogMenuImageProps) {
       alt={image.alt}
       src={image.url}
       className={className}
+      loading="lazy"
       onError={() => setFailedUrl(image.url)}
     />
   );

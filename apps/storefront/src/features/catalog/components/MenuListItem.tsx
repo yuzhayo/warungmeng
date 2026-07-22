@@ -1,4 +1,4 @@
-import { Button, List, Typography } from "antd";
+import { Button, Typography } from "antd";
 import type { MenuItem } from "@warungmeng/domain";
 import { formatRupiah } from "@warungmeng/i18n";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export function MenuListItem({ menu, onAddAction }: MenuListItemProps) {
     : `${styles.listItem} ${styles.listItemUnavailable}`;
 
   return (
-    <List.Item className={itemClassName}>
+    <div className={itemClassName} role="listitem">
       <CatalogMenuImage image={menu.image} className={styles.listItemImage} />
       <div className={styles.listItemContent}>
         <h3 className={styles.listItemTitle}>
@@ -51,6 +51,6 @@ export function MenuListItem({ menu, onAddAction }: MenuListItemProps) {
           {t("storefront.detail.addLabel")}
         </Button>
       ) : null}
-    </List.Item>
+    </div>
   );
 }
