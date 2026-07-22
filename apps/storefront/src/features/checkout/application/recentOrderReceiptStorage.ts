@@ -113,8 +113,15 @@ export function loadRecentOrderReceipt(
     const raw = storage.getItem(RECENT_ORDER_RECEIPT_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
-    return isReceipt(parsed) ? parsed : null;
+    if (isReceipt(parsed)) return parsed;
+    storage.removeItem(RECENT_ORDER_RECEIPT_KEY);
+    return null;
   } catch {
+    try {
+      storage.removeItem(RECENT_ORDER_RECEIPT_KEY);
+    } catch {
+      // Storage cleanup is best-effort; malformed data must still fail closed.
+    }
     return null;
   }
 }

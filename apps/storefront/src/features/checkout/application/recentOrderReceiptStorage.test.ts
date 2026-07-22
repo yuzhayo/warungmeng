@@ -78,6 +78,7 @@ describe("recentOrderReceiptStorage", () => {
       const storage = memoryStorage();
       storage.setItem(RECENT_ORDER_RECEIPT_KEY, value);
       expect(loadRecentOrderReceipt(storage)).toBeNull();
+      expect(storage.getItem(RECENT_ORDER_RECEIPT_KEY)).toBeNull();
     },
   );
 });

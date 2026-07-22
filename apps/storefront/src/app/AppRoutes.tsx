@@ -22,6 +22,11 @@ const CheckoutScreen = lazy(() =>
     default: module.CheckoutScreen,
   })),
 );
+const OrderConfirmationScreen = lazy(() =>
+  import("../features/orders/screens/OrderConfirmationScreen").then((module) => ({
+    default: module.OrderConfirmationScreen,
+  })),
+);
 const NotFoundScreen = lazy(() =>
   import("../screens/NotFoundScreen").then((module) => ({ default: module.NotFoundScreen })),
 );
@@ -39,6 +44,7 @@ export function AppRoutes() {
           <Route path="menu/:menuSlug" element={<MenuDetailScreen />} />
           <Route path="cart" element={<CartScreen />} />
           <Route path="checkout" element={<CheckoutScreen />} />
+          <Route path="orders/:orderId" element={<OrderConfirmationScreen />} />
           <Route path="*" element={<NotFoundScreen />} />
         </Route>
       </Routes>

@@ -27,6 +27,10 @@ vi.mock("../features/checkout/screens/CheckoutScreen", () => ({
   CheckoutScreen: () => <div data-testid="checkout-screen">Checkout</div>,
 }));
 
+vi.mock("../features/orders/screens/OrderConfirmationScreen", () => ({
+  OrderConfirmationScreen: () => <div data-testid="order-confirmation-screen">Order</div>,
+}));
+
 vi.mock("../screens/NotFoundScreen", () => ({
   NotFoundScreen: () => <div data-testid="not-found">404</div>,
 }));
@@ -69,6 +73,14 @@ describe("AppRoutes", () => {
 
     expect(await screen.findByTestId("storefront-shell")).toBeInTheDocument();
     expect(await screen.findByTestId("checkout-screen")).toBeInTheDocument();
+    expect(screen.queryByTestId("not-found")).not.toBeInTheDocument();
+  });
+
+  it("renders order confirmation through the shared shell at /orders/:orderId", async () => {
+    renderRoute("/orders/order-1");
+
+    expect(await screen.findByTestId("storefront-shell")).toBeInTheDocument();
+    expect(await screen.findByTestId("order-confirmation-screen")).toBeInTheDocument();
     expect(screen.queryByTestId("not-found")).not.toBeInTheDocument();
   });
 
