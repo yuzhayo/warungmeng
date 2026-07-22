@@ -120,6 +120,29 @@ describe("StorefrontCatalogScreen", () => {
     expect(screen.getByText("Pilihan Warung Meng")).toBeInTheDocument();
   });
 
+  it("uses the same menu grid contract for featured and category tabs", async () => {
+    const user = userEvent.setup();
+    mockUseStorefrontCatalog.mockReturnValue({
+      status: "ready",
+      menus: [m1, m2, m3],
+      categories: [cat1, cat2],
+    });
+
+    renderWithI18n(<StorefrontCatalogScreen />);
+
+    const featuredSection = screen.getByRole("region", { name: "Pilihan Warung Meng" });
+    const featuredGrid = within(featuredSection).getByRole("list");
+    expect(within(featuredGrid).getAllByRole("listitem")).toHaveLength(3);
+
+    await user.click(screen.getByRole("tab", { name: "Minuman" }));
+
+    const categorySection = screen.getByRole("region", { name: "Minuman" });
+    const categoryGrid = within(categorySection).getByRole("list");
+    expect(categoryGrid.className).toBe(featuredGrid.className);
+    expect(within(categoryGrid).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(categoryGrid).getByRole("button", { name: "Tambah Es Teh" })).toBeEnabled();
+  });
+
   it("shows search results when query is entered", async () => {
     const user = userEvent.setup();
     mockUseStorefrontCatalog.mockReturnValue({

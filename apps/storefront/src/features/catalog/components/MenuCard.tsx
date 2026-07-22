@@ -9,18 +9,18 @@ import { CatalogMenuImage } from "./CatalogMenuImage";
 
 const { Text } = Typography;
 
-interface FeaturedMenuCardProps {
+interface MenuCardProps {
   menu: MenuItem;
   onAddAction?: (menu: MenuItem) => void;
 }
 
-export function FeaturedMenuCard({ menu, onAddAction }: FeaturedMenuCardProps) {
+export function MenuCard({ menu, onAddAction }: MenuCardProps) {
   const { t } = useTranslation();
   const available = isMenuAvailableForDisplay(menu);
 
   return (
     <Card
-      className={styles.featuredCard}
+      className={styles.menuCard}
       cover={
         <Link
           to={`/menu/${menu.slug}`}

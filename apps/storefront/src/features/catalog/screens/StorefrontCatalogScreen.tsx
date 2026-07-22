@@ -13,8 +13,7 @@ import type {
   StorefrontMenuDetailRepository,
 } from "../application/storefrontCatalogRepository";
 import { CatalogToolbar } from "../components/CatalogToolbar";
-import { CategoryMenuList } from "../components/CategoryMenuList";
-import { FeaturedMenuGrid } from "../components/FeaturedMenuGrid";
+import { MenuGrid } from "../components/MenuGrid";
 import { MenuDetailDrawer } from "../components/MenuDetailDrawer";
 import { MerchantHero } from "../components/MerchantHero";
 import styles from "../StorefrontCatalog.module.css";
@@ -140,16 +139,8 @@ export function StorefrontCatalogScreen({
                 : t("storefront.empty.catalog")
             }
           />
-        ) : effectiveCategory === "featured" && !searchQuery ? (
-          <FeaturedMenuGrid
-            menus={filteredMenus}
-            onAddAction={(menu) => setDrawerSlug(menu.slug)}
-          />
         ) : (
-          <CategoryMenuList
-            menus={filteredMenus}
-            onAddAction={(menu) => setDrawerSlug(menu.slug)}
-          />
+          <MenuGrid menus={filteredMenus} onAddAction={(menu) => setDrawerSlug(menu.slug)} />
         )}
       </section>
 
