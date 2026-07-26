@@ -34,22 +34,22 @@ Rombak Warung Meng tanpa big-bang rewrite sehingga fitur operasional dapat ditem
 didaftarkan, dirakit, diaktifkan, diuji, dan dikembangkan melalui kontrak modul yang
 stabil.
 
-File tree target, ownership UI/application/domain/data, dan parent–child contract
+File tree target, ownership UI/application/domain/data, dan parentâ€“child contract
 canonical untuk refactor ini berada di:
 
 ```text
-warungmeng-target-modular-file-tree.md
+TARGET-FILE-TREE.md
 ```
 
 Empat fondasi target tidak boleh dikurangi:
 
-1. **Declarative UI** — navigasi, route, action, tab, dan metadata presentasi berasal
+1. **Declarative UI** â€” navigasi, route, action, tab, dan metadata presentasi berasal
    dari kontribusi modul yang deklaratif.
-2. **Headless Logic Engine** — business rule dan orchestration utama dapat berjalan
+2. **Headless Logic Engine** â€” business rule dan orchestration utama dapat berjalan
    tanpa React, DOM, router, CSS, atau Ant Design.
-3. **Manifest Discovery** — modul dikenali melalui manifest tervalidasi, bukan daftar
+3. **Manifest Discovery** â€” modul dikenali melalui manifest tervalidasi, bukan daftar
    fitur yang tersebar di shell, route, dan UI.
-4. **Stable Extension Contracts** — modul menambah capability melalui public contract,
+4. **Stable Extension Contracts** â€” modul menambah capability melalui public contract,
    bukan dengan mengimpor internal implementation modul lain.
 
 Target ini bukan izin untuk mengubah business behavior, persistence, backend, payment,
@@ -70,7 +70,7 @@ Input eksekusi yang harus ditentukan atau ditemukan:
 - required validation;
 - apakah approval diperlukan setelah setiap phase.
 
-Jika scope hanya menyebut “refactor Warung Meng”, audit seluruh monorepo tetapi jangan
+Jika scope hanya menyebut â€œrefactor Warung Mengâ€, audit seluruh monorepo tetapi jangan
 mengubah production source. Buat execution plan canonical dan usulkan phase pertama.
 
 ## 2. Source of Truth
@@ -81,7 +81,7 @@ Baca sumber berikut sebelum bekerja, sesuai urutan:
 2. `CLAUDE.md`;
 3. `AGENTS.md` terdekat dengan target;
 4. source code, tests, package manifest, dan configuration aktual;
-5. `.docs/ROADMAP.md`;
+5. `PRD.md`;
 6. phase plan dan QA report yang masih aktif;
 7. technical-debt register;
 8. dokumen lama hanya sebagai historical context.
@@ -92,7 +92,7 @@ Khusus Storefront, baca:
 apps/storefront/AGENTS.md
 .docs/STOREFRONT-PLAN-INDEX.md
 .docs/STOREFRONT-MVP-QA-REPORT.md
-.docs/TECHNICAL-DEBT.md
+PRD.md
 ```
 
 `apps/storefront/PLAN.md` mengandung keputusan lama seperti outlet-scoped route dan
@@ -110,43 +110,43 @@ Jika dua sumber masih aktif tetapi bertentangan:
 
 ```text
 warungmeng/
-├─ apps/
-│  ├─ admin/
-│  │  └─ src/
-│  │     ├─ app/
-│  │     ├─ components/layout/
-│  │     └─ features/
-│  │        ├─ dashboard/
-│  │        ├─ menu/
-│  │        ├─ orders/
-│  │        ├─ pos/
-│  │        ├─ inventory/
-│  │        ├─ finance/
-│  │        └─ settings/
-│  └─ storefront/
-│     └─ src/
-│        ├─ app/
-│        ├─ components/layout/
-│        └─ features/
-│           ├─ catalog/
-│           ├─ cart/
-│           ├─ checkout/
-│           └─ orders/
-└─ packages/
-   ├─ config/
-   ├─ domain/
-   ├─ data/
-   ├─ i18n/
-   ├─ ui-admin/
-   └─ ui-storefront/
+â”œâ”€ apps/
+â”‚  â”œâ”€ admin/
+â”‚  â”‚  â””â”€ src/
+â”‚  â”‚     â”œâ”€ app/
+â”‚  â”‚     â”œâ”€ components/layout/
+â”‚  â”‚     â””â”€ features/
+â”‚  â”‚        â”œâ”€ dashboard/
+â”‚  â”‚        â”œâ”€ menu/
+â”‚  â”‚        â”œâ”€ orders/
+â”‚  â”‚        â”œâ”€ pos/
+â”‚  â”‚        â”œâ”€ inventory/
+â”‚  â”‚        â”œâ”€ finance/
+â”‚  â”‚        â””â”€ settings/
+â”‚  â””â”€ storefront/
+â”‚     â””â”€ src/
+â”‚        â”œâ”€ app/
+â”‚        â”œâ”€ components/layout/
+â”‚        â””â”€ features/
+â”‚           â”œâ”€ catalog/
+â”‚           â”œâ”€ cart/
+â”‚           â”œâ”€ checkout/
+â”‚           â””â”€ orders/
+â””â”€ packages/
+   â”œâ”€ config/
+   â”œâ”€ domain/
+   â”œâ”€ data/
+   â”œâ”€ i18n/
+   â”œâ”€ ui-admin/
+   â””â”€ ui-storefront/
 ```
 
 Current application routes:
 
 ### Admin
 
-- `/` — Dashboard overview;
-- `/reports` — Dashboard reports;
+- `/` â€” Dashboard overview;
+- `/reports` â€” Dashboard reports;
 - `/menu` dan editor/variant children;
 - `/orders` dan `/orders/:orderId`;
 - `/pos`;
@@ -158,12 +158,12 @@ Admin menggunakan `HashRouter`.
 
 ### Storefront
 
-- `/` — catalog;
-- `/menu/:menuSlug` — menu detail;
+- `/` â€” catalog;
+- `/menu/:menuSlug` â€” menu detail;
 - `/cart`;
 - `/checkout`;
-- `/orders/:orderId` — recent order confirmation;
-- `*` — not found.
+- `/orders/:orderId` â€” recent order confirmation;
+- `*` â€” not found.
 
 Storefront menggunakan `BrowserRouter`, route-level lazy loading, dan single outlet
 `wm-1`. Jangan membuat outlet chooser atau outlet-scoped URL tanpa keputusan baru.
@@ -198,12 +198,12 @@ composition root dan dua registry surface:
 
 ```text
 Warung Meng shared contracts
-├─ Admin Control Center
-│  ├─ admin module registry
-│  └─ admin composition root
-└─ Storefront Customer Runtime
-   ├─ storefront module registry
-   └─ storefront composition root
+â”œâ”€ Admin Control Center
+â”‚  â”œâ”€ admin module registry
+â”‚  â””â”€ admin composition root
+â””â”€ Storefront Customer Runtime
+   â”œâ”€ storefront module registry
+   â””â”€ storefront composition root
 ```
 
 Kontrak dasar modul boleh dibagikan. Route, UI contribution, capability, dan lifecycle
@@ -452,16 +452,16 @@ Target:
 
 ```text
 apps/admin/src/app/
-├─ createAdminRuntime.ts
-├─ adminModuleRegistry.ts
-├─ AdminApplicationProviders.tsx
-└─ AppRoutes.tsx
+â”œâ”€ createAdminRuntime.ts
+â”œâ”€ adminModuleRegistry.ts
+â”œâ”€ AdminApplicationProviders.tsx
+â””â”€ AppRoutes.tsx
 
 apps/storefront/src/app/
-├─ createStorefrontRuntime.ts
-├─ storefrontModuleRegistry.ts
-├─ ApplicationProviders.tsx
-└─ AppRoutes.tsx
+â”œâ”€ createStorefrontRuntime.ts
+â”œâ”€ storefrontModuleRegistry.ts
+â”œâ”€ ApplicationProviders.tsx
+â””â”€ AppRoutes.tsx
 ```
 
 Hanya composition root yang mengetahui:
@@ -480,17 +480,17 @@ Hanya composition root yang mengetahui:
 
 ```text
 Manifest metadata
-        ↓
+        â†“
 Module registry and capability contracts
-        ↓
+        â†“
 App composition root
-        ↓
+        â†“
 Route/screen controllers
-        ↓
+        â†“
 Feature application services and presenters
-        ↓
+        â†“
 Shared domain rules and repository contracts
-        ↑
+        â†‘
 Concrete data/storage adapters
 
 Presentational UI:
@@ -499,13 +499,13 @@ receives view model + callbacks; never owns repositories
 
 Forbidden imports:
 
-- app A → app B;
-- domain → data/UI/app;
-- UI component → repository or concrete adapter;
-- extension → internal extension;
-- manifest → screen implementation;
-- feature child → routed screen parent;
-- shared package → application source.
+- app A â†’ app B;
+- domain â†’ data/UI/app;
+- UI component â†’ repository or concrete adapter;
+- extension â†’ internal extension;
+- manifest â†’ screen implementation;
+- feature child â†’ routed screen parent;
+- shared package â†’ application source.
 
 Automated boundary test harus menggunakan resolver dan tsconfig production aktual.
 
@@ -516,18 +516,18 @@ ownership dan kebutuhan phase.
 
 ```text
 apps/<surface>/src/features/<feature>/
-├─ manifest/
-│  ├─ <feature>Manifest.ts
-│  └─ <feature>Extension.ts
-├─ application/
-│  ├─ commands/
-│  ├─ presenters/
-│  ├─ ports/
-│  └─ controllers/
-├─ components/
-├─ screens/
-├─ views/
-└─ index.ts
+â”œâ”€ manifest/
+â”‚  â”œâ”€ <feature>Manifest.ts
+â”‚  â””â”€ <feature>Extension.ts
+â”œâ”€ application/
+â”‚  â”œâ”€ commands/
+â”‚  â”œâ”€ presenters/
+â”‚  â”œâ”€ ports/
+â”‚  â””â”€ controllers/
+â”œâ”€ components/
+â”œâ”€ screens/
+â”œâ”€ views/
+â””â”€ index.ts
 ```
 
 Pure business rule lintas aplikasi tetap berada di `packages/domain`, bukan
@@ -613,7 +613,7 @@ Audit harus memperbaiki tabel ini berdasarkan evidence:
 
 ## 16. Phased Refactor Strategy
 
-### Phase 00 — Baseline and architecture audit
+### Phase 00 â€” Baseline and architecture audit
 
 - read-only;
 - inventory module, route, navigation, state owner, repository, storage, tests;
@@ -623,7 +623,7 @@ Audit harus memperbaiki tabel ini berdasarkan evidence:
 
 Stop: report readiness. Jangan edit production source.
 
-### Phase 01 — Module contracts
+### Phase 01 â€” Module contracts
 
 - define manifest, diagnostic, capability, extension, dan registry contracts;
 - add pure validation and dependency-resolution tests;
@@ -632,7 +632,7 @@ Stop: report readiness. Jangan edit production source.
 
 Stop: contract review.
 
-### Phase 02 — Admin registry skeleton
+### Phase 02 â€” Admin registry skeleton
 
 - create Admin composition runtime;
 - register existing features through compatibility extensions;
@@ -641,38 +641,38 @@ Stop: contract review.
 
 Stop: automated validation + browser QA + review.
 
-### Phase 03 — Declarative Admin navigation and routes
+### Phase 03 â€” Declarative Admin navigation and routes
 
 - migrate navigation/route metadata module by module;
 - detect duplicate IDs/routes;
 - remove legacy list only after every consumer migrates.
 
-### Phase 04 — Admin headless capability boundaries
+### Phase 04 â€” Admin headless capability boundaries
 
 - migrate orchestration by feature;
 - prioritize Orders cancellation, POS, Inventory, dan Finance due to cross-domain
   effects;
 - preserve atomicity and idempotency.
 
-### Phase 05 — Storefront registry skeleton
+### Phase 05 â€” Storefront registry skeleton
 
 - separate Storefront registry and composition root;
 - preserve current public routes;
 - migrate Catalog first, then Cart, Checkout, dan Order Confirmation.
 
-### Phase 06 — Stable cross-feature capabilities
+### Phase 06 â€” Stable cross-feature capabilities
 
 - replace proven problematic internal imports with public capability contracts;
 - do not convert every function into a capability;
 - keep synchronous pure domain logic as direct domain imports.
 
-### Phase 07 — Boundary enforcement and legacy removal
+### Phase 07 â€” Boundary enforcement and legacy removal
 
 - enable production import-boundary checks;
 - remove compatibility paths with no consumers;
 - verify no duplicate source of truth.
 
-### Phase 08 — Full regression and architecture closure
+### Phase 08 â€” Full regression and architecture closure
 
 - full automated gate;
 - Admin and Storefront browser QA;

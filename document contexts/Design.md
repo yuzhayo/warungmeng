@@ -1,7 +1,7 @@
-# Warung Meng — Design.md
+# Warung Meng â€” DESIGN.md
 
 > Fokus: sistem desain UI aktual (admin + storefront) dan aturan presentasi target
-> modular (marker `[UI]`, `[SCREEN]`, `[COMP]` dari `warungmeng-target-modular-file-tree.md`).
+> modular (marker `[UI]`, `[SCREEN]`, `[COMP]` dari `TARGET-FILE-TREE.md`).
 
 > Audited from live checkout: 24 Juli 2026.
 > Dokumen ini merangkum current implementation dan target responsibility; bukan
@@ -26,24 +26,24 @@ Admin, bukan berarti Storefront bebas AntD.
 
 File kunci:
 
-- `AdminUiProvider.tsx` — provider utama yang membungkus AntD `ConfigProvider`.
-- `adminTheme.ts` — entry theme default.
-- `theme/createAdminTheme.ts` — factory pembuat AntD theme token dari pengaturan.
-- `theme/themeDefaults.ts` — token/preset bawaan.
-- `theme/themeContrast.ts` — validasi kontras warna (a11y).
-- `theme/themeRandomizer.ts` — generator tema acak (**ditunda pemakaiannya** di
-  produk — lihat `ROADMAP.md`: "Randomizer dan import/export tema tetap ditunda").
-- `theme/themeSerialization.ts` — serialisasi tema untuk disimpan.
-- `theme/themeStorage.ts` — persistence tema (browser storage).
-- `theme/themeTypes.ts` — kontrak tipe tema.
+- `AdminUiProvider.tsx` â€” provider utama yang membungkus AntD `ConfigProvider`.
+- `adminTheme.ts` â€” entry theme default.
+- `theme/createAdminTheme.ts` â€” factory pembuat AntD theme token dari pengaturan.
+- `theme/themeDefaults.ts` â€” token/preset bawaan.
+- `theme/themeContrast.ts` â€” validasi kontras warna (a11y).
+- `theme/themeRandomizer.ts` â€” generator tema acak (**ditunda pemakaiannya** di
+  produk â€” lihat `ROADMAP.md`: "Randomizer dan import/export tema tetap ditunda").
+- `theme/themeSerialization.ts` â€” serialisasi tema untuk disimpan.
+- `theme/themeStorage.ts` â€” persistence tema (browser storage).
+- `theme/themeTypes.ts` â€” kontrak tipe tema.
 
-Fitur produk terkait: **Theme Settings** (`/settings/theme`) — mode built-in/custom,
+Fitur produk terkait: **Theme Settings** (`/settings/theme`) â€” mode built-in/custom,
 draft, Save/Cancel/Reset. Known debt (TD-001): live preview belum terisolasi penuh dari
 theme aktif.
 
-## 3. Navigation & Layout (Admin) — Current
+## 3. Navigation & Layout (Admin) â€” Current
 
-Layout: `AdminShell` (parent) → `AdminHeader`, `AdminSidebar` (collapsible).
+Layout: `AdminShell` (parent) â†’ `AdminHeader`, `AdminSidebar` (collapsible).
 Navigasi didefinisikan terpusat di `apps/admin/src/app/navigation.tsx`:
 
 | Route key    | Label key i18n                              |
@@ -60,46 +60,46 @@ Keputusan produk: Dashboard/Report tetap top-level; HPP **tidak** punya nav send
 (bagian dari Inventory); POS Kasir modul & nav tersendiri.
 
 Target modular: navigasi ini akan berasal dari `resolveAdminNavigation.ts` (view model)
-yang membaca kontribusi manifest tiap feature — bukan file terpusat manual.
+yang membaca kontribusi manifest tiap feature â€” bukan file terpusat manual.
 
-## 4. Storefront Design — Current
+## 4. Storefront Design â€” Current
 
 Storefront memakai AntD 6 untuk component behavior dan CSS Module untuk layout/presentasi
 feature-specific. File style utama:
 `StorefrontCatalog.module.css`, `MenuDetail.module.css`, `Cart.module.css`,
 `Checkout.module.css`, `OrderConfirmation.module.css`.
 
-QA storefront sudah diverifikasi di dua breakpoint: **375×812 (mobile)** dan
-**1024×768 (tablet/desktop)** — lihat `STOREFRONT-MVP-QA-REPORT.md` (36 overflow
+QA storefront sudah diverifikasi di dua breakpoint: **375Ã—812 (mobile)** dan
+**1024Ã—768 (tablet/desktop)** â€” lihat `STOREFRONT-MVP-QA-REPORT.md` (36 overflow
 checkpoint, Playwright 1.61.1). Known debt kecil: TD-SF-01, `font-size: 0.75rem`
-hardcoded di 3 lokasi (belum pakai `var(--ant-font-size-sm)`).
+hardcoded di 4 lokasi / 3 file (belum pakai `var(--ant-font-size-sm)`).
 
 ## 5. i18n & Formatting (Shared)
 
 - `@warungmeng/i18n`: `WarungMengI18nProvider`, bilingual **Indonesia/English**.
-- Paritas key ID/EN dijaga otomatis oleh test (`translations.test.ts`) — **jangan
+- Paritas key ID/EN dijaga otomatis oleh test (`translations.test.ts`) â€” **jangan
   hapus test ini**, ini pagar anti-regresi bilingual.
-- `formatters.ts`: format Rupiah dan lainnya — karakteristik ini termasuk daftar
+- `formatters.ts`: format Rupiah dan lainnya â€” karakteristik ini termasuk daftar
   "Existing Behavior Protection" yang wajib punya characterization test sebelum
   dipindah dalam refactor modular.
 
 ## 6. Component Responsibility Marker (Target)
 
-Dari `warungmeng-target-modular-file-tree.md`, setiap file UI di masa depan diberi
+Dari `TARGET-FILE-TREE.md`, setiap file UI di masa depan diberi
 tag tanggung jawab:
 
 | Marker     | Arti                                                                     |
 | ---------- | ------------------------------------------------------------------------ |
 | `[UI]`     | React/AntD presentational, hanya AntD, CSS, focus, visual state          |
-| `[SCREEN]` | Route-level composition parent — tidak boleh membuat concrete repository |
-| `[HOOK]`   | React lifecycle adapter (controller) — bridging ke application layer     |
-| `[COMP]`   | Composition root — providers + runtime + router saja                     |
+| `[SCREEN]` | Route-level composition parent â€” tidak boleh membuat concrete repository |
+| `[HOOK]`   | React lifecycle adapter (controller) â€” bridging ke application layer     |
+| `[COMP]`   | Composition root â€” providers + runtime + router saja                     |
 
 Child rules penting untuk desain komponen:
 
 1. Component tidak boleh import screen.
 2. Screen tidak boleh membuat concrete repository sendiri.
-3. Props membawa view model + callback — **bukan** mutable repository.
+3. Props membawa view model + callback â€” **bukan** mutable repository.
 4. Shell menerima navigation view model siap-render, bukan raw manifest.
 
 Aturan tersebut adalah target untuk file baru atau file yang sudah masuk migration
@@ -108,7 +108,7 @@ melakukan rewrite massal hanya untuk menyamakan bentuk folder.
 
 ## 7. Desain yang Sengaja Ditunda (Deferred by Design, bukan Debt)
 
-Dari `ROADMAP.md` dan `TECHNICAL-DEBT.md` — jangan desain ulang area ini tanpa approval:
+Dari `ROADMAP.md` dan `TECHNICAL-DEBT.md` â€” jangan desain ulang area ini tanpa approval:
 
 - Auth/role UI, multi-outlet selector.
 - Delivery address/zone/fee/ETA UI di storefront.

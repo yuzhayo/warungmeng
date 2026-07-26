@@ -57,7 +57,7 @@
   min-width: 2rem;
   height: 2rem;
   padding-inline: 0;
-  font-size: 0.75rem;
+  font-size: var(--ant-font-size-sm, 0.75rem);
   font-weight: 600;
 }
 
@@ -76,6 +76,6 @@
   }
 
   .tagline {
-    font-size: 0.75rem;
+    font-size: var(--ant-font-size-sm, 0.75rem);
   }
 }

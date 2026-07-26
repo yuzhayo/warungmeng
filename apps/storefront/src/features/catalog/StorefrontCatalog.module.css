@@ -77,7 +77,7 @@
 }
 
 .unavailableBadge {
-  font-size: 0.75rem;
+  font-size: var(--ant-font-size-sm, 0.75rem);
   margin-top: 0.25rem;
   display: block;
 }
