@@ -46,9 +46,9 @@ QA report, dan storefront plan index. File-file itu tidak ikut dalam ZIP karena 
 diabaikan Git, bukan karena tidak ada.
 
 Belum diimplementasikan: `packages/module-system`, module manifest/extension runtime,
-route/navigation resolver berbasis manifest, dan `.docs/MODULAR-MIGRATION-EVIDENCE.md`.
-Migration ledger dibuat sebagai output Phase 00 dan harus selalu dibandingkan ulang
-dengan live checkout.
+route/navigation resolver berbasis manifest. Migration ledger dan evidence file
+(`document contexts/MODULAR-MIGRATION-EVIDENCE.md`) dibuat sebagai output Phase 00 dan
+harus selalu dibandingkan ulang dengan live checkout.
 
 ## 3. Current Layering (Admin, per-feature)
 
@@ -133,7 +133,7 @@ User event â†’ [UI] component callback â†’ [SCREEN/HOOK] controller co
 | ------------------------------------------ | ---------------------------------------------------------------------------------- |
 | `packages/module-system`                   | Belum dibuat                                                                       |
 | `MODULAR-MIGRATION-LEDGER.md`        | Dibuat pada Phase 00; status row awal masih harus diverifikasi per vertical module |
-| `.docs/MODULAR-MIGRATION-EVIDENCE.md`      | Belum dibuat                                                                       |
+| `document contexts/MODULAR-MIGRATION-EVIDENCE.md` | Skeleton dibuat; row per wave/module masih menunggu evidence eksekusi        |
 | Manifest/extension per feature             | Belum dibuat                                                                       |
 | Route/nav resolver                         | Belum dibuat, masih hardcode di `AppRoutes.tsx` / `navigation.tsx`                 |
 | Existing feature logic (domain/data/hooks) | Tetap dipertahankan â€” refactor tidak boleh mengubah behavior                       |
