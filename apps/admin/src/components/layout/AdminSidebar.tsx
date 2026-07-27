@@ -24,6 +24,8 @@ export function AdminSidebar({
   onCollapse,
   onNavigate,
 }: AdminSidebarProps) {
+  const hiddenOnMobile = mobile && collapsed;
+
   return (
     <Sider
       breakpoint="lg"
@@ -37,15 +39,17 @@ export function AdminSidebar({
       trigger={null}
       width="clamp(15rem, 19vw, 18rem)"
     >
-      <nav aria-label={navigationLabel} className="admin-sidebar__navigation">
-        <Menu
-          items={items}
-          mode="inline"
-          onClick={({ key }) => onNavigate(key)}
-          selectedKeys={[selectedKey]}
-          theme="dark"
-        />
-      </nav>
+      {hiddenOnMobile ? null : (
+        <nav aria-label={navigationLabel} className="admin-sidebar__navigation">
+          <Menu
+            items={items}
+            mode="inline"
+            onClick={({ key }) => onNavigate(key)}
+            selectedKeys={[selectedKey]}
+            theme="dark"
+          />
+        </nav>
+      )}
     </Sider>
   );
 }

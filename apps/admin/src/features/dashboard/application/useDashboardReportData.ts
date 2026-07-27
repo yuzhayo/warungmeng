@@ -8,20 +8,21 @@ import {
   loadDashboardSource,
   normalizeDashboardSourceError,
   type DashboardDataSource,
-  type DashboardReportRepositories,
   type DashboardSourceCache,
   type DashboardSourceError,
   type DashboardSourceErrors,
   type DashboardSourceResult,
 } from "./dashboardReportData.core";
+import type { DashboardRepositoriesPort } from "./ports/dashboardRepositoriesPort";
 
 export { DASHBOARD_DATA_SOURCES, DASHBOARD_OUTLET_ID } from "./dashboardReportData.core";
 export type {
   DashboardDataSource,
-  DashboardReportRepositories,
   DashboardSourceError,
   DashboardSourceErrors,
 } from "./dashboardReportData.core";
+export type { DashboardRepositoriesPort } from "./ports/dashboardRepositoriesPort";
+export type DashboardReportRepositories = DashboardRepositoriesPort;
 
 export type DashboardReportLoadStatus = "loading" | "ready" | "partial" | "error";
 
@@ -54,7 +55,7 @@ interface DashboardRequestBatch {
   readonly periodKey: string;
   readonly reloadToken: number;
   readonly targetsKey: string;
-  readonly repositories: DashboardReportRepositories;
+  readonly repositories: DashboardRepositoriesPort;
   readonly promise: Promise<PromiseSettledResult<DashboardSourceResult>[]>;
 }
 
@@ -74,8 +75,8 @@ function createLoadingState(period: ReportingPeriod): DashboardReportDataState {
 }
 
 function haveSameRepositoryIdentity(
-  left: DashboardReportRepositories,
-  right: DashboardReportRepositories,
+  left: DashboardRepositoriesPort,
+  right: DashboardRepositoriesPort,
 ): boolean {
   return (
     left.orders === right.orders &&
@@ -90,7 +91,7 @@ function canReuseBatch(
   periodKey: string,
   reloadToken: number,
   targetsKey: string,
-  repositories: DashboardReportRepositories,
+  repositories: DashboardRepositoriesPort,
 ): boolean {
   return (
     batch.periodKey === periodKey &&
@@ -106,7 +107,7 @@ function canReuseBatch(
  */
 export function useDashboardReportData(
   period: ReportingPeriod,
-  repositories: DashboardReportRepositories,
+  repositories: DashboardRepositoriesPort,
 ): DashboardReportDataResult {
   const { startDate, endDate, timeZone } = period;
   const { catalog, finance, inventory, orders } = repositories;

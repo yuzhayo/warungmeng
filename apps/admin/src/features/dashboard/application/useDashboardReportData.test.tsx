@@ -8,6 +8,7 @@ import type { Order, ReportingPeriod } from "@warungmeng/domain";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { StrictMode, type PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { bindDashboardRepositories, dashboardRepositories } from "./dashboardRepositories";
 import { useDashboardReportData, type DashboardReportRepositories } from "./useDashboardReportData";
 
 const TODAY: ReportingPeriod = {
@@ -38,6 +39,38 @@ function StrictModeWrapper({ children }: PropsWithChildren) {
 }
 
 describe("useDashboardReportData", () => {
+  it("preserves the legacy Dashboard model output through the feature-owned binding", async () => {
+    const repositories = createRepositories();
+    const cleanup = bindDashboardRepositories(repositories);
+
+    try {
+      const { result: legacyResult } = renderHook(() =>
+        useDashboardReportData(TODAY, repositories),
+      );
+      const { result: boundResult } = renderHook(() =>
+        useDashboardReportData(TODAY, dashboardRepositories),
+      );
+
+      await waitFor(() => expect(legacyResult.current.status).toBe("ready"));
+      await waitFor(() => expect(boundResult.current.status).toBe("ready"));
+      expect(boundResult.current.snapshot).toEqual(legacyResult.current.snapshot);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("fails explicitly after the compatibility binding is disposed", () => {
+    const cleanup = bindDashboardRepositories(createRepositories());
+    expect(dashboardRepositories.orders).toBeDefined();
+
+    cleanup();
+    cleanup();
+
+    expect(() => dashboardRepositories.orders).toThrow(
+      "Dashboard repositories are not bound to an active Admin runtime.",
+    );
+  });
+
   it("loads one reporting snapshot without duplicate source reads or HPP calculations", async () => {
     const repositories = createRepositories();
     const recipeCount = (await repositories.inventory.listRecipes()).length;

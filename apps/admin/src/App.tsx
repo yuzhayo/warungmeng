@@ -1,26 +1,18 @@
-import { useLocaleSettings, WarungMengI18nProvider } from "@warungmeng/i18n";
-import { AdminUiProvider } from "@warungmeng/ui-admin";
-import enUS from "antd/locale/en_US";
-import idID from "antd/locale/id_ID";
 import { HashRouter } from "react-router-dom";
 import { AppRoutes } from "./app/AppRoutes";
+import { adminRuntime, type AdminRuntime } from "./app/composition/adminRuntime";
+import { AdminApplicationProviders } from "./app/providers/AdminApplicationProviders";
 
-function LocalizedAdminApp() {
-  const { language } = useLocaleSettings();
+export interface AppProps {
+  readonly runtime?: AdminRuntime;
+}
 
+export default function App({ runtime = adminRuntime }: AppProps) {
   return (
-    <AdminUiProvider locale={language === "id" ? idID : enUS}>
+    <AdminApplicationProviders runtime={runtime}>
       <HashRouter>
         <AppRoutes />
       </HashRouter>
-    </AdminUiProvider>
-  );
-}
-
-export default function App() {
-  return (
-    <WarungMengI18nProvider>
-      <LocalizedAdminApp />
-    </WarungMengI18nProvider>
+    </AdminApplicationProviders>
   );
 }
