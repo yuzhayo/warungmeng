@@ -88,9 +88,9 @@ hardcoded di 4 lokasi / 3 file (belum pakai `var(--ant-font-size-sm)`).
 Dari `TARGET-FILE-TREE.md`, setiap file UI di masa depan diberi
 tag tanggung jawab:
 
-| Marker     | Arti                                                                     |
-| ---------- | ------------------------------------------------------------------------ |
-| `[UI]`     | React/AntD presentational, hanya AntD, CSS, focus, visual state          |
+| Marker     | Arti                                                                       |
+| ---------- | -------------------------------------------------------------------------- |
+| `[UI]`     | React/AntD presentational, hanya AntD, CSS, focus, visual state            |
 | `[SCREEN]` | Route-level composition parent â€” tidak boleh membuat concrete repository |
 | `[HOOK]`   | React lifecycle adapter (controller) â€” bridging ke application layer     |
 | `[COMP]`   | Composition root â€” providers + runtime + router saja                     |

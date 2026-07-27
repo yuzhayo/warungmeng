@@ -28,24 +28,24 @@
 
 Per `CLAUDE.md` Commands and `RULES.md` §4. Record the exact command and result.
 
-| Gate        | Command                                             |
-| ----------- | --------------------------------------------------- |
-| lint        | `npm run lint`                                      |
-| typecheck   | `npm run typecheck`                                 |
-| test        | `npm run test -- --maxWorkers=2`                    |
-| build       | `npm run build`                                     |
-| antd lint   | `npx -y @ant-design/cli lint apps/admin/src --format json` |
-| browser QA  | Playwright evidence (breakpoints + checkpoints)     |
+| Gate       | Command                                                    |
+| ---------- | ---------------------------------------------------------- |
+| lint       | `npm run lint`                                             |
+| typecheck  | `npm run typecheck`                                        |
+| test       | `npm run test -- --maxWorkers=2`                           |
+| build      | `npm run build`                                            |
+| antd lint  | `npx -y @ant-design/cli lint apps/admin/src --format json` |
+| browser QA | Playwright evidence (breakpoints + checkpoints)            |
 
 ## 4. Baseline
 
-| Item                          | Value                                    |
-| ----------------------------- | ---------------------------------------- |
-| Baseline commit               | _record commit SHA at wave start_        |
-| Baseline lint                 | _PASS/FAIL + date_                       |
-| Baseline typecheck            | _PASS/FAIL + date_                       |
-| Baseline test (files/tests)   | _e.g. 92 files / 581 tests PASS + date_  |
-| Baseline build                | _PASS/FAIL + date_                       |
+| Item                        | Value                                                |
+| --------------------------- | ---------------------------------------------------- |
+| Baseline commit             | `45d20dfbc1d494d4e9e255a105184b0147a5dcb9`           |
+| Baseline lint               | PASS — accepted Phase 00 input, 26 Juli 2026         |
+| Baseline typecheck          | PASS — accepted Phase 00 input, 26 Juli 2026         |
+| Baseline test (files/tests) | PASS — 92 files / 581 tests, accepted Phase 00 input |
+| Baseline build              | PASS — accepted Phase 00 input, 26 Juli 2026         |
 
 ## 5. Evidence by Wave
 
@@ -56,6 +56,12 @@ Fill one module block per row as it moves. Leave `—` until real evidence exist
 | Module / area | Characterization added | Fail-on-removal proven | Gate result | Status | Evidence path |
 | ------------- | ---------------------- | ---------------------- | ----------- | ------ | ------------- |
 | _module_      | —                      | —                      | —           | mapped | —             |
+
+### Wave 01 — headless module contracts
+
+| Module / area               | Public contract | Contract/boundary tests | Gate result                                               | Status   | Evidence path                                                 |
+| --------------------------- | --------------- | ----------------------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------- |
+| `@warungmeng/module-system` | Complete        | 5 files / 38 tests PASS | Full gates PASS; 619/619 twice + final-state confirmation | verified | `packages/module-system/**`; `document contexts/report p1.md` |
 
 ### Wave 02 — Admin registry skeleton + Dashboard pilot
 
@@ -85,18 +91,18 @@ Fill one module block per row as it moves. Leave `—` until real evidence exist
 
 Per `LEDGER` §3 and `PRD.md` §4. Record parity evidence before any cutover touches these.
 
-| Workflow                                          | Evidence path | Status |
-| ------------------------------------------------- | ------------- | ------ |
-| Cancel paid order → refund + inventory reversal (atomic, idempotent) | — | mapped |
-| Cancel unpaid order → no refund/reversal          | —             | mapped |
-| POS session persistence + cash reconciliation     | —             | mapped |
-| i18n ID/EN key parity                             | —             | mapped |
-| Rupiah formatting stability                       | —             | mapped |
+| Workflow                                                             | Evidence path | Status |
+| -------------------------------------------------------------------- | ------------- | ------ |
+| Cancel paid order → refund + inventory reversal (atomic, idempotent) | —             | mapped |
+| Cancel unpaid order → no refund/reversal                             | —             | mapped |
+| POS session persistence + cash reconciliation                        | —             | mapped |
+| i18n ID/EN key parity                                                | —             | mapped |
+| Rupiah formatting stability                                          | —             | mapped |
 
 ## 7. Cutover Log
 
 Append-only. One line per module reaching `verified` or `retired`.
 
-| Date | Module | Action | Gate summary | Legacy removed? | Rollback note |
-| ---- | ------ | ------ | ------------ | --------------- | ------------- |
-| —    | —      | —      | —            | —               | —             |
+| Date         | Module                      | Action                      | Gate summary                                                                    | Legacy removed? | Rollback note                                              |
+| ------------ | --------------------------- | --------------------------- | ------------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------- |
+| 27 Juli 2026 | `@warungmeng/module-system` | Phase 01 contracts verified | Format/lint/typecheck/build PASS; 619 tests PASS × 2 + final-state confirmation | No              | Package remains app-unwired; omit registration/composition |

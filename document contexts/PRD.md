@@ -37,17 +37,17 @@ live checkout 24 Juli 2026; `09ad95a` adalah latest production-source commit yan
 teramati. Commit archive/documentation setelahnya tidak dianggap perubahan behavior
 produk.
 
-| Area                          | Status                                                                         | Route                                                             | Sisa pekerjaan                                                   |
-| ----------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Admin shell, navigation, i18n | Selesai baseline, browser-verified                                             | seluruh admin                                                     | Audit responsive/a11y berkala                                    |
-| Menu & kategori varian        | Selesai mock-first, browser-verified                                           | `/menu`, `/menu/variants`                                         | Persistence backend                                              |
-| Theme Settings                | Selesai built-in/custom, browser-verified                                      | `/settings/theme`                                                 | TD-001 isolated live preview; randomizer & import/export ditunda |
-| Business Hours                | Selesai mock-first (single-outlet)                                             | `/settings/business-hours`                                        | Persistence backend + integrasi storefront/POS                   |
-| Manajemen Pesanan             | Selesai; cancel paid = refund + reversal idempotent                            | `/orders`, `/orders/:orderId`                                     | Persistence backend (TD-002 closed)                              |
-| POS Kasir                     | Selesai; sesi persisten + rekonsiliasi kas                                     | `/pos`                                                            | Hardware printer/scanner/drawer + persistence (TD-003 closed)    |
-| Inventory & HPP               | Selesai; consume/revert idempotent + retry sync                                | `/inventory`, `/inventory/movements`, `/inventory/hpp`            | Persistence, transfer outlet, purchasing (TD-004 closed)         |
-| Keuangan                      | Selesai; refund otomatis dari cancel paid                                      | `/finance/overview`, `/finance/transactions`, `/finance/expenses` | Persistence backend + settlement provider (TD-005 closed)        |
-| Dashboard & Report            | Selesai; agregasi Order/POS/Finance/Inventory + filter periode                 | `/`, `/reports`                                                   | Tetap mock sampai backend (TD-006 closed)                        |
+| Area                          | Status                                                                                      | Route                                                             | Sisa pekerjaan                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Admin shell, navigation, i18n | Selesai baseline, browser-verified                                                          | seluruh admin                                                     | Audit responsive/a11y berkala                                    |
+| Menu & kategori varian        | Selesai mock-first, browser-verified                                                        | `/menu`, `/menu/variants`                                         | Persistence backend                                              |
+| Theme Settings                | Selesai built-in/custom, browser-verified                                                   | `/settings/theme`                                                 | TD-001 isolated live preview; randomizer & import/export ditunda |
+| Business Hours                | Selesai mock-first (single-outlet)                                                          | `/settings/business-hours`                                        | Persistence backend + integrasi storefront/POS                   |
+| Manajemen Pesanan             | Selesai; cancel paid = refund + reversal idempotent                                         | `/orders`, `/orders/:orderId`                                     | Persistence backend (TD-002 closed)                              |
+| POS Kasir                     | Selesai; sesi persisten + rekonsiliasi kas                                                  | `/pos`                                                            | Hardware printer/scanner/drawer + persistence (TD-003 closed)    |
+| Inventory & HPP               | Selesai; consume/revert idempotent + retry sync                                             | `/inventory`, `/inventory/movements`, `/inventory/hpp`            | Persistence, transfer outlet, purchasing (TD-004 closed)         |
+| Keuangan                      | Selesai; refund otomatis dari cancel paid                                                   | `/finance/overview`, `/finance/transactions`, `/finance/expenses` | Persistence backend + settlement provider (TD-005 closed)        |
+| Dashboard & Report            | Selesai; agregasi Order/POS/Finance/Inventory + filter periode                              | `/`, `/reports`                                                   | Tetap mock sampai backend (TD-006 closed)                        |
 | Storefront (customer)         | Phase 00Ã¢â‚¬â€œ06 selesai Ã¢â‚¬â€ **MVP closed**; grid catalog diseragamkan pada `09ad95a` | port 3001                                                         | Lihat TD-SF-01..06                                               |
 
 ## 4. Behavior Bisnis Penting (jangan hilang saat refactor)
@@ -63,14 +63,14 @@ produk.
 
 ## 5. Technical Debt Terbuka (Storefront)
 
-| ID       | Area        | Deskripsi                                       | Dampak                                                                        |
-| -------- | ----------- | ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| ID       | Area        | Deskripsi                                              | Dampak                                                                        |
+| -------- | ----------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
 | TD-SF-01 | CSS         | `font-size: 0.75rem` hardcoded (4 occurrence / 3 file) | Tidak ikut perubahan tema AntD font-size                                      |
-| TD-SF-02 | Checkout    | Tidak ada idempotency key di `CreateOrderInput` | Order duplikat mungkin terjadi kalau create sukses tapi response hilang       |
-| TD-SF-03 | Checkout    | `submissionLockRef` pakai ref, bukan state      | Race condition kecil saat unmount di tengah submit                            |
-| TD-SF-04 | QA          | Ã¢â‚¬â€                                               | **Resolved**: Playwright 1.61.1, 36 checkpoint, 375Ãƒâ€”812 & 1024Ãƒâ€”768            |
-| TD-SF-05 | Persistence | Tidak ada backend sync                          | Order hilang saat restart server; receipt terakhir bertahan di sessionStorage |
-| TD-SF-06 | Checkout    | Tidak ada payment/delivery/auth                 | Placeholder: nama customer + cash-on-pickup saja                              |
+| TD-SF-02 | Checkout    | Tidak ada idempotency key di `CreateOrderInput`        | Order duplikat mungkin terjadi kalau create sukses tapi response hilang       |
+| TD-SF-03 | Checkout    | `submissionLockRef` pakai ref, bukan state             | Race condition kecil saat unmount di tengah submit                            |
+| TD-SF-04 | QA          | Ã¢â‚¬â€                                                | **Resolved**: Playwright 1.61.1, 36 checkpoint, 375Ãƒâ€”812 & 1024Ãƒâ€”768    |
+| TD-SF-05 | Persistence | Tidak ada backend sync                                 | Order hilang saat restart server; receipt terakhir bertahan di sessionStorage |
+| TD-SF-06 | Checkout    | Tidak ada payment/delivery/auth                        | Placeholder: nama customer + cash-on-pickup saja                              |
 
 ## 6. Deferred by Design (bukan debt Ã¢â‚¬â€ jangan "diperbaiki" tanpa approval)
 
@@ -100,7 +100,6 @@ Refactor modular dianggap berhasil hanya jika:
 - legacy owner hanya dihapus setelah seluruh consumer berpindah dan row berstatus
   `verified`;
 - browser claim hanya dibuat berdasarkan browser evidence sesi aktif.
-
 
 ## 9. Roadmap & Eksekusi Lanjutan
 
@@ -243,4 +242,3 @@ Definition of done:
 - Multi-tenant atau dukungan bisnis selain Warung Meng.
 - Loyalty, voucher kompleks, membership, dan marketing automation.
 - Integrasi WordPress/WooCommerce kecuali kemudian ditemukan kebutuhan bisnis yang jelas.
-

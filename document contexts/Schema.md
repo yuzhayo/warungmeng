@@ -365,7 +365,7 @@ dipetakan terpisah dari pure domain modules.
 | `MenuRepository`             | `listMenus`, `getMenuById`, `createMenu`, `updateMenu`, `deleteMenu`                                                                                   |
 | `MenuCategoryRepository`     | `listCategories`, `getCategoryById`, `createCategory`, `updateCategory`, `deleteCategory`                                                              |
 | `MenuVariantGroupRepository` | `listVariantGroups`, `getVariantGroupById`, `createVariantGroup`, `updateVariantGroup`, `deleteVariantGroup`                                           |
-| `OrderRepository`            | `listOrders`, `getOrderById`, `createOrder`, `updateOrderStatus` â†’ `OrderStatusUpdateResult` (`updated`/`not-found`/`invalid-transition`)              |
+| `OrderRepository`            | `listOrders`, `getOrderById`, `createOrder`, `updateOrderStatus` â†’ `OrderStatusUpdateResult` (`updated`/`not-found`/`invalid-transition`)            |
 | `InventoryRepository`        | Ingredient CRUD/archive; suppliers; stock balances; movements; recipes; `calculateHpp`; idempotent `consumeOrder`; idempotent `revertOrderConsumption` |
 | `FinanceRepository`          | `listManualTransactions`, `getManualTransactionById`, `createManualTransaction`, `updateManualTransaction`, `voidManualTransaction`                    |
 

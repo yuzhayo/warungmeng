@@ -94,10 +94,10 @@ didaftarkan terpusat, bukan lewat manifest per-feature.
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | `@warungmeng/domain`        | Pure types + rules: `catalog`, `orders`, `inventory`, `finance`, `pos`, `reporting`                                                                                     | Tidak boleh import data/UI/module-runtime  |
 | `@warungmeng/data`          | Repository interface (`MenuRepository`, `OrderRepository`, `InventoryRepository`, `FinanceRepository`) + `InMemory*` mock adapters + mock data seed                     | Import domain saja                         |
-| `@warungmeng/i18n`          | `WarungMengI18nProvider`, `translations.ts` (paritas ID/EN dijaga test), `formatters.ts` (Rupiah, dsb.), `preferences.ts`                                               | â€”                                          |
+| `@warungmeng/i18n`          | `WarungMengI18nProvider`, `translations.ts` (paritas ID/EN dijaga test), `formatters.ts` (Rupiah, dsb.), `preferences.ts`                                               | â€”                                        |
 | `@warungmeng/ui-admin`      | `AdminUiProvider`, `adminTheme.ts`, theme system lengkap: `createAdminTheme`, `themeContrast`, `themeDefaults`, `themeRandomizer`, `themeSerialization`, `themeStorage` | Khusus AntD/admin                          |
 | `@warungmeng/ui-storefront` | Baru minimal (`index.ts`)                                                                                                                                               | Belum banyak diekstrak dari storefront app |
-| `@warungmeng/config`        | Shared config                                                                                                                                                           | â€”                                          |
+| `@warungmeng/config`        | Shared config                                                                                                                                                           | â€”                                        |
 
 ## 6. Target Architecture (Belum Diimplementasikan)
 
@@ -129,14 +129,14 @@ User event â†’ [UI] component callback â†’ [SCREEN/HOOK] controller co
 
 ## 8. Migration Status
 
-| Item                                       | Status                                                                             |
-| ------------------------------------------ | ---------------------------------------------------------------------------------- |
-| `packages/module-system`                   | Belum dibuat                                                                       |
-| `MODULAR-MIGRATION-LEDGER.md`        | Dibuat pada Phase 00; status row awal masih harus diverifikasi per vertical module |
-| `document contexts/MODULAR-MIGRATION-EVIDENCE.md` | Skeleton dibuat; row per wave/module masih menunggu evidence eksekusi        |
-| Manifest/extension per feature             | Belum dibuat                                                                       |
-| Route/nav resolver                         | Belum dibuat, masih hardcode di `AppRoutes.tsx` / `navigation.tsx`                 |
-| Existing feature logic (domain/data/hooks) | Tetap dipertahankan â€” refactor tidak boleh mengubah behavior                       |
+| Item                                              | Status                                                                             |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `packages/module-system`                          | Belum dibuat                                                                       |
+| `MODULAR-MIGRATION-LEDGER.md`                     | Dibuat pada Phase 00; status row awal masih harus diverifikasi per vertical module |
+| `document contexts/MODULAR-MIGRATION-EVIDENCE.md` | Skeleton dibuat; row per wave/module masih menunggu evidence eksekusi              |
+| Manifest/extension per feature                    | Belum dibuat                                                                       |
+| Route/nav resolver                                | Belum dibuat, masih hardcode di `AppRoutes.tsx` / `navigation.tsx`                 |
+| Existing feature logic (domain/data/hooks)        | Tetap dipertahankan â€” refactor tidak boleh mengubah behavior                     |
 
 ## 9. Source-of-Truth Order
 
