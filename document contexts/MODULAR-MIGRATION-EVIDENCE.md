@@ -65,9 +65,49 @@ Fill one module block per row as it moves. Leave `—` until real evidence exist
 
 ### Wave 02 — Admin registry skeleton + Dashboard pilot
 
-| Module / area | Manifest/extension wired | Parity vs legacy | Gate result | Status | Evidence path |
-| ------------- | ------------------------ | ---------------- | ----------- | ------ | ------------- |
-| _dashboard_   | —                        | —                | —           | mapped | —             |
+| Module / area             | Manifest/extension wired                                        | Parity vs legacy                                                        | Gate result                                                               | Status   | Evidence path                                        |
+| ------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
+| Admin runtime + Dashboard | Complete — `admin.dashboard` + `reporting.read` registered once | PASS — Dashboard output, routes, repositories, lifecycle, and a11y kept | Final-state automated gates + supervisor browser matrix PASS, 28 Jul 2026 | verified | Commit `60e380f`; Wave 02 gate/browser records below |
+
+#### Wave 02 final-state gate record — 28 Juli 2026
+
+All commands below were rerun on clean HEAD after the two unrelated local test-timeout
+changes were removed.
+
+| Gate                                | Exact command                                                                                                                                                                                                                                                                                        | Result                       |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Target runtime/Dashboard/a11y tests | `npm run test -- apps/admin/src/App.test.tsx apps/admin/src/tests/adminModuleDiscovery.test.ts apps/admin/src/tests/adminImportBoundary.test.ts apps/admin/src/features/dashboard/application/useDashboardReportData.test.tsx apps/admin/src/components/layout/AdminSidebar.test.tsx --maxWorkers=2` | PASS — 5 files / 36 tests    |
+| Format                              | `npm run format:check`                                                                                                                                                                                                                                                                               | PASS                         |
+| Lint                                | `npm run lint`                                                                                                                                                                                                                                                                                       | PASS                         |
+| Typecheck                           | `npm run typecheck`                                                                                                                                                                                                                                                                                  | PASS — all workspaces        |
+| Full test                           | `npm run test -- --maxWorkers=2`                                                                                                                                                                                                                                                                     | PASS — 100 files / 639 tests |
+| Build                               | `npm run build`                                                                                                                                                                                                                                                                                      | PASS — Admin + Storefront    |
+| Admin AntD lint                     | `npx -y @ant-design/cli lint apps/admin/src --format json`                                                                                                                                                                                                                                           | PASS — 0 issues, 0 skipped   |
+| Diff integrity                      | `git diff --check`                                                                                                                                                                                                                                                                                   | PASS                         |
+
+#### Wave 02 browser parity record — 28 Juli 2026
+
+Browser QA was supervisor-observed against the source state committed as `60e380f`.
+
+| Scenario                                                              | `1024×768`                                | `375×812`                                                                  | Result |
+| --------------------------------------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------- | ------ |
+| `/` Dashboard overview and `/reports`                                 | Rendered and interactive                  | Rendered and interactive                                                   | PASS   |
+| Period/report URL search and unrelated `source=qa` query preservation | Preserved                                 | Preserved                                                                  | PASS   |
+| Direct route, reload, and history behavior                            | Preserved                                 | Preserved                                                                  | PASS   |
+| Indonesian/English labels and business formatting                     | Stable                                    | Stable                                                                     | PASS   |
+| Keyboard focus and collapsed-sidebar tab order                        | Visible; desktop collapse preserved       | Hidden collapsed menu removed from tab order; period control focus visible | PASS   |
+| Console and horizontal overflow                                       | 0 errors/warnings; no horizontal overflow | 0 errors/warnings; no horizontal overflow                                  | PASS   |
+
+The 23 root-level Playwright PNG working artifacts (`phase-02-*.png` and
+`phase02-*.png`) were reviewed by the supervisor and then intentionally deleted before
+checkpoint at the user's cleanup request. The canonical textual result is retained here;
+the deleted PNGs are not claimed as currently available artifacts.
+
+Approved scope amendment: `AdminSidebar.tsx` and `AdminSidebar.test.tsx` were allowed
+after Browser QA found the collapsed mobile menu remained tabbable. The surgical fix
+removes the hidden menu from the mobile collapsed render path while preserving desktop
+collapsed navigation. No route/navigation metadata, Dashboard screen/component/view, or
+shared package was changed by this amendment.
 
 ### Wave 03 — Admin declarative modules (routes + navigation)
 
@@ -91,18 +131,20 @@ Fill one module block per row as it moves. Leave `—` until real evidence exist
 
 Per `LEDGER` §3 and `PRD.md` §4. Record parity evidence before any cutover touches these.
 
-| Workflow                                                             | Evidence path | Status |
-| -------------------------------------------------------------------- | ------------- | ------ |
-| Cancel paid order → refund + inventory reversal (atomic, idempotent) | —             | mapped |
-| Cancel unpaid order → no refund/reversal                             | —             | mapped |
-| POS session persistence + cash reconciliation                        | —             | mapped |
-| i18n ID/EN key parity                                                | —             | mapped |
-| Rupiah formatting stability                                          | —             | mapped |
+| Workflow                                                             | Evidence path                                  | Status   |
+| -------------------------------------------------------------------- | ---------------------------------------------- | -------- |
+| Cancel paid order → refund + inventory reversal (atomic, idempotent) | —                                              | mapped   |
+| Cancel unpaid order → no refund/reversal                             | —                                              | mapped   |
+| POS session persistence + cash reconciliation                        | —                                              | mapped   |
+| i18n ID/EN key parity                                                | —                                              | mapped   |
+| Rupiah formatting stability                                          | —                                              | mapped   |
+| Dashboard/reporting period consistency                               | Wave 02 gate/browser records; commit `60e380f` | verified |
 
 ## 7. Cutover Log
 
 Append-only. One line per module reaching `verified` or `retired`.
 
-| Date         | Module                      | Action                      | Gate summary                                                                    | Legacy removed? | Rollback note                                              |
-| ------------ | --------------------------- | --------------------------- | ------------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------- |
-| 27 Juli 2026 | `@warungmeng/module-system` | Phase 01 contracts verified | Format/lint/typecheck/build PASS; 619 tests PASS × 2 + final-state confirmation | No              | Package remains app-unwired; omit registration/composition |
+| Date         | Module                      | Action                           | Gate summary                                                                           | Legacy removed? | Rollback note                                                       |
+| ------------ | --------------------------- | -------------------------------- | -------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------- |
+| 27 Juli 2026 | `@warungmeng/module-system` | Phase 01 contracts verified      | Format/lint/typecheck/build PASS; 619 tests PASS × 2 + final-state confirmation        | No              | Package remains app-unwired; omit registration/composition          |
+| 28 Juli 2026 | Admin runtime + Dashboard   | Phase 02 registry pilot verified | Format/lint/typecheck/build/AntD PASS; 36 target + 639 full tests; browser matrix PASS | No              | Dispose runtime/bindings and retain legacy route/navigation sources |
