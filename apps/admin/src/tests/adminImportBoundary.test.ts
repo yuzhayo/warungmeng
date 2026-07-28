@@ -39,6 +39,22 @@ function moduleSpecifiers(file: string): readonly string[] {
   return specifiers;
 }
 
+// Forbidden imports that must never appear in a feature manifest file
+const MANIFEST_FORBIDDEN_PATTERNS = [
+  /^react$/,
+  /^react-router-dom$/,
+  /^antd$/,
+  /^@ant-design\/icons$/,
+  /\.css$/,
+  /\/screens\//,
+  /\/components\//,
+  /\/views\//,
+];
+
+function manifestFiles(featuresDir: string): string[] {
+  return sourceFiles(featuresDir).filter((f) => f.replaceAll("\\", "/").includes("/manifest/"));
+}
+
 describe("Admin import boundary", () => {
   it("keeps App.tsx limited to providers, runtime, router, and route composition", () => {
     const appFile = join(adminSrc, "App.tsx");
@@ -110,5 +126,45 @@ describe("Admin import boundary", () => {
     expect(repositoryOwners.map((path) => path.replaceAll("\\", "/"))).toEqual([
       "app/composition/createAdminRepositories.ts",
     ]);
+  });
+
+  // Architecture guard: manifest files must never import React, Router, AntD,
+  // CSS, screens, components, or views. This reads the actual source imports.
+  it("feature manifest files do not import React, AntD, Router, CSS, screens, components, or views", () => {
+    const features = join(adminSrc, "features");
+    const manifests = manifestFiles(features);
+
+    // Must find at least the dashboard manifest
+    expect(manifests.length).toBeGreaterThan(0);
+
+    const violations = manifests.flatMap((file) =>
+      moduleSpecifiers(file)
+        .filter((specifier) =>
+          MANIFEST_FORBIDDEN_PATTERNS.some((pattern) => pattern.test(specifier)),
+        )
+        .map((specifier) => `${relative(adminSrc, file)} -> ${specifier}`),
+    );
+
+    expect(violations).toEqual([]);
+  });
+
+  // Prove the guard catches violations: a synthetic manifest source with a
+  // forbidden import must be detected by the same pattern set.
+  it("manifest boundary guard detects forbidden imports (negative proof)", () => {
+    const forbiddenSpecifiers = [
+      "react",
+      "react-router-dom",
+      "antd",
+      "@ant-design/icons",
+      "./DashboardScreen.css",
+      "../screens/DashboardScreen",
+      "../components/DashboardWidget",
+      "../views/DashboardView",
+    ];
+
+    for (const specifier of forbiddenSpecifiers) {
+      const detected = MANIFEST_FORBIDDEN_PATTERNS.some((pattern) => pattern.test(specifier));
+      expect(detected, `Expected "${specifier}" to be detected as forbidden`).toBe(true);
+    }
   });
 });

@@ -2,21 +2,36 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { WarungMengI18nProvider } from "@warungmeng/i18n";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { AdminShell } from "./AdminShell";
+import type { AdminRuntime } from "../../app/composition/adminRuntime";
+import { createAdminRuntime } from "../../app/composition/createAdminRuntime";
+import { createAdminRepositories } from "../../app/composition/createAdminRepositories";
+import { AdminRuntimeProvider } from "../../app/composition/AdminRuntimeProvider";
+
+const activeRuntimes = new Set<AdminRuntime>();
+
+afterEach(async () => {
+  await Promise.all([...activeRuntimes].map((r) => r.dispose()));
+  activeRuntimes.clear();
+});
 
 function renderShell(initialPath = "/") {
+  const runtime = createAdminRuntime({ repositories: createAdminRepositories() });
+  activeRuntimes.add(runtime);
   return render(
     <WarungMengI18nProvider storage={null}>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Routes>
-          <Route element={<AdminShell />}>
-            <Route index element={<h1>Performa Outlet</h1>} />
-            <Route path="menu" element={<h1>Pengaturan Menu</h1>} />
-            <Route path="menu/new" element={<h1>Buat Menu</h1>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <AdminRuntimeProvider runtime={runtime}>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Routes>
+            <Route element={<AdminShell />}>
+              <Route index element={<h1>Performa Outlet</h1>} />
+              <Route path="menu" element={<h1>Pengaturan Menu</h1>} />
+              <Route path="menu/new" element={<h1>Buat Menu</h1>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </AdminRuntimeProvider>
     </WarungMengI18nProvider>,
   );
 }

@@ -770,7 +770,7 @@ memulai module Admin lain.
 | Field            | Value                                                                                           |
 | ---------------- | ----------------------------------------------------------------------------------------------- |
 | Phase ID         | 03                                                                                              |
-| Status           | `PENDING`                                                                                       |
+| Status           | `PASS — supervisor-reviewed 28 Juli 2026`                                                       |
 | Objective        | Memindahkan static Admin navigation/route metadata ke feature manifests dan app-local resolvers |
 | Surface          | Admin                                                                                           |
 | Module owner     | Admin routing/navigation + satu active feature per checkpoint                                   |
@@ -816,6 +816,23 @@ apps/admin/src/tests/adminImportBoundary.test.ts
 Untuk Settings, `<active-module>` boleh menunjuk parent `settings`, `settings/theme`, atau
 `settings/business-hours`, satu per checkpoint.
 
+#### Phase 03 scope amendment — supervisor closure, 28 Juli 2026
+
+The manifest cutover also requires the app-local discovery/fallback seam and one
+render-based integration proof. The following files are therefore explicitly
+allowed for this phase:
+
+```text
+apps/admin/src/app/discovery/adminModuleCandidates.ts
+apps/admin/src/app/discovery/adminBuiltInManifests.ts
+apps/admin/src/App.test.tsx
+apps/admin/src/tests/adminLiveIntegration.test.tsx
+```
+
+These files contain candidate/manifest composition and integration assertions only;
+feature application logic, screens, views, components, CSS, shared packages, and
+Storefront remain outside the amendment.
+
 ### 8.4 Forbidden files
 
 ```text
@@ -837,6 +854,8 @@ Exception forbidden hanya melalui phase amendment dan user approval.
 - React lazy imports berada di `adminRouteComponentRegistry.ts`, bukan manifest.
 - Concrete AntD icons berada di `adminIconRegistry.tsx`.
 - Resolver menghasilkan navigation/route view model deterministic.
+- App-shell catch-all `* → /` remains a platform fallback; feature-owned redirects
+  (for example `/calculator → /inventory`) belong to manifests.
 - Legacy lists tetap aktif untuk module yang belum dipindahkan.
 - Duplicate ID/path, missing parent, wrong surface, atau unknown component/icon ID
   menghasilkan diagnostic.

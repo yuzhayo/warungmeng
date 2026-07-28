@@ -1,74 +1,28 @@
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  DatabaseOutlined,
-  SettingOutlined,
-  ShopOutlined,
-  ShoppingCartOutlined,
-  WalletOutlined,
-} from "@ant-design/icons";
 import type { TranslationKey } from "@warungmeng/i18n";
 import type { MenuProps } from "antd";
+import { getNavIcon } from "./navigation/adminIconRegistry";
+import type { AdminNavigationItemViewModel } from "./navigation/adminNavigationViewModel";
+import { getAdminNavigationSelectedKey } from "./navigation/resolveAdminNavigation";
 
-export interface AdminNavigationItem {
-  readonly key: string;
-  readonly labelKey: TranslationKey;
-  readonly icon: React.ReactNode;
-}
-
-export const adminNavigationItems: readonly AdminNavigationItem[] = [
-  {
-    key: "/",
-    labelKey: "navigation.performance",
-    icon: <BarChartOutlined aria-hidden />,
-  },
-  {
-    key: "/menu",
-    labelKey: "navigation.menu",
-    icon: <AppstoreOutlined aria-hidden />,
-  },
-  {
-    key: "/finance",
-    labelKey: "navigation.finance",
-    icon: <WalletOutlined aria-hidden />,
-  },
-  {
-    key: "/inventory",
-    labelKey: "navigation.inventory",
-    icon: <DatabaseOutlined aria-hidden />,
-  },
-  {
-    key: "/pos",
-    labelKey: "navigation.pos",
-    icon: <ShopOutlined aria-hidden />,
-  },
-  {
-    key: "/orders",
-    labelKey: "navigation.orders",
-    icon: <ShoppingCartOutlined aria-hidden />,
-  },
-  {
-    key: "/settings",
-    labelKey: "navigation.settings",
-    icon: <SettingOutlined aria-hidden />,
-  },
-];
-
+/**
+ * Materializes the serializable navigation view model into AntD menu items.
+ * Concrete icons remain app-local and never leak into feature manifests.
+ */
 export function createAdminMenuItems(
   translate: (key: TranslationKey) => string,
+  items: readonly AdminNavigationItemViewModel[],
 ): MenuProps["items"] {
-  return adminNavigationItems.map(({ key, labelKey, icon }) => ({
-    key,
-    label: translate(labelKey),
-    icon,
-  }));
+  return items.map((item) => {
+    const children = item.children ? createAdminMenuItems(translate, item.children) : undefined;
+    return {
+      key: item.key,
+      label: translate(item.labelKey),
+      icon: getNavIcon(item.iconId),
+      ...(children && children.length > 0 ? { children } : {}),
+    };
+  });
 }
 
 export function getSelectedNavigationKey(pathname: string): string {
-  const matchingItem = [...adminNavigationItems]
-    .filter((item) => item.key !== "/")
-    .sort((left, right) => right.key.length - left.key.length)
-    .find((item) => pathname === item.key || pathname.startsWith(`${item.key}/`));
-
-  return matchingItem?.key ?? "/";
+  return getAdminNavigationSelectedKey(pathname);
 }

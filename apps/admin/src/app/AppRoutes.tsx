@@ -1,68 +1,68 @@
+import { Spin } from "antd";
+import { Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "../components/layout/AdminShell";
-import { MenuListScreen } from "../features/menu/screens/MenuListScreen";
-import { MenuEditorScreen } from "../features/menu/screens/MenuEditorScreen";
-import { MenuScreen } from "../features/menu/screens/MenuScreen";
-import { VariantCategoryEditorScreen } from "../features/menu/screens/VariantCategoryEditorScreen";
-import { VariantListView } from "../features/menu/views/VariantListView";
-import { SettingsScreen } from "../features/settings/SettingsScreen";
-import { ThemeSettingsScreen } from "../features/settings/theme/ThemeSettingsScreen";
-import { BusinessHoursScreen } from "../features/settings/business-hours/screens/BusinessHoursScreen";
-import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
-import { OrderListScreen } from "../features/orders/screens/OrderListScreen";
-import { PosCashierScreen } from "../features/pos/screens/PosCashierScreen";
-import { InventoryScreen } from "../features/inventory/screens/InventoryScreen";
-import { InventoryMaterialsScreen } from "../features/inventory/screens/InventoryMaterialsScreen";
-import { InventoryMovementsScreen } from "../features/inventory/screens/InventoryMovementsScreen";
-import { InventoryHppScreen } from "../features/inventory/screens/InventoryHppScreen";
-import { FinanceScreen } from "../features/finance/screens/FinanceScreen";
-import { FinanceExpenseScreen } from "../features/finance/screens/FinanceExpenseScreen";
-import { FinanceOverviewScreen } from "../features/finance/screens/FinanceOverviewScreen";
-import { FinanceTransactionListScreen } from "../features/finance/screens/FinanceTransactionListScreen";
-import { DashboardScreen } from "../features/dashboard/screens/DashboardScreen";
-import { DashboardOverviewScreen } from "../features/dashboard/screens/DashboardOverviewScreen";
-import { DashboardReportsScreen } from "../features/dashboard/screens/DashboardReportsScreen";
+import { useAdminRuntime } from "./composition/AdminRuntimeProvider";
+import { resolveAdminManifestSet } from "./discovery/adminBuiltInManifests";
+import { getRouteComponent } from "./routing/adminRouteComponentRegistry";
+import { resolveAdminRoutes, type AdminRouteViewModel } from "./routing/resolveAdminRoutes";
+
+function RouteLoadingFallback() {
+  return (
+    <div aria-label="Memuat halaman" aria-live="polite" role="status">
+      <Spin size="small" />
+    </div>
+  );
+}
+
+function buildRouteTree(
+  routes: readonly AdminRouteViewModel[],
+  parentId: string | undefined,
+): React.ReactNode {
+  return routes
+    .filter((route) => route.parentRouteId === parentId)
+    .map((route) => {
+      const element =
+        route.kind === "redirect" ? (
+          <Navigate replace={route.replace ?? true} to={route.to ?? "/"} />
+        ) : route.componentId ? (
+          (() => {
+            const Component = getRouteComponent(route.componentId);
+            return Component ? (
+              <Suspense fallback={<RouteLoadingFallback />}>
+                <Component />
+              </Suspense>
+            ) : null;
+          })()
+        ) : null;
+
+      if (!element) return null;
+      const children = buildRouteTree(routes, route.id);
+      if (route.index) {
+        return <Route index element={element} key={route.id} />;
+      }
+      return (
+        <Route element={element} key={route.id} path={route.path ?? route.fullPath}>
+          {children}
+        </Route>
+      );
+    });
+}
 
 export function AppRoutes() {
+  const runtime = useAdminRuntime();
+  const { manifests } = resolveAdminManifestSet(runtime.registry.list());
+  const resolution = resolveAdminRoutes(manifests);
+  const resolvedModuleIds = new Set(
+    resolution.modules
+      .filter(({ status }) => status === "resolved")
+      .map(({ moduleId }) => moduleId),
+  );
+  const resolvedRoutes = resolution.routes.filter((route) => resolvedModuleIds.has(route.moduleId));
+
   return (
     <Routes>
-      <Route element={<AdminShell />}>
-        <Route element={<DashboardScreen />}>
-          <Route index element={<DashboardOverviewScreen />} />
-          <Route path="reports" element={<DashboardReportsScreen />} />
-        </Route>
-        <Route path="menu" element={<MenuScreen />}>
-          <Route index element={<MenuListScreen />} />
-          <Route path="new" element={<MenuEditorScreen mode="create" />} />
-          <Route path=":menuId/edit" element={<MenuEditorScreen mode="edit" />} />
-          <Route path="variants" element={<VariantListView />} />
-          <Route path="variants/new" element={<VariantCategoryEditorScreen mode="create" />} />
-          <Route
-            path="variants/:variantGroupId/edit"
-            element={<VariantCategoryEditorScreen mode="edit" />}
-          />
-        </Route>
-        <Route path="finance" element={<FinanceScreen />}>
-          <Route index element={<Navigate replace to="overview" />} />
-          <Route path="overview" element={<FinanceOverviewScreen />} />
-          <Route path="transactions" element={<FinanceTransactionListScreen />} />
-          <Route path="expenses" element={<FinanceExpenseScreen />} />
-        </Route>
-        <Route path="inventory" element={<InventoryScreen />}>
-          <Route index element={<InventoryMaterialsScreen />} />
-          <Route path="movements" element={<InventoryMovementsScreen />} />
-          <Route path="hpp" element={<InventoryHppScreen />} />
-        </Route>
-        <Route path="calculator" element={<Navigate replace to="/inventory" />} />
-        <Route path="pos" element={<PosCashierScreen />} />
-        <Route path="orders" element={<OrderListScreen />} />
-        <Route path="orders/:orderId" element={<OrderDetailScreen />} />
-        <Route path="settings" element={<SettingsScreen />}>
-          <Route index element={<Navigate replace to="theme" />} />
-          <Route path="theme" element={<ThemeSettingsScreen />} />
-          <Route path="business-hours" element={<BusinessHoursScreen />} />
-        </Route>
-      </Route>
+      <Route element={<AdminShell />}>{buildRouteTree(resolvedRoutes, undefined)}</Route>
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>
   );

@@ -32,7 +32,17 @@ describe("admin foundation", () => {
     const { repositories, runtime } = renderAdminApp();
 
     await waitFor(() => expect(runtime.getSnapshot().status).toBe("ready"));
-    expect(runtime.registry.list().map(({ id }) => id)).toEqual(["admin.dashboard"]);
+    expect(runtime.registry.list().map(({ id }) => id)).toEqual([
+      "admin.dashboard",
+      "admin.finance",
+      "admin.inventory",
+      "admin.menu",
+      "admin.orders",
+      "admin.pos",
+      "admin.settings",
+      "admin.settings.business-hours",
+      "admin.settings.theme",
+    ]);
     expect(runtime.repositories).toBe(repositories);
     expect(dashboardRepositories.orders).toBe(repositories.dashboard.orders);
   });
