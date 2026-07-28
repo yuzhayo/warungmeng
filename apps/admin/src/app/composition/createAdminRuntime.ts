@@ -45,7 +45,7 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
       cleanupBinding?.();
       cleanupBinding = result.dashboardRegistered
         ? bindAdminRepositories(options.repositories)
-        : bindUnavailableAdminRepositories();
+        : bindUnavailableAdminRepositories(options.repositories);
       initialized = true;
       return update({
         status: result.dashboardRegistered ? "ready" : "degraded",
@@ -61,7 +61,7 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
         moduleId: "admin.dashboard",
       });
       cleanupBinding?.();
-      cleanupBinding = bindUnavailableAdminRepositories();
+      cleanupBinding = bindUnavailableAdminRepositories(options.repositories);
       initialized = true;
       return update({
         status: "degraded",
