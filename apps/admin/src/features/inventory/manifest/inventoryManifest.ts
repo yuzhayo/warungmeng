@@ -1,6 +1,10 @@
 import type { WarungMengModuleManifest } from "@warungmeng/module-system";
 
 export const INVENTORY_MODULE_ID = "admin.inventory" as const;
+export const INVENTORY_READ_CAPABILITY_ID = "inventory.read" as const;
+export const INVENTORY_ADJUST_CAPABILITY_ID = "inventory.adjust" as const;
+export const INVENTORY_CONSUME_CAPABILITY_ID = "inventory.consume" as const;
+export const INVENTORY_REVERSE_CAPABILITY_ID = "inventory.reverse" as const;
 export const INVENTORY_NAV_ID = "admin.inventory.nav.inventory" as const;
 export const INVENTORY_ROUTE_ROOT_ID = "admin.inventory.route.root" as const;
 export const INVENTORY_ROUTE_MATERIALS_ID = "admin.inventory.route.materials" as const;
@@ -13,6 +17,12 @@ export const inventoryManifest = {
   version: 1,
   surface: "admin",
   displayNameKey: "navigation.inventory",
+  provides: [
+    { id: INVENTORY_READ_CAPABILITY_ID, version: 1 },
+    { id: INVENTORY_ADJUST_CAPABILITY_ID, version: 1 },
+    { id: INVENTORY_CONSUME_CAPABILITY_ID, version: 1 },
+    { id: INVENTORY_REVERSE_CAPABILITY_ID, version: 1 },
+  ],
   contributions: [
     {
       kind: "navigation",

@@ -21,7 +21,8 @@ function renderScreen(node: React.ReactNode) {
 
 describe("Inventory screens", () => {
   it("loads ingredient balances and low-stock indicators", async () => {
-    renderScreen(<InventoryMaterialsScreen repository={createWarungMengInventoryRepository()} />);
+    const repository = createWarungMengInventoryRepository();
+    renderScreen(<InventoryMaterialsScreen adjust={repository} read={repository} />);
 
     expect(await screen.findByText("Telur")).toBeInTheDocument();
     expect(screen.getAllByText("Menipis").length).toBeGreaterThan(0);
@@ -30,7 +31,8 @@ describe("Inventory screens", () => {
 
   it("loads the movement audit trail and opens its transaction dialog", async () => {
     const user = userEvent.setup();
-    renderScreen(<InventoryMovementsScreen repository={createWarungMengInventoryRepository()} />);
+    const repository = createWarungMengInventoryRepository();
+    renderScreen(<InventoryMovementsScreen adjust={repository} read={repository} />);
 
     expect(await screen.findByText("Saldo awal mock inventory")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Catat Pergerakan/ }));
@@ -40,10 +42,12 @@ describe("Inventory screens", () => {
 
   it("calculates menu HPP and opens the recipe editor", async () => {
     const user = userEvent.setup();
+    const repository = createWarungMengInventoryRepository();
     renderScreen(
       <InventoryHppScreen
-        catalogRepository={createWarungMengMockRepository()}
-        repository={createWarungMengInventoryRepository()}
+        adjust={repository}
+        catalog={createWarungMengMockRepository()}
+        read={repository}
       />,
     );
 

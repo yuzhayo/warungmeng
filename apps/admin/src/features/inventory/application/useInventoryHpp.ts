@@ -1,14 +1,16 @@
-import type { InventoryRepository, MenuCatalogRepository } from "@warungmeng/data";
 import {
   calculateGrossMarginPercentage,
   calculateRecommendedSellingPrice,
   type MenuHppBreakdown,
+  type MenuItem,
   type MenuRecipe,
 } from "@warungmeng/domain";
 import { useCallback, useEffect, useState } from "react";
+import type { InventoryAdjustCapability, InventoryReadCapability } from "./inventoryCapabilities";
+import type { InventoryCatalogReadPort } from "./ports/catalogReadPort";
 
 export interface InventoryHppRow {
-  readonly menu: Awaited<ReturnType<MenuCatalogRepository["listMenus"]>>[number];
+  readonly menu: MenuItem;
   readonly recipe: MenuRecipe | null;
   readonly hpp: MenuHppBreakdown | null;
   readonly marginPercentage: number | null;
@@ -16,27 +18,28 @@ export interface InventoryHppRow {
 }
 
 export function useInventoryHpp(
-  repository: InventoryRepository,
-  catalogRepository: MenuCatalogRepository,
+  read: InventoryReadCapability,
+  adjust: InventoryAdjustCapability,
+  catalog: InventoryCatalogReadPort,
 ) {
   const [rows, setRows] = useState<readonly InventoryHppRow[]>([]);
-  const [ingredients, setIngredients] = useState<
-    Awaited<ReturnType<typeof repository.listIngredients>>
-  >([]);
+  const [ingredients, setIngredients] = useState<Awaited<ReturnType<typeof read.listIngredients>>>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [menus, recipes, nextIngredients] = await Promise.all([
-      catalogRepository.listMenus(),
-      repository.listRecipes(),
-      repository.listIngredients({ status: "active" }),
+      catalog.listMenus(),
+      read.listRecipes(),
+      read.listIngredients({ status: "active" }),
     ]);
     const recipeByMenuId = new Map(recipes.map((recipe) => [recipe.menuItemId, recipe]));
     const nextRows = await Promise.all(
       menus.map(async (menu) => {
         const recipe = recipeByMenuId.get(menu.id) ?? null;
-        const hpp = recipe ? await repository.calculateHpp(menu.id) : null;
+        const hpp = recipe ? await read.calculateHpp(menu.id) : null;
         return {
           menu,
           recipe,
@@ -49,7 +52,7 @@ export function useInventoryHpp(
       }),
     );
     return { rows: nextRows, ingredients: nextIngredients };
-  }, [catalogRepository, repository]);
+  }, [catalog, read]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,7 +90,7 @@ export function useInventoryHpp(
   }, [fetchData]);
 
   async function saveRecipe(recipe: MenuRecipe): Promise<void> {
-    await repository.saveRecipe(recipe);
+    await adjust.saveRecipe(recipe);
     await load();
   }
 

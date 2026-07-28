@@ -1,24 +1,25 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import type { InventoryRepository } from "@warungmeng/data";
 import type { InventoryIngredient, InventoryIngredientStatus } from "@warungmeng/domain";
 import { App as AntdApp, Alert, Button, Checkbox, Input, Select } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { inventoryRepository } from "../application/inventoryRepository";
+import {
+  type InventoryAdjustCapability,
+  type InventoryReadCapability,
+} from "../application/inventoryCapabilities";
 import { useInventoryMaterials } from "../application/useInventoryMaterials";
 import { InventoryMaterialEditorDialog } from "../components/InventoryMaterialEditorDialog";
 import { InventoryMaterialsTable } from "../components/InventoryMaterialsTable";
 
 interface InventoryMaterialsScreenProps {
-  readonly repository?: InventoryRepository;
+  readonly read: InventoryReadCapability;
+  readonly adjust: InventoryAdjustCapability;
 }
 
-export function InventoryMaterialsScreen({
-  repository = inventoryRepository,
-}: InventoryMaterialsScreenProps) {
+export function InventoryMaterialsScreen({ read, adjust }: InventoryMaterialsScreenProps) {
   const { t } = useTranslation();
   const { message } = AntdApp.useApp();
-  const materials = useInventoryMaterials(repository);
+  const materials = useInventoryMaterials(read, adjust);
   const [editing, setEditing] = useState<InventoryIngredient | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);

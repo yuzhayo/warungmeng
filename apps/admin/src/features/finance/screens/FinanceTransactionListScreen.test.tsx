@@ -18,8 +18,11 @@ function renderScreen() {
       <AdminUiProvider storage={null}>
         <MemoryRouter>
           <FinanceTransactionListScreen
-            financeRepository={financeRepository}
-            orderRepository={orderRepository}
+            finance={{
+              listOrders: (query) => orderRepository.listOrders(query),
+              listManualTransactions: (query) => financeRepository.listManualTransactions(query),
+            }}
+            record={financeRepository}
           />
         </MemoryRouter>
       </AdminUiProvider>

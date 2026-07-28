@@ -48,7 +48,9 @@ admin dashboard in `apps/admin/`.
 
 ## UI and Accessibility
 
-- Design mobile-first and verify desktop behavior.
+- Design fluid mobile-first and verify behavior through continuous resize from
+  narrow/mobile through intermediate layouts to wide desktop. Fixed viewport pixels or
+  device aspect ratios are evidence metadata, not release gates.
 - Use semantic HTML and accessible names for interactive controls.
 - Support keyboard navigation, visible focus, loading, empty, and error states.
 - Keep customer-facing language natural; do not expose developer terminology.

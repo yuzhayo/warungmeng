@@ -1,6 +1,7 @@
-import type { OrderListQuery, OrderRepository } from "@warungmeng/data";
+import type { OrderListQuery } from "@warungmeng/data";
 import type { Order, OrderChannel, OrderStatus } from "@warungmeng/domain";
 import { useCallback, useEffect, useState } from "react";
+import type { OrdersReadCapability } from "./ordersCapabilities";
 
 export interface OrderListFilters {
   readonly search: string;
@@ -31,7 +32,7 @@ function toQuery(filters: OrderListFilters): OrderListQuery {
   };
 }
 
-export function useOrderList(repository: OrderRepository) {
+export function useOrderList(orders: OrdersReadCapability) {
   const [filters, setFilters] = useState<OrderListFilters>(INITIAL_FILTERS);
   const [reloadToken, setReloadToken] = useState(0);
   const requestKey = `${JSON.stringify(filters)}:${reloadToken}`;
@@ -44,7 +45,7 @@ export function useOrderList(repository: OrderRepository) {
   useEffect(() => {
     let active = true;
 
-    void repository
+    void orders
       .listOrders(toQuery(filters))
       .then((result) => {
         if (active) setLoadResult({ requestKey, orders: result, error: false });
@@ -56,7 +57,7 @@ export function useOrderList(repository: OrderRepository) {
     return () => {
       active = false;
     };
-  }, [filters, repository, requestKey]);
+  }, [filters, orders, requestKey]);
 
   const updateFilters = useCallback((patch: Partial<OrderListFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -64,10 +65,10 @@ export function useOrderList(repository: OrderRepository) {
 
   const loading = loadResult.requestKey !== requestKey;
   const error = !loading && loadResult.error;
-  const orders = loading ? [] : loadResult.orders;
+  const visibleOrders = loading ? [] : loadResult.orders;
 
   return {
-    orders,
+    orders: visibleOrders,
     filters,
     loading,
     error,

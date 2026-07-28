@@ -1,9 +1,12 @@
-import type { FinanceRepository, OrderRepository } from "@warungmeng/data";
 import { App, Alert, Button, Card, Empty, Spin, Typography } from "antd";
 import type { Dayjs } from "dayjs";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusOutlined } from "@ant-design/icons";
+import type {
+  FinanceReadCapability,
+  FinanceRecordCapability,
+} from "../application/financeCapabilities";
 import { getFinanceDatePresetRange, type FinanceDateRange } from "../application/financeDateRange";
 import { useFinanceLedger } from "../application/useFinanceLedger";
 import { useFinanceOverview } from "../application/useFinanceOverview";
@@ -16,20 +19,20 @@ import { FinanceTransactionEditorDialog } from "../components/FinanceTransaction
 import { FinanceTransactionTable } from "../components/FinanceTransactionTable";
 
 interface FinanceOverviewScreenProps {
-  readonly orderRepository?: OrderRepository;
-  readonly financeRepository?: FinanceRepository;
+  readonly finance: FinanceReadCapability;
+  readonly record: FinanceRecordCapability;
   readonly referenceDate?: Dayjs;
 }
 
 export function FinanceOverviewScreen({
-  orderRepository,
-  financeRepository,
+  finance,
+  record,
   referenceDate,
 }: FinanceOverviewScreenProps) {
   const { t } = useTranslation();
   const { message } = App.useApp();
-  const ledger = useFinanceLedger(orderRepository, financeRepository);
-  const editor = useFinanceTransactionEditor(financeRepository);
+  const ledger = useFinanceLedger(finance);
+  const editor = useFinanceTransactionEditor(record);
   const [range, setRange] = useState<FinanceDateRange>(() =>
     getFinanceDatePresetRange("last30", referenceDate),
   );

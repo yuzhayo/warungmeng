@@ -164,15 +164,57 @@ Screenshot evidence is retained outside the repository at
 
 ### Wave 04 — Admin cross-domain modules (orders/finance/inventory/pos)
 
-| Module / area | Cross-domain workflow preserved | Idempotency proven | Gate result | Status | Evidence path |
-| ------------- | ------------------------------- | ------------------ | ----------- | ------ | ------------- |
-| _module_      | —                               | —                  | —           | mapped | —             |
+| Module / area                         | Cross-domain workflow preserved                                                                                       | Idempotency proven                                                                                 | Gate result                                                    | Status   | Evidence path                                |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------- | -------------------------------------------- |
+| Admin operational capability graph    | Catalog, Orders, Inventory, Finance, and POS resolve through composition-owned capabilities; no feature singleton hop | Separate runtimes, registration rollback, dispose/reinitialize, and storage fallback covered       | Focused 21 files / 117 tests + full gate + browser matrix PASS | verified | Wave 04 gate/browser records below           |
+| Orders atomic cancellation            | Paid cancellation is cancelled/refunded/reversed atomically; unpaid cancellation has neither refund nor reversal      | Failure rollback, invalid/not-found paths, and retry do not duplicate effects                      | Automated atomicity matrix + paid/unpaid browser flows PASS    | verified | `cancelOrderCommand.test.ts`; browser record |
+| POS session, checkout, and stock sync | Open/restore/checkout/pending-sync retry/close preserved through injected ports and session adapter                   | One Order per checkout; consume/retry and pending removal are idempotent; corrupt storage recovers | Automated POS matrix + browser recovery/reconciliation PASS    | verified | POS capability tests; browser record         |
+| Inventory and Finance consumers       | HPP uses injected Catalog read; Finance uses injected Order read and deterministic refund projection                  | Inventory consume/reverse and Finance refund projection remain deterministic                       | Focused/full tests + HPP error/retry + Finance browser PASS    | verified | Capability integration tests; browser record |
+
+#### Wave 04 final-state gate record — 29 Juli 2026
+
+The supervisor first ran the bounded Phase 04 capability/transaction suite
+(21 files / 117 tests), then ran the final repository gates against the same source
+state. No executor-run result is used as the final verdict.
+
+| Gate            | Exact command                                                    | Result                       |
+| --------------- | ---------------------------------------------------------------- | ---------------------------- |
+| Format          | `npm run format:check`                                           | PASS                         |
+| Lint            | `npm run lint`                                                   | PASS                         |
+| Typecheck       | `npm run typecheck`                                              | PASS — all workspaces        |
+| Full test       | `npm run test -- --maxWorkers=2`                                 | PASS — 109 files / 772 tests |
+| Build           | `npm run build`                                                  | PASS — Admin + Storefront    |
+| Admin AntD lint | `npx -y @ant-design/cli lint apps/admin/src --format json`       | PASS — 0 issues              |
+| Diff integrity  | `git diff --check`                                               | PASS                         |
+| Consumer scan   | Admin Phase 04 singleton/cross-feature import scan + guard tests | PASS — zero production hops  |
+
+#### Wave 04 browser critical-flow record — 29 Juli 2026
+
+Browser QA used Admin's fluid desktop-first contract. Width samples are evidence
+metadata for continuous resize behavior, not fixed pixel release gates.
+
+| Scenario                          | Supervisor-observed result                                                                                                                                                                                        | Result |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| Orders list/detail/cancellation   | Paid `WM-1008` became Cancelled + Refunded; unpaid `WM-1006` became Cancelled and stayed Unpaid; true query-busted deep-link reload reopened `/#/orders/order-1008`                                               | PASS   |
+| POS open/restore/checkout         | Session opened at Rp 100.000, restored after a true same-origin reload, QRIS checkout created one receipt/Order                                                                                                   | PASS   |
+| POS pending stock synchronization | 20× GADO-GADO produced a real pending-sync alert; first retry failed; Telur and Tauge were restocked through Inventory movement UI; retry removed the pending entry                                               | PASS   |
+| POS close/reconciliation          | Close dialog calculated expected/actual Rp 100.000 and variance Rp 0; confirmation returned to Session Closed with only Open Session available                                                                    | PASS   |
+| Inventory HPP load/error/retry    | Production route loaded GADO-GADO HPP. A temporary same-origin browser harness mounted the real screen/providers with first Catalog read forced to fail; `Coba Lagi` made attempt 2 succeed and removed the alert | PASS   |
+| Finance routes                    | Overview, Transactions, and Expenses rendered from injected capabilities with stable summaries/tables                                                                                                             | PASS   |
+| Fluid layout and overflow         | Continuous Admin sweep from wide desktop toward narrow content, plus route samples at 1440/960/640/420 CSS px, kept document `scrollWidth === clientWidth`; wide tables retained local scrolling                  | PASS   |
+| Keyboard focus                    | Collapsed sidebar had no hidden tabbables; buttons/tabs showed a 3 px outline; Dashboard period select showed focused parent border + 2 px focus shadow                                                           | PASS   |
+| Console                           | 0 errors, 0 warnings across the full browser session                                                                                                                                                              | PASS   |
+
+Four reviewed root PNGs and 65 Playwright snapshot/log files created by this Wave 04
+session were deleted after review. Pre-existing `.playwright-mcp` artifacts were not
+touched. The deleted working screenshots are not claimed as currently available
+repository evidence; the canonical textual result is retained here.
 
 ### Wave 05 — Storefront (registry / catalog / transaction flow)
 
-| Module / area | Manifest/extension wired | Browser parity (375×812 / 1024×768) | Gate result | Status | Evidence path |
-| ------------- | ------------------------ | ----------------------------------- | ----------- | ------ | ------------- |
-| _module_      | —                        | —                                   | —           | mapped | —             |
+| Module / area | Manifest/extension wired | Browser parity (mobile-first fluid sweep) | Gate result | Status | Evidence path |
+| ------------- | ------------------------ | ----------------------------------------- | ----------- | ------ | ------------- |
+| _module_      | —                        | —                                         | —           | mapped | —             |
 
 ## 6. Protected Cross-Domain Workflows (must stay green)
 
@@ -180,27 +222,28 @@ Per `LEDGER` §3 and `PRD.md` §4. Record parity evidence before any cutover tou
 
 | Workflow                                                             | Evidence path                                                            | Status   |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------- |
-| Cancel paid order → refund + inventory reversal (atomic, idempotent) | —                                                                        | mapped   |
-| Cancel unpaid order → no refund/reversal                             | —                                                                        | mapped   |
-| POS session persistence + cash reconciliation                        | —                                                                        | mapped   |
+| Cancel paid order → refund + inventory reversal (atomic, idempotent) | Wave 04 atomicity tests + paid cancellation browser flow                 | verified |
+| Cancel unpaid order → no refund/reversal                             | Wave 04 command tests + unpaid cancellation browser flow                 | verified |
+| POS session persistence + cash reconciliation                        | Wave 04 POS capability tests + restore/close browser flow                | verified |
 | i18n ID/EN key parity                                                | Wave 03 navigation parity + `PHASE-03-DASHBOARD-CHECKPOINT-REPORT.md` §5 | verified |
-| Rupiah formatting stability                                          | —                                                                        | mapped   |
+| Rupiah formatting stability                                          | Wave 04 Orders/POS/Inventory/Finance automated and browser matrix        | verified |
 | Dashboard/reporting period consistency                               | Wave 02 gate/browser records; commit `60e380f`                           | verified |
 
 ## 7. Cutover Log
 
 Append-only. One line per module reaching `verified` or `retired`.
 
-| Date         | Module                          | Action                                  | Gate summary                                                                           | Legacy removed? | Rollback note                                                        |
-| ------------ | ------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------- |
-| 27 Juli 2026 | `@warungmeng/module-system`     | Phase 01 contracts verified             | Format/lint/typecheck/build PASS; 619 tests PASS × 2 + final-state confirmation        | No              | Package remains app-unwired; omit registration/composition           |
-| 28 Juli 2026 | Admin runtime + Dashboard       | Phase 02 registry pilot verified        | Format/lint/typecheck/build/AntD PASS; 36 target + 639 full tests; browser matrix PASS | No              | Dispose runtime/bindings and retain legacy route/navigation sources  |
-| 28 Juli 2026 | `admin.dashboard`               | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Built-in manifest fallback remains available; resolver is reversible |
-| 28 Juli 2026 | `admin.menu`                    | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Feature screens remain in place; only metadata ownership moved       |
-| 28 Juli 2026 | `admin.settings`                | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Settings remains a single clickable item                             |
-| 28 Juli 2026 | `admin.settings.theme`          | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Child route remains rendered by existing Settings tabs               |
-| 28 Juli 2026 | `admin.settings.business-hours` | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Child route remains rendered by existing Settings tabs               |
-| 28 Juli 2026 | `admin.inventory`               | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | HPP and calculator redirect remain intact                            |
-| 28 Juli 2026 | `admin.finance`                 | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing Finance screens remain unchanged                            |
-| 28 Juli 2026 | `admin.pos`                     | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing POS workflow remains outside this phase                     |
-| 28 Juli 2026 | `admin.orders`                  | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing Orders workflow remains outside this phase                  |
+| Date         | Module                          | Action                                  | Gate summary                                                                           | Legacy removed? | Rollback note                                                               |
+| ------------ | ------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------- |
+| 27 Juli 2026 | `@warungmeng/module-system`     | Phase 01 contracts verified             | Format/lint/typecheck/build PASS; 619 tests PASS × 2 + final-state confirmation        | No              | Package remains app-unwired; omit registration/composition                  |
+| 28 Juli 2026 | Admin runtime + Dashboard       | Phase 02 registry pilot verified        | Format/lint/typecheck/build/AntD PASS; 36 target + 639 full tests; browser matrix PASS | No              | Dispose runtime/bindings and retain legacy route/navigation sources         |
+| 28 Juli 2026 | `admin.dashboard`               | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Built-in manifest fallback remains available; resolver is reversible        |
+| 28 Juli 2026 | `admin.menu`                    | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Feature screens remain in place; only metadata ownership moved              |
+| 28 Juli 2026 | `admin.settings`                | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Settings remains a single clickable item                                    |
+| 28 Juli 2026 | `admin.settings.theme`          | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Child route remains rendered by existing Settings tabs                      |
+| 28 Juli 2026 | `admin.settings.business-hours` | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Child route remains rendered by existing Settings tabs                      |
+| 28 Juli 2026 | `admin.inventory`               | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | HPP and calculator redirect remain intact                                   |
+| 28 Juli 2026 | `admin.finance`                 | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing Finance screens remain unchanged                                   |
+| 28 Juli 2026 | `admin.pos`                     | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing POS workflow remains outside this phase                            |
+| 28 Juli 2026 | `admin.orders`                  | Phase 03 declarative route/nav verified | 103 files / 724 tests PASS; full gates + browser matrix PASS                           | No              | Existing Orders workflow remains outside this phase                         |
+| 29 Juli 2026 | Admin operational cluster       | Phase 04 capability cutover verified    | 21 files / 117 focused + 109 files / 772 full tests; full gates + browser matrix PASS  | Yes             | Revert capability adapters/contracts and restore retired singleton wrappers |

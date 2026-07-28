@@ -1,4 +1,3 @@
-import type { FinanceRepository, OrderRepository } from "@warungmeng/data";
 import type { FinanceTransaction, FinanceTransactionQuery } from "@warungmeng/domain";
 import { formatRupiah, useLocaleSettings } from "@warungmeng/i18n";
 import { App, Alert, Button, Card, Spin, Statistic, Typography } from "antd";
@@ -6,6 +5,10 @@ import type { Dayjs } from "dayjs";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import type {
+  FinanceReadCapability,
+  FinanceRecordCapability,
+} from "../application/financeCapabilities";
 import { getFinanceDatePresetRange } from "../application/financeDateRange";
 import { useFinanceLedger } from "../application/useFinanceLedger";
 import { useFinanceOverview } from "../application/useFinanceOverview";
@@ -17,22 +20,22 @@ import { FinanceTransactionTable } from "../components/FinanceTransactionTable";
 import { FinanceTransactionToolbar } from "../components/FinanceTransactionToolbar";
 
 interface FinanceExpenseScreenProps {
-  readonly orderRepository?: OrderRepository;
-  readonly financeRepository?: FinanceRepository;
+  readonly finance: FinanceReadCapability;
+  readonly record: FinanceRecordCapability;
   readonly referenceDate?: Dayjs;
 }
 
 export function FinanceExpenseScreen({
-  orderRepository,
-  financeRepository,
+  finance,
+  record,
   referenceDate,
 }: FinanceExpenseScreenProps) {
   const { t } = useTranslation();
   const { regionalFormat } = useLocaleSettings();
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const ledger = useFinanceLedger(orderRepository, financeRepository);
-  const editor = useFinanceTransactionEditor(financeRepository);
+  const ledger = useFinanceLedger(finance);
+  const editor = useFinanceTransactionEditor(record);
   const [query, setQuery] = useState<FinanceTransactionQuery>(() => ({
     ...getFinanceDatePresetRange("last30", referenceDate),
     direction: "outflow",

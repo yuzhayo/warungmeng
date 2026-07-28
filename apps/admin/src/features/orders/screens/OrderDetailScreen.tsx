@@ -1,5 +1,4 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import type { InventoryRepository, OrderRepository } from "@warungmeng/data";
 import { getAllowedOrderStatusTransitions, type OrderStatus } from "@warungmeng/domain";
 import { formatDate, formatTime, useLocaleSettings } from "@warungmeng/i18n";
 import {
@@ -16,8 +15,10 @@ import {
 } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { inventoryRepository } from "../../inventory/application/inventoryRepository";
-import { orderRepository } from "../application/orderRepository";
+import type {
+  OrdersManageCapability,
+  OrdersReadCapability,
+} from "../application/ordersCapabilities";
 import { useOrderDetail } from "../application/useOrderDetail";
 import { OrderDetailItemsTable } from "../components/OrderDetailItemsTable";
 import { OrderPaymentStatusTag, OrderStatusTag } from "../components/OrderStatusTag";
@@ -25,20 +26,17 @@ import { OrderTotals } from "../components/OrderTotals";
 import "./OrderDetailScreen.css";
 
 export interface OrderDetailScreenProps {
-  readonly repository?: OrderRepository;
-  readonly inventory?: InventoryRepository;
+  readonly orders: OrdersReadCapability;
+  readonly manage: OrdersManageCapability;
 }
 
-export function OrderDetailScreen({
-  repository = orderRepository,
-  inventory = inventoryRepository,
-}: OrderDetailScreenProps) {
+export function OrderDetailScreen({ orders, manage }: OrderDetailScreenProps) {
   const { message } = App.useApp();
   const { t } = useTranslation();
   const { regionalFormat } = useLocaleSettings();
   const navigate = useNavigate();
   const { orderId = "" } = useParams();
-  const detail = useOrderDetail(repository, orderId, inventory);
+  const detail = useOrderDetail(orders, orderId, manage);
 
   async function handleStatusChange(nextStatus: OrderStatus): Promise<void> {
     try {
@@ -58,16 +56,16 @@ export function OrderDetailScreen({
   async function handleCancelOrder(): Promise<void> {
     try {
       const outcome = await detail.cancelOrder();
-      if (outcome.result.status === "not-found") {
+      if (outcome.status === "not-found") {
         void message.error(t("orders.error.notFound"));
         return;
       }
-      if (outcome.result.status === "invalid-transition" && !outcome.refunded) {
+      if (outcome.status === "invalid-transition") {
         void message.warning(t("orders.feedback.invalidTransition"));
         return;
       }
-      if (outcome.stockReversalFailed) {
-        void message.warning(t("orders.feedback.stockReversalFailed"));
+      if (outcome.status === "failed") {
+        void message.error(t("orders.feedback.updateFailed"));
         return;
       }
       void message.success(

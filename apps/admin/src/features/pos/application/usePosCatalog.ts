@@ -1,6 +1,6 @@
-import type { MenuCatalogRepository } from "@warungmeng/data";
 import type { MenuCategory, MenuItem, MenuVariantGroup } from "@warungmeng/domain";
 import { useEffect, useMemo, useState } from "react";
+import type { PosCatalogPort } from "./ports/posCatalogPort";
 
 interface CatalogLoadResult {
   readonly requestKey: number;
@@ -10,7 +10,7 @@ interface CatalogLoadResult {
   readonly error: boolean;
 }
 
-export function usePosCatalog(repository: MenuCatalogRepository) {
+export function usePosCatalog(catalog: PosCatalogPort) {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
@@ -24,11 +24,7 @@ export function usePosCatalog(repository: MenuCatalogRepository) {
 
   useEffect(() => {
     let active = true;
-    void Promise.all([
-      repository.listMenus(),
-      repository.listCategories(),
-      repository.listVariantGroups(),
-    ])
+    void Promise.all([catalog.listMenus(), catalog.listCategories(), catalog.listVariantGroups()])
       .then(([menus, categories, variantGroups]) => {
         if (active) {
           setLoadResult({
@@ -55,7 +51,7 @@ export function usePosCatalog(repository: MenuCatalogRepository) {
     return () => {
       active = false;
     };
-  }, [reloadToken, repository]);
+  }, [reloadToken, catalog]);
 
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const menus = useMemo(

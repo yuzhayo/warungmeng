@@ -19,7 +19,7 @@ function renderOrderList() {
       <AdminUiProvider storage={null}>
         <MemoryRouter initialEntries={["/orders"]}>
           <Routes>
-            <Route path="/orders" element={<OrderListScreen repository={repository} />} />
+            <Route path="/orders" element={<OrderListScreen orders={repository} />} />
             <Route path="/orders/:orderId" element={<DetailProbe />} />
           </Routes>
         </MemoryRouter>

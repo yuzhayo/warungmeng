@@ -1,4 +1,3 @@
-import type { InventoryRepository, OrderRepository } from "@warungmeng/data";
 import {
   addPosCartItem,
   calculateExpectedPosCash,
@@ -20,7 +19,8 @@ import {
 } from "@warungmeng/domain";
 import { useMemo, useSyncExternalStore } from "react";
 import { DEFAULT_POS_CHECKOUT, createPosOrderNumber } from "./posCashierModel";
-import { posSessionStore, type PosSessionStore } from "./posSessionStore";
+import type { PosCheckoutPort } from "./ports/posCheckoutPort";
+import type { PosSessionStore } from "./posSessionStore";
 
 export interface PosCashierRuntime {
   readonly now: () => Date;
@@ -38,10 +38,9 @@ const DEFAULT_RUNTIME: PosCashierRuntime = {
 };
 
 export function usePosCashier(
-  repository: OrderRepository,
+  checkoutPort: PosCheckoutPort,
+  store: PosSessionStore,
   runtime: PosCashierRuntime = DEFAULT_RUNTIME,
-  inventory?: InventoryRepository,
-  store: PosSessionStore = posSessionStore,
 ) {
   const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
   const { session, selectedOutlet, openingBalance, items, checkout, receipt } = state;
@@ -140,10 +139,10 @@ export function usePosCashier(
         occurredAt: now.toISOString(),
         eventId: `order-event-${runtime.id()}`,
       });
-      const order = await repository.createOrder(input);
+      const order = await checkoutPort.createOrder(input);
       let inventorySyncFailed = false;
       try {
-        await inventory?.consumeOrder(order);
+        await checkoutPort.consumeOrder(order);
       } catch {
         inventorySyncFailed = true;
         store.update((state) => ({
@@ -192,15 +191,14 @@ export function usePosCashier(
   }
 
   async function retryInventorySync(orderId: string): Promise<boolean> {
-    if (!inventory) return false;
     const pending = store
       .getState()
       .pendingInventorySyncs.find((candidate) => candidate.orderId === orderId);
     if (!pending) return false;
-    const order = await repository.getOrderById(orderId);
+    const order = await checkoutPort.getOrderById(orderId);
     if (!order) return false;
     try {
-      await inventory.consumeOrder(order);
+      await checkoutPort.consumeOrder(order);
     } catch {
       return false;
     }

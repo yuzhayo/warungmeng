@@ -1,25 +1,25 @@
-import type { InventoryRepository, MenuCatalogRepository } from "@warungmeng/data";
 import { App as AntdApp, Alert, Button } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { menuCatalogRepository } from "../../menu/application/menuCatalogRepository";
-import { inventoryRepository } from "../application/inventoryRepository";
+import type {
+  InventoryAdjustCapability,
+  InventoryReadCapability,
+} from "../application/inventoryCapabilities";
+import type { InventoryCatalogReadPort } from "../application/ports/catalogReadPort";
 import { useInventoryHpp, type InventoryHppRow } from "../application/useInventoryHpp";
 import { InventoryHppTable } from "../components/InventoryHppTable";
 import { InventoryRecipeDialog } from "../components/InventoryRecipeDialog";
 
 interface InventoryHppScreenProps {
-  readonly repository?: InventoryRepository;
-  readonly catalogRepository?: MenuCatalogRepository;
+  readonly read: InventoryReadCapability;
+  readonly adjust: InventoryAdjustCapability;
+  readonly catalog: InventoryCatalogReadPort;
 }
 
-export function InventoryHppScreen({
-  repository = inventoryRepository,
-  catalogRepository = menuCatalogRepository,
-}: InventoryHppScreenProps) {
+export function InventoryHppScreen({ read, adjust, catalog }: InventoryHppScreenProps) {
   const { t } = useTranslation();
   const { message } = AntdApp.useApp();
-  const inventory = useInventoryHpp(repository, catalogRepository);
+  const inventory = useInventoryHpp(read, adjust, catalog);
   const [editing, setEditing] = useState<InventoryHppRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
 

@@ -1,11 +1,10 @@
-import type { FinanceRepository } from "@warungmeng/data";
 import type {
   FinanceDirection,
   FinanceTransaction,
   ManualFinanceTransactionInput,
 } from "@warungmeng/domain";
 import { useCallback, useState } from "react";
-import { financeRepository } from "./financeRepository";
+import type { FinanceRecordCapability } from "./financeCapabilities";
 
 export type FinanceEditorMode = "create" | "edit";
 
@@ -23,7 +22,7 @@ const CLOSED_EDITOR: FinanceEditorState = {
   transaction: null,
 };
 
-export function useFinanceTransactionEditor(repository: FinanceRepository = financeRepository) {
+export function useFinanceTransactionEditor(record: FinanceRecordCapability) {
   const [editor, setEditor] = useState<FinanceEditorState>(CLOSED_EDITOR);
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,8 +50,8 @@ export function useFinanceTransactionEditor(repository: FinanceRepository = fina
       setSubmitting(true);
       try {
         const result = editor.transaction
-          ? await repository.updateManualTransaction(editor.transaction.id, input)
-          : await repository.createManualTransaction(input);
+          ? await record.updateManualTransaction(editor.transaction.id, input)
+          : await record.createManualTransaction(input);
         if (!result) return false;
         setEditor(CLOSED_EDITOR);
         return true;
@@ -60,7 +59,7 @@ export function useFinanceTransactionEditor(repository: FinanceRepository = fina
         setSubmitting(false);
       }
     },
-    [editor.transaction, repository, submitting],
+    [editor.transaction, record, submitting],
   );
 
   const voidTransaction = useCallback(
@@ -71,13 +70,13 @@ export function useFinanceTransactionEditor(repository: FinanceRepository = fina
       setSubmitting(true);
       try {
         return Boolean(
-          await repository.voidManualTransaction(transaction.id, new Date().toISOString()),
+          await record.voidManualTransaction(transaction.id, new Date().toISOString()),
         );
       } finally {
         setSubmitting(false);
       }
     },
-    [repository, submitting],
+    [record, submitting],
   );
 
   return {

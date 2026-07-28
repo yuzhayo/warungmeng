@@ -1,16 +1,13 @@
-import type {
-  InventoryRepository,
-  OrderRepository,
-  OrderStatusUpdateResult,
-} from "@warungmeng/data";
+import type { OrderStatusUpdateResult } from "@warungmeng/data";
 import type { Order, OrderStatus } from "@warungmeng/domain";
 import { useCallback, useEffect, useState } from "react";
-import { cancelOrderWithSettlement, type CancelOrderOutcome } from "./cancelOrderCommand";
+import type { CancelOrderOutcome } from "./commands/cancelOrderCommand";
+import type { OrdersManageCapability, OrdersReadCapability } from "./ordersCapabilities";
 
 export function useOrderDetail(
-  repository: OrderRepository,
+  orders: OrdersReadCapability,
   orderId: string,
-  inventory?: InventoryRepository,
+  manage: OrdersManageCapability,
 ) {
   const [updating, setUpdating] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
@@ -24,7 +21,7 @@ export function useOrderDetail(
   useEffect(() => {
     let active = true;
 
-    void repository
+    void orders
       .getOrderById(orderId)
       .then((result) => {
         if (!active) return;
@@ -37,13 +34,13 @@ export function useOrderDetail(
     return () => {
       active = false;
     };
-  }, [orderId, repository, requestKey]);
+  }, [orderId, orders, requestKey]);
 
   const updateStatus = useCallback(
     async (nextStatus: OrderStatus): Promise<OrderStatusUpdateResult> => {
       setUpdating(true);
       try {
-        const result = await repository.updateOrderStatus(orderId, nextStatus);
+        const result = await manage.updateStatus(orderId, nextStatus);
         if (result.status === "updated") {
           setLoadResult((current) => ({ ...current, order: result.order }));
         }
@@ -52,30 +49,22 @@ export function useOrderDetail(
         setUpdating(false);
       }
     },
-    [orderId, repository],
+    [manage, orderId],
   );
 
   const cancelOrder = useCallback(async (): Promise<CancelOrderOutcome> => {
-    if (!inventory) {
-      const result = await updateStatus("cancelled");
-      return {
-        result,
-        refunded: result.status === "updated" && result.order.paymentStatus === "refunded",
-        stockReversalFailed: false,
-      };
-    }
     setUpdating(true);
     try {
-      const outcome = await cancelOrderWithSettlement(repository, inventory, orderId);
-      if (outcome.result.status === "updated") {
-        const nextOrder = outcome.result.order;
+      const outcome = await manage.cancel(orderId);
+      if (outcome.status === "cancelled") {
+        const nextOrder = outcome.order;
         setLoadResult((current) => ({ ...current, order: nextOrder }));
       }
       return outcome;
     } finally {
       setUpdating(false);
     }
-  }, [inventory, orderId, repository, updateStatus]);
+  }, [manage, orderId]);
 
   const loading = loadResult.requestKey !== requestKey;
   const error = !loading && loadResult.error;

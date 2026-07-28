@@ -1,6 +1,8 @@
 import type { WarungMengModuleManifest } from "@warungmeng/module-system";
 
 export const ORDERS_MODULE_ID = "admin.orders" as const;
+export const ORDERS_READ_CAPABILITY_ID = "orders.read" as const;
+export const ORDERS_MANAGE_CAPABILITY_ID = "orders.manage" as const;
 export const ORDERS_NAV_ID = "admin.orders.nav.orders" as const;
 export const ORDERS_ROUTE_ROOT_ID = "admin.orders.route.root" as const;
 export const ORDERS_ROUTE_DETAIL_ID = "admin.orders.route.detail" as const;
@@ -10,6 +12,10 @@ export const ordersManifest = {
   version: 1,
   surface: "admin",
   displayNameKey: "navigation.orders",
+  provides: [
+    { id: ORDERS_READ_CAPABILITY_ID, version: 1 },
+    { id: ORDERS_MANAGE_CAPABILITY_ID, version: 1 },
+  ],
   contributions: [
     {
       kind: "navigation",

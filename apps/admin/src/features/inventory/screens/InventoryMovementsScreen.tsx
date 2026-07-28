@@ -1,26 +1,27 @@
 import { PlusOutlined } from "@ant-design/icons";
-import type { InventoryRepository } from "@warungmeng/data";
 import type { InventoryMovementType } from "@warungmeng/domain";
 import type { TranslationKey } from "@warungmeng/i18n";
 import { App as AntdApp, Alert, Button, Select } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { INVENTORY_MOVEMENT_TYPES } from "../application/inventoryConstants";
-import { inventoryRepository } from "../application/inventoryRepository";
+import {
+  type InventoryAdjustCapability,
+  type InventoryReadCapability,
+} from "../application/inventoryCapabilities";
 import { useInventoryMovements } from "../application/useInventoryMovements";
 import { InventoryMovementDialog } from "../components/InventoryMovementDialog";
 import { InventoryMovementsTable } from "../components/InventoryMovementsTable";
 
 interface InventoryMovementsScreenProps {
-  readonly repository?: InventoryRepository;
+  readonly read: InventoryReadCapability;
+  readonly adjust: InventoryAdjustCapability;
 }
 
-export function InventoryMovementsScreen({
-  repository = inventoryRepository,
-}: InventoryMovementsScreenProps) {
+export function InventoryMovementsScreen({ read, adjust }: InventoryMovementsScreenProps) {
   const { t } = useTranslation();
   const { message } = AntdApp.useApp();
-  const inventory = useInventoryMovements(repository);
+  const inventory = useInventoryMovements(read, adjust);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 

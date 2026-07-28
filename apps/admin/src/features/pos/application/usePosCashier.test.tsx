@@ -2,7 +2,10 @@ import { InMemoryInventoryRepository, InMemoryOrderRepository } from "@warungmen
 import type { MenuItem } from "@warungmeng/domain";
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { PosSessionStore } from "./posSessionStore";
+import type { PosCheckoutPort } from "./ports/posCheckoutPort";
+import type { PosSessionStoragePort } from "./ports/posSessionStoragePort";
+import { deserializePosCashierState, serializePosCashierState } from "./posSessionPersistence";
+import { PosSessionStore, type PosCashierState } from "./posSessionStore";
 import { usePosCashier } from "./usePosCashier";
 
 const menu: MenuItem = {
@@ -22,60 +25,84 @@ const menu: MenuItem = {
   sortOrder: 0,
 };
 
+function createCheckoutPort(
+  repository: InMemoryOrderRepository,
+  inventory?: InMemoryInventoryRepository,
+): PosCheckoutPort {
+  return {
+    createOrder: (input) => repository.createOrder(input),
+    getOrderById: (id) => repository.getOrderById(id),
+    consumeOrder: (order) => (inventory ? inventory.consumeOrder(order) : Promise.resolve([])),
+  };
+}
+
+function createMemoryStorage(): PosSessionStoragePort & { corrupt: () => void } {
+  let stored: string | null = null;
+  return {
+    load: () => (stored === null ? null : deserializePosCashierState(stored)),
+    save(state: PosCashierState) {
+      stored = serializePosCashierState(state);
+    },
+    clear() {
+      stored = null;
+    },
+    corrupt() {
+      stored = "{definitely not a session";
+    },
+  };
+}
+
+const teaInventorySeed = (quantity: number) => ({
+  ingredients: [
+    {
+      id: "ingredient-tea",
+      name: "Tea",
+      baseUnit: "g" as const,
+      supplierId: null,
+      status: "active" as const,
+      minimumStock: 0,
+      lastPurchaseUnitCost: { amount: 100, currency: "IDR" as const },
+      averageUnitCost: { amount: 100, currency: "IDR" as const },
+    },
+  ],
+  stockBalances: [
+    {
+      ingredientId: "ingredient-tea",
+      outletId: "wm-1",
+      quantity,
+      updatedAt: "2026-07-19T00:00:00.000Z",
+    },
+  ],
+  recipes: [
+    {
+      menuItemId: "menu-1",
+      components: [
+        {
+          id: "recipe-tea",
+          ingredientId: "ingredient-tea",
+          quantity: 8,
+          unit: "g" as const,
+          wastePercentage: 0,
+        },
+      ],
+      packagingCost: { amount: 0, currency: "IDR" as const },
+      additionalCost: { amount: 0, currency: "IDR" as const },
+      updatedAt: "2026-07-19T00:00:00.000Z",
+    },
+  ],
+});
+
 describe("usePosCashier", () => {
   it("opens a session, checks out, and persists the POS order", async () => {
     const repository = new InMemoryOrderRepository([], undefined, undefined, () => "order-pos-1");
-    const inventory = new InMemoryInventoryRepository({
-      ingredients: [
-        {
-          id: "ingredient-tea",
-          name: "Tea",
-          baseUnit: "g",
-          supplierId: null,
-          status: "active",
-          minimumStock: 0,
-          lastPurchaseUnitCost: { amount: 100, currency: "IDR" },
-          averageUnitCost: { amount: 100, currency: "IDR" },
-        },
-      ],
-      stockBalances: [
-        {
-          ingredientId: "ingredient-tea",
-          outletId: "wm-1",
-          quantity: 100,
-          updatedAt: "2026-07-19T00:00:00.000Z",
-        },
-      ],
-      recipes: [
-        {
-          menuItemId: "menu-1",
-          components: [
-            {
-              id: "recipe-tea",
-              ingredientId: "ingredient-tea",
-              quantity: 8,
-              unit: "g",
-              wastePercentage: 0,
-            },
-          ],
-          packagingCost: { amount: 0, currency: "IDR" },
-          additionalCost: { amount: 0, currency: "IDR" },
-          updatedAt: "2026-07-19T00:00:00.000Z",
-        },
-      ],
-    });
+    const inventory = new InMemoryInventoryRepository(teaInventorySeed(100));
     let id = 0;
     const store = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
     const { result } = renderHook(() =>
-      usePosCashier(
-        repository,
-        {
-          now: () => new Date(2026, 6, 19, 10, 0, 0),
-          id: () => String(++id),
-        },
-        inventory,
-        store,
-      ),
+      usePosCashier(createCheckoutPort(repository, inventory), store, {
+        now: () => new Date(2026, 6, 19, 10, 0, 0),
+        id: () => String(++id),
+      }),
     );
 
     act(() => {
@@ -107,57 +134,14 @@ describe("usePosCashier", () => {
 
   it("keeps a persisted checkout successful when inventory synchronization fails", async () => {
     const repository = new InMemoryOrderRepository([], undefined, undefined, () => "order-pos-2");
-    const inventory = new InMemoryInventoryRepository({
-      ingredients: [
-        {
-          id: "ingredient-tea",
-          name: "Tea",
-          baseUnit: "g",
-          supplierId: null,
-          status: "active",
-          minimumStock: 0,
-          lastPurchaseUnitCost: { amount: 100, currency: "IDR" },
-          averageUnitCost: { amount: 100, currency: "IDR" },
-        },
-      ],
-      stockBalances: [
-        {
-          ingredientId: "ingredient-tea",
-          outletId: "wm-1",
-          quantity: 0,
-          updatedAt: "2026-07-19T00:00:00.000Z",
-        },
-      ],
-      recipes: [
-        {
-          menuItemId: "menu-1",
-          components: [
-            {
-              id: "recipe-tea",
-              ingredientId: "ingredient-tea",
-              quantity: 8,
-              unit: "g",
-              wastePercentage: 0,
-            },
-          ],
-          packagingCost: { amount: 0, currency: "IDR" },
-          additionalCost: { amount: 0, currency: "IDR" },
-          updatedAt: "2026-07-19T00:00:00.000Z",
-        },
-      ],
-    });
+    const inventory = new InMemoryInventoryRepository(teaInventorySeed(0));
     let id = 0;
     const store = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
     const { result } = renderHook(() =>
-      usePosCashier(
-        repository,
-        {
-          now: () => new Date(2026, 6, 19, 10, 0, 0),
-          id: () => String(++id),
-        },
-        inventory,
-        store,
-      ),
+      usePosCashier(createCheckoutPort(repository, inventory), store, {
+        now: () => new Date(2026, 6, 19, 10, 0, 0),
+        id: () => String(++id),
+      }),
     );
 
     act(() => {
@@ -216,7 +200,7 @@ describe("usePosCashier", () => {
     const repository = new InMemoryOrderRepository();
     const store = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
     const runtime = { now: () => new Date(2026, 6, 21, 9, 0, 0), id: () => "fixed" };
-    const first = renderHook(() => usePosCashier(repository, runtime, undefined, store));
+    const first = renderHook(() => usePosCashier(createCheckoutPort(repository), store, runtime));
 
     act(() => {
       first.result.current.setOpeningBalance(100_000);
@@ -227,7 +211,7 @@ describe("usePosCashier", () => {
       first.result.current.session.status === "open" ? first.result.current.session.openedAt : null;
     first.unmount();
 
-    const second = renderHook(() => usePosCashier(repository, runtime, undefined, store));
+    const second = renderHook(() => usePosCashier(createCheckoutPort(repository), store, runtime));
     expect(second.result.current.session).toMatchObject({
       status: "open",
       outlet: { id: "wm-1" },
@@ -237,12 +221,65 @@ describe("usePosCashier", () => {
     expect(second.result.current.items).toMatchObject([{ name: "ES TEH JUMBO" }]);
   });
 
+  it("restores an open session with pending syncs from storage and resets processing", async () => {
+    const repository = new InMemoryOrderRepository([], undefined, undefined, () => "order-pos-9");
+    const inventory = new InMemoryInventoryRepository(teaInventorySeed(0));
+    const storage = createMemoryStorage();
+    let id = 0;
+    const runtime = { now: () => new Date(2026, 6, 21, 9, 0, 0), id: () => String(++id) };
+    const firstStore = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" }, storage);
+    const first = renderHook(() =>
+      usePosCashier(createCheckoutPort(repository, inventory), firstStore, runtime),
+    );
+
+    act(() => {
+      first.result.current.setOpeningBalance(50_000);
+      first.result.current.startSession();
+      first.result.current.addMenu(menu, [], "");
+      first.result.current.updateCheckout({ paymentMethod: "qris" });
+    });
+    await act(async () => {
+      await first.result.current.completeCheckout();
+    });
+    expect(first.result.current.pendingInventorySyncs).toHaveLength(1);
+    first.unmount();
+
+    // Reload semantics: a brand-new store over the same storage restores the
+    // session, pending sync queue, and sequence — with processing false.
+    const reloadedStore = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" }, storage);
+    const second = renderHook(() =>
+      usePosCashier(createCheckoutPort(repository, inventory), reloadedStore, runtime),
+    );
+    expect(second.result.current.session).toMatchObject({ status: "open" });
+    expect(second.result.current.processing).toBe(false);
+    expect(second.result.current.pendingInventorySyncs).toMatchObject([{ orderId: "order-pos-9" }]);
+  });
+
+  it("falls back to a clean closed session when the stored payload is corrupt", () => {
+    const storage = createMemoryStorage();
+    const seeded = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" }, storage);
+    seeded.update((current) => ({ ...current, openingBalance: 75_000 }));
+
+    storage.corrupt();
+    const recovered = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" }, storage);
+    expect(recovered.getState()).toMatchObject({
+      session: { status: "closed" },
+      openingBalance: 0,
+      items: [],
+      pendingInventorySyncs: [],
+      processing: false,
+      sequence: 1,
+    });
+  });
+
   it("closes with a cash reconciliation record and rejects double close (QA-ADM-004)", async () => {
     const repository = new InMemoryOrderRepository([], undefined, undefined, () => "order-pos-3");
     const store = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
     let id = 0;
     const runtime = { now: () => new Date(2026, 6, 21, 9, 0, 0), id: () => String(++id) };
-    const { result } = renderHook(() => usePosCashier(repository, runtime, undefined, store));
+    const { result } = renderHook(() =>
+      usePosCashier(createCheckoutPort(repository), store, runtime),
+    );
 
     act(() => {
       result.current.setOpeningBalance(100_000);

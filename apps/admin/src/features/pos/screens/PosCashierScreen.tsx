@@ -1,11 +1,9 @@
-import type { InventoryRepository, MenuCatalogRepository, OrderRepository } from "@warungmeng/data";
 import type { MenuItem, PosCartItem } from "@warungmeng/domain";
 import { Alert, App as AntApp, Button, Spin } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { menuCatalogRepository } from "../../menu/application/menuCatalogRepository";
-import { orderRepository } from "../../orders/application/orderRepository";
-import { inventoryRepository } from "../../inventory/application/inventoryRepository";
+import type { PosCatalogPort } from "../application/ports/posCatalogPort";
+import type { PosCheckoutPort } from "../application/ports/posCheckoutPort";
 import type { PosSessionStore } from "../application/posSessionStore";
 import { usePosCashier } from "../application/usePosCashier";
 import { usePosCatalog } from "../application/usePosCatalog";
@@ -19,10 +17,9 @@ import { PosVariantModal } from "../components/PosVariantModal";
 import "./PosCashierScreen.css";
 
 interface PosCashierScreenProps {
-  readonly catalogRepository?: MenuCatalogRepository;
-  readonly orders?: OrderRepository;
-  readonly inventory?: InventoryRepository;
-  readonly sessionStore?: PosSessionStore;
+  readonly catalog: PosCatalogPort;
+  readonly checkout: PosCheckoutPort;
+  readonly sessionStore: PosSessionStore;
 }
 
 interface ActiveConfiguration {
@@ -31,15 +28,14 @@ interface ActiveConfiguration {
 }
 
 export function PosCashierScreen({
-  catalogRepository = menuCatalogRepository,
-  orders = orderRepository,
-  inventory = inventoryRepository,
+  catalog: catalogPort,
+  checkout: checkoutPort,
   sessionStore,
 }: PosCashierScreenProps) {
   const { t } = useTranslation();
   const { message } = AntApp.useApp();
-  const catalog = usePosCatalog(catalogRepository);
-  const cashier = usePosCashier(orders, undefined, inventory, sessionStore);
+  const catalog = usePosCatalog(catalogPort);
+  const cashier = usePosCashier(checkoutPort, sessionStore);
   const [activeConfiguration, setActiveConfiguration] = useState<ActiveConfiguration | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [closeSessionOpen, setCloseSessionOpen] = useState(false);

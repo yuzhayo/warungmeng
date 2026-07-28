@@ -100,4 +100,23 @@ describe("InMemoryOrderRepository", () => {
       order: { status: "cancelled", paymentStatus: "unpaid" },
     });
   });
+
+  it("restores the exact pre-snapshot state, including created orders", async () => {
+    const repository = createRepository();
+    const snapshot = repository.captureSnapshot();
+
+    const source = WARUNG_MENG_ORDER_FIXTURES[0];
+    expect(source).toBeDefined();
+    const { id: _ignored, ...input } = source!;
+    await repository.createOrder({ ...input, orderNumber: "POS-0002" });
+    await repository.updateOrderStatus("order-1008", "cancelled");
+
+    repository.restoreSnapshot(snapshot);
+
+    await expect(repository.getOrderById("order-generated")).resolves.toBeNull();
+    await expect(repository.getOrderById("order-1008")).resolves.toMatchObject({
+      status: "new",
+      paymentStatus: "paid",
+    });
+  });
 });

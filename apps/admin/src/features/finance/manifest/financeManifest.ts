@@ -1,6 +1,9 @@
 import type { WarungMengModuleManifest } from "@warungmeng/module-system";
 
 export const FINANCE_MODULE_ID = "admin.finance" as const;
+export const FINANCE_READ_CAPABILITY_ID = "finance.read" as const;
+export const FINANCE_RECORD_CAPABILITY_ID = "finance.record" as const;
+export const FINANCE_REFUND_CAPABILITY_ID = "finance.refund" as const;
 export const FINANCE_NAV_ID = "admin.finance.nav.finance" as const;
 export const FINANCE_ROUTE_ROOT_ID = "admin.finance.route.root" as const;
 export const FINANCE_ROUTE_OVERVIEW_ID = "admin.finance.route.overview" as const;
@@ -12,6 +15,11 @@ export const financeManifest = {
   version: 1,
   surface: "admin",
   displayNameKey: "navigation.finance",
+  provides: [
+    { id: FINANCE_READ_CAPABILITY_ID, version: 1 },
+    { id: FINANCE_RECORD_CAPABILITY_ID, version: 1 },
+    { id: FINANCE_REFUND_CAPABILITY_ID, version: 1 },
+  ],
   contributions: [
     {
       kind: "navigation",

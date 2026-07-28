@@ -11,13 +11,18 @@ import { describe, expect, it } from "vitest";
 import { FinanceExpenseScreen } from "../screens/FinanceExpenseScreen";
 
 function renderScreen() {
+  const financeRepository = createWarungMengFinanceRepository();
+  const orderRepository = createWarungMengOrderRepository();
   return render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
         <MemoryRouter>
           <FinanceExpenseScreen
-            financeRepository={createWarungMengFinanceRepository()}
-            orderRepository={createWarungMengOrderRepository()}
+            finance={{
+              listOrders: (query) => orderRepository.listOrders(query),
+              listManualTransactions: (query) => financeRepository.listManualTransactions(query),
+            }}
+            record={financeRepository}
             referenceDate={dayjs("2026-07-20T12:00:00")}
           />
         </MemoryRouter>

@@ -1,58 +1,45 @@
 import {
+  createWarungMengOperationalDataRuntime,
+  type AtomicDataTransaction,
+  type WarungMengOperationalDataRuntime,
+} from "@warungmeng/data";
+import {
   bindDashboardRepositories,
   bindUnavailableDashboardRepositories,
   type DashboardRepositoriesPort,
 } from "../../features/dashboard";
-import {
-  bindFinanceRepository,
-  createFinanceRepository,
-  type FinanceRepositoryInstance,
-} from "../../features/finance/application/financeRepository";
-import {
-  bindInventoryRepository,
-  createInventoryRepository,
-  type InventoryRepositoryInstance,
-} from "../../features/inventory/application/inventoryRepository";
-import {
-  bindMenuCatalogRepository,
-  createMenuCatalogRepository,
-  type MenuCatalogRepositoryInstance,
-} from "../../features/menu/application/menuCatalogRepository";
-import {
-  bindOrderRepository,
-  createOrderRepository,
-  type OrderRepositoryInstance,
-} from "../../features/orders/application/orderRepository";
+import { bindMenuCatalogRepository } from "../../features/menu/application/menuCatalogRepository";
 
 export interface AdminRepositories {
-  readonly orders: OrderRepositoryInstance;
-  readonly finance: FinanceRepositoryInstance;
-  readonly inventory: InventoryRepositoryInstance;
-  readonly menuCatalog: MenuCatalogRepositoryInstance;
+  readonly orders: WarungMengOperationalDataRuntime["orders"];
+  readonly finance: WarungMengOperationalDataRuntime["finance"];
+  readonly inventory: WarungMengOperationalDataRuntime["inventory"];
+  readonly menuCatalog: WarungMengOperationalDataRuntime["menuCatalog"];
+  readonly atomicTransaction: AtomicDataTransaction;
   readonly dashboard: DashboardRepositoriesPort;
 }
 
 /**
- * The Admin composition root owns exactly one instance of each current
- * repository. Dashboard observes those exact instances, so the reporting port
- * never reaches a second copy of any repository.
+ * The Admin composition root owns exactly one operational data runtime:
+ * one instance of each repository plus the atomic transaction that owns the
+ * same Order and Inventory resources. Dashboard observes those exact
+ * instances, so the reporting port never reaches a second copy of any
+ * repository.
  */
 export function createAdminRepositories(): AdminRepositories {
-  const orders = createOrderRepository();
-  const finance = createFinanceRepository();
-  const inventory = createInventoryRepository();
-  const menuCatalog = createMenuCatalogRepository();
+  const runtime = createWarungMengOperationalDataRuntime();
 
   return {
-    orders,
-    finance,
-    inventory,
-    menuCatalog,
+    orders: runtime.orders,
+    finance: runtime.finance,
+    inventory: runtime.inventory,
+    menuCatalog: runtime.menuCatalog,
+    atomicTransaction: runtime.atomicTransaction,
     dashboard: {
-      orders,
-      finance,
-      inventory,
-      catalog: menuCatalog,
+      orders: runtime.orders,
+      finance: runtime.finance,
+      inventory: runtime.inventory,
+      catalog: runtime.menuCatalog,
     },
   };
 }
@@ -68,30 +55,27 @@ function composeRelease(releases: readonly (() => void)[]): () => void {
 }
 
 /**
- * Binds every compatibility export to the composition-owned instances and the
- * Dashboard reporting port to the same objects. The returned release reverses
- * all bindings and is idempotent.
+ * Binds the remaining compatibility surfaces to the composition-owned
+ * instances: the Menu catalog proxy (Menu screens are outside the Phase 04
+ * behavioral cutover) and the Dashboard reporting port. Orders, Inventory,
+ * and Finance no longer have module-level bindings — their consumers receive
+ * capabilities through the runtime. The returned release reverses all
+ * bindings and is idempotent.
  */
 export function bindAdminRepositories(repositories: AdminRepositories): () => void {
   return composeRelease([
-    bindOrderRepository(repositories.orders),
-    bindFinanceRepository(repositories.finance),
-    bindInventoryRepository(repositories.inventory),
     bindMenuCatalogRepository(repositories.menuCatalog),
     bindDashboardRepositories(repositories.dashboard),
   ]);
 }
 
 /**
- * Degraded startup: the four feature repositories stay bound to their real
- * composition-owned instances so their screens keep working, while only the
+ * Degraded startup: the Menu catalog proxy stays bound to its real
+ * composition-owned instance so Menu screens keep working, while only the
  * Dashboard reporting port resolves to an explicit unavailable error.
  */
 export function bindUnavailableAdminRepositories(repositories: AdminRepositories): () => void {
   return composeRelease([
-    bindOrderRepository(repositories.orders),
-    bindFinanceRepository(repositories.finance),
-    bindInventoryRepository(repositories.inventory),
     bindMenuCatalogRepository(repositories.menuCatalog),
     bindUnavailableDashboardRepositories("Required Dashboard module startup failed."),
   ]);

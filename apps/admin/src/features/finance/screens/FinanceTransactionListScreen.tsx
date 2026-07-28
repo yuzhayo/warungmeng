@@ -1,9 +1,12 @@
-import type { FinanceRepository, OrderRepository } from "@warungmeng/data";
 import type { FinanceTransaction, FinanceTransactionQuery } from "@warungmeng/domain";
 import { App, Alert, Button, Spin, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import type {
+  FinanceReadCapability,
+  FinanceRecordCapability,
+} from "../application/financeCapabilities";
 import { useFinanceLedger } from "../application/useFinanceLedger";
 import { useFinanceTransactionEditor } from "../application/useFinanceTransactionEditor";
 import { useFinanceTransactions } from "../application/useFinanceTransactions";
@@ -12,19 +15,19 @@ import { FinanceTransactionTable } from "../components/FinanceTransactionTable";
 import { FinanceTransactionToolbar } from "../components/FinanceTransactionToolbar";
 
 interface FinanceTransactionListScreenProps {
-  readonly orderRepository?: OrderRepository;
-  readonly financeRepository?: FinanceRepository;
+  readonly finance: FinanceReadCapability;
+  readonly record: FinanceRecordCapability;
 }
 
 export function FinanceTransactionListScreen({
-  orderRepository,
-  financeRepository,
+  finance,
+  record,
 }: FinanceTransactionListScreenProps) {
   const { t } = useTranslation();
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const ledger = useFinanceLedger(orderRepository, financeRepository);
-  const editor = useFinanceTransactionEditor(financeRepository);
+  const ledger = useFinanceLedger(finance);
+  const editor = useFinanceTransactionEditor(record);
   const [query, setQuery] = useState<FinanceTransactionQuery>({});
   const [mutatingId, setMutatingId] = useState<string | null>(null);
   const transactions = useFinanceTransactions(ledger.transactions, query);

@@ -119,7 +119,10 @@ describe("Admin module discovery", () => {
     window.location.hash = "#/orders";
     const view = render(createElement(App, { runtime }));
 
-    expect(await screen.findByRole("heading", { name: "Manajemen Pesanan" })).toBeInTheDocument();
+    // The Orders module never registered in this runtime, so its route shows
+    // the explicit no-capability state instead of silently using another
+    // instance; the shell and navigation stay active.
+    expect(await screen.findByText("Pesanan gagal dimuat.")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Navigasi utama" })).toBeInTheDocument();
     expect(runtime.getSnapshot()).toEqual({
       status: "degraded",

@@ -1,13 +1,21 @@
-import type { WarungMengExtension } from "@warungmeng/module-system";
-import { menuManifest } from "./menuManifest";
+import { createCapabilityToken, type WarungMengExtension } from "@warungmeng/module-system";
+import type { CatalogReadCapability } from "../application/catalogReadCapability";
+import { CATALOG_READ_CAPABILITY_ID, menuManifest } from "./menuManifest";
+
+export const catalogReadCapability = createCapabilityToken<CatalogReadCapability>(
+  CATALOG_READ_CAPABILITY_ID,
+);
 
 /**
- * Phase 03 owns declarative metadata. Capability wiring remains deliberately
- * empty until Phase 04 injects the feature ports.
+ * Menu participates in Phase 04 as catalog read support only: it publishes
+ * the composition-assembled `catalog.read` implementation. Menu screens
+ * themselves stay on their existing compatibility path.
  */
-export function createMenuExtension(): WarungMengExtension {
+export function createMenuExtension(catalog: CatalogReadCapability): WarungMengExtension {
   return {
     manifest: menuManifest,
-    register() {},
+    register({ capabilities }) {
+      capabilities.provide(catalogReadCapability, catalog);
+    },
   };
 }

@@ -1,6 +1,7 @@
-import type { CreateInventoryMovementInput, InventoryRepository } from "@warungmeng/data";
+import type { CreateInventoryMovementInput } from "@warungmeng/data";
 import type { InventoryMovementType } from "@warungmeng/domain";
 import { useCallback, useEffect, useState } from "react";
+import type { InventoryAdjustCapability, InventoryReadCapability } from "./inventoryCapabilities";
 
 export interface InventoryMovementFilters {
   readonly outletId: string;
@@ -14,28 +15,29 @@ const DEFAULT_FILTERS: InventoryMovementFilters = {
   type: null,
 };
 
-export function useInventoryMovements(repository: InventoryRepository) {
+export function useInventoryMovements(
+  read: InventoryReadCapability,
+  adjust: InventoryAdjustCapability,
+) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [movements, setMovements] = useState<Awaited<ReturnType<typeof repository.listMovements>>>(
+  const [movements, setMovements] = useState<Awaited<ReturnType<typeof read.listMovements>>>([]);
+  const [ingredients, setIngredients] = useState<Awaited<ReturnType<typeof read.listIngredients>>>(
     [],
   );
-  const [ingredients, setIngredients] = useState<
-    Awaited<ReturnType<typeof repository.listIngredients>>
-  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const fetchData = useCallback(
     () =>
       Promise.all([
-        repository.listMovements({
+        read.listMovements({
           outletId: filters.outletId,
           ingredientId: filters.ingredientId ?? undefined,
           type: filters.type ?? undefined,
         }),
-        repository.listIngredients({ status: "active" }),
+        read.listIngredients({ status: "active" }),
       ]),
-    [filters, repository],
+    [filters, read],
   );
 
   const load = useCallback(async () => {
@@ -74,7 +76,7 @@ export function useInventoryMovements(repository: InventoryRepository) {
   }, [fetchData]);
 
   async function recordMovement(input: CreateInventoryMovementInput): Promise<void> {
-    await repository.recordMovement(input);
+    await adjust.recordMovement(input);
     await load();
   }
 

@@ -200,4 +200,20 @@ describe("InMemoryInventoryRepository", () => {
     expect(await repository.listMovements()).toHaveLength(0);
     expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
   });
+
+  it("restores balances, movements, and recipes to the exact snapshot state", async () => {
+    const repository = createRepository();
+    const snapshot = repository.captureSnapshot();
+
+    await repository.consumeOrder(createOrder(2));
+    await repository.saveRecipe({ ...recipe, additionalCost: { amount: 999, currency: "IDR" } });
+
+    repository.restoreSnapshot(snapshot);
+
+    expect(await repository.listMovements()).toHaveLength(0);
+    expect((await repository.listStockBalances("wm-1"))[0]?.quantity).toBe(1000);
+    await expect(repository.getRecipeByMenuItemId("menu-rice")).resolves.toMatchObject({
+      additionalCost: { amount: 0 },
+    });
+  });
 });

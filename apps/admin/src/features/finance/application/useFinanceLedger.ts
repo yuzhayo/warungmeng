@@ -1,15 +1,12 @@
-import type { FinanceRepository, OrderRepository } from "@warungmeng/data";
 import {
   buildFinanceLedger,
   sortFinanceTransactionsNewestFirst,
   type FinanceTransaction,
 } from "@warungmeng/domain";
 import { useCallback, useEffect, useState } from "react";
-import {
-  ACTIVE_FINANCE_OUTLET_ID,
-  financeOrderRepository,
-  financeRepository,
-} from "./financeRepository";
+import type { FinanceReadCapability } from "./financeCapabilities";
+
+export const ACTIVE_FINANCE_OUTLET_ID = "wm-1";
 
 export interface FinanceLedgerState {
   readonly transactions: readonly FinanceTransaction[];
@@ -24,10 +21,7 @@ interface FinanceLedgerLoadResult {
   readonly error: boolean;
 }
 
-export function useFinanceLedger(
-  orders: OrderRepository = financeOrderRepository,
-  manualFinance: FinanceRepository = financeRepository,
-): FinanceLedgerState {
+export function useFinanceLedger(read: FinanceReadCapability): FinanceLedgerState {
   const [requestId, setRequestId] = useState(0);
   const [loadResult, setLoadResult] = useState<FinanceLedgerLoadResult>({
     requestId: -1,
@@ -39,8 +33,8 @@ export function useFinanceLedger(
     let active = true;
 
     void Promise.all([
-      orders.listOrders({ outletId: ACTIVE_FINANCE_OUTLET_ID }),
-      manualFinance.listManualTransactions(),
+      read.listOrders({ outletId: ACTIVE_FINANCE_OUTLET_ID }),
+      read.listManualTransactions(),
     ])
       .then(([orderRecords, manualTransactions]) => {
         if (!active) return;
@@ -59,7 +53,7 @@ export function useFinanceLedger(
     return () => {
       active = false;
     };
-  }, [manualFinance, orders, requestId]);
+  }, [read, requestId]);
 
   const retry = useCallback(() => setRequestId((current) => current + 1), []);
   const loading = loadResult.requestId !== requestId;

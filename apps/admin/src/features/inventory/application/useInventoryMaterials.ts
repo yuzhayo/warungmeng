@@ -1,10 +1,10 @@
 import type {
   CreateInventoryIngredientInput,
-  InventoryRepository,
   UpdateInventoryIngredientInput,
 } from "@warungmeng/data";
 import type { InventoryIngredientStatus } from "@warungmeng/domain";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { InventoryAdjustCapability, InventoryReadCapability } from "./inventoryCapabilities";
 
 export interface InventoryMaterialFilters {
   readonly search: string;
@@ -20,33 +20,32 @@ const DEFAULT_FILTERS: InventoryMaterialFilters = {
   lowStockOnly: false,
 };
 
-export function useInventoryMaterials(repository: InventoryRepository) {
+export function useInventoryMaterials(
+  read: InventoryReadCapability,
+  adjust: InventoryAdjustCapability,
+) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [ingredients, setIngredients] = useState<
-    Awaited<ReturnType<typeof repository.listIngredients>>
-  >([]);
-  const [balances, setBalances] = useState<
-    Awaited<ReturnType<typeof repository.listStockBalances>>
-  >([]);
-  const [suppliers, setSuppliers] = useState<Awaited<ReturnType<typeof repository.listSuppliers>>>(
+  const [ingredients, setIngredients] = useState<Awaited<ReturnType<typeof read.listIngredients>>>(
     [],
   );
+  const [balances, setBalances] = useState<Awaited<ReturnType<typeof read.listStockBalances>>>([]);
+  const [suppliers, setSuppliers] = useState<Awaited<ReturnType<typeof read.listSuppliers>>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const fetchData = useCallback(
     () =>
       Promise.all([
-        repository.listIngredients({
+        read.listIngredients({
           search: filters.search,
           status: filters.status ?? undefined,
           outletId: filters.outletId,
           lowStockOnly: filters.lowStockOnly,
         }),
-        repository.listStockBalances(filters.outletId),
-        repository.listSuppliers(),
+        read.listStockBalances(filters.outletId),
+        read.listSuppliers(),
       ]),
-    [filters, repository],
+    [filters, read],
   );
 
   const load = useCallback(async () => {
@@ -103,15 +102,15 @@ export function useInventoryMaterials(repository: InventoryRepository) {
         status: input.status,
         minimumStock: input.minimumStock,
       };
-      await repository.updateIngredient(id, patch);
+      await adjust.updateIngredient(id, patch);
     } else {
-      await repository.createIngredient(input);
+      await adjust.createIngredient(input);
     }
     await load();
   }
 
   async function archiveIngredient(id: string): Promise<void> {
-    await repository.archiveIngredient(id);
+    await adjust.archiveIngredient(id);
     await load();
   }
 

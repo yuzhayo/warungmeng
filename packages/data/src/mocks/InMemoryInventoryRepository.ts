@@ -30,6 +30,13 @@ export interface InMemoryInventorySeed {
 export type InventoryEntityKind = "ingredient" | "movement";
 export type InventoryIdFactory = (kind: InventoryEntityKind) => string;
 
+export interface InventoryRepositoryStateSnapshot {
+  readonly ingredients: readonly InventoryIngredient[];
+  readonly stockBalances: readonly InventoryStockBalance[];
+  readonly movements: readonly InventoryMovement[];
+  readonly recipes: readonly MenuRecipe[];
+}
+
 function defaultIdFactory(kind: InventoryEntityKind): string {
   return `${kind}-${crypto.randomUUID()}`;
 }
@@ -53,6 +60,27 @@ export class InMemoryInventoryRepository implements InventoryRepository {
     this.#stockBalances = (seed.stockBalances ?? []).map((item) => clone(item));
     this.#movements = (seed.movements ?? []).map((item) => clone(item));
     this.#recipes = (seed.recipes ?? []).map((item) => clone(item));
+  }
+
+  /**
+   * Captures every mutable collection for atomic-transaction rollback.
+   * Suppliers are excluded because no repository method mutates them.
+   */
+  captureSnapshot(): InventoryRepositoryStateSnapshot {
+    return {
+      ingredients: clone(this.#ingredients),
+      stockBalances: clone(this.#stockBalances),
+      movements: clone(this.#movements),
+      recipes: clone(this.#recipes),
+    };
+  }
+
+  /** Restores state captured by {@link captureSnapshot}; reads stay defensive copies. */
+  restoreSnapshot(snapshot: InventoryRepositoryStateSnapshot): void {
+    this.#ingredients = snapshot.ingredients.map((item) => clone(item));
+    this.#stockBalances = snapshot.stockBalances.map((item) => clone(item));
+    this.#movements = snapshot.movements.map((item) => clone(item));
+    this.#recipes = snapshot.recipes.map((item) => clone(item));
   }
 
   async listIngredients(query: InventoryIngredientQuery = {}) {

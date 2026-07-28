@@ -10,11 +10,23 @@ import {
   createSettingsExtension,
   createThemeExtension,
 } from "../../features/settings";
+import type { AdminCapabilities } from "../composition/createAdminCapabilities";
 import type { AdminRepositories } from "../composition/createAdminRepositories";
 
+export interface CreateAdminModuleCandidatesOptions {
+  readonly repositories: AdminRepositories;
+  readonly capabilities: AdminCapabilities;
+}
+
+/**
+ * Every candidate receives its already-assembled implementations from the one
+ * composed capability bundle; extensions only publish what composition built.
+ */
 export function createAdminModuleCandidates(
-  repositories: AdminRepositories,
+  options: CreateAdminModuleCandidatesOptions,
 ): readonly ModuleCandidate[] {
+  const { repositories, capabilities } = options;
+
   return [
     {
       source: "admin.dashboard",
@@ -22,7 +34,7 @@ export function createAdminModuleCandidates(
     },
     {
       source: "admin.menu",
-      load: () => createMenuExtension(),
+      load: () => createMenuExtension(capabilities.catalog),
     },
     {
       source: "admin.settings",
@@ -38,19 +50,19 @@ export function createAdminModuleCandidates(
     },
     {
       source: "admin.inventory",
-      load: () => createInventoryExtension(),
+      load: () => createInventoryExtension(capabilities.inventory),
     },
     {
       source: "admin.finance",
-      load: () => createFinanceExtension(),
+      load: () => createFinanceExtension(capabilities.finance),
     },
     {
       source: "admin.pos",
-      load: () => createPosExtension(),
+      load: () => createPosExtension(capabilities.pos),
     },
     {
       source: "admin.orders",
-      load: () => createOrdersExtension(),
+      load: () => createOrdersExtension(capabilities.orders),
     },
   ];
 }

@@ -10,6 +10,10 @@ export type OrderEventIdFactory = () => string;
 export type OrderIdFactory = () => string;
 export type OrderClock = () => string;
 
+export interface OrderRepositoryStateSnapshot {
+  readonly orders: readonly Order[];
+}
+
 function clone<TEntity>(value: TEntity): TEntity {
   return structuredClone(value);
 }
@@ -77,6 +81,16 @@ export class InMemoryOrderRepository implements OrderRepository {
     const order: Order = { ...clone(input), id: this.#orderIdFactory() };
     this.#orders.push(order);
     return clone(order);
+  }
+
+  /** Captures the full mutable state for atomic-transaction rollback. */
+  captureSnapshot(): OrderRepositoryStateSnapshot {
+    return { orders: clone(this.#orders) };
+  }
+
+  /** Restores state captured by {@link captureSnapshot}; reads stay defensive copies. */
+  restoreSnapshot(snapshot: OrderRepositoryStateSnapshot): void {
+    this.#orders = snapshot.orders.map((order) => clone(order));
   }
 
   async updateOrderStatus(id: string, nextStatus: OrderStatus): Promise<OrderStatusUpdateResult> {

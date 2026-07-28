@@ -180,19 +180,24 @@ Evidence minimum untuk setiap material change:
 - loading, success, empty, error, retry, disabled, dan not-found yang relevan;
 - keyboard, visible focus, console error, serta horizontal overflow;
 - screenshot atau trace path;
-- viewport dan tanggal.
+- surface, arah fluid-resize sweep, dan tanggal; ukuran viewport exact boleh dicatat
+  sebagai metadata evidence, tetapi bukan gate.
 
-Required parity pair:
+Required fluid QA policy:
 
-- `375×812`;
-- `1024×768`.
+- **Admin — fluid desktop-first:** mulai dari layout desktop yang tersedia, lalu resize
+  kontinu menuju ruang yang lebih sempit dan kembali menuju ruang yang lebih lebar.
+  Sidebar, table, form, dialog, focus, dan overflow harus tetap usable sepanjang sweep;
+- **Storefront — fluid mobile-first:** mulai dari ruang narrow/mobile yang tersedia, lalu
+  resize kontinu melewati intermediate layout sampai desktop lebar. Catalog, detail,
+  cart, checkout, dan confirmation harus beradaptasi tanpa bergantung pada device ratio;
+- sample screenshot boleh diambil pada titik narrow/intermediate/wide yang ditemukan
+  selama sweep, tetapi tidak ada resolusi, aspect ratio, breakpoint, atau parity pair
+  berbasis pixel yang menjadi syarat `PASS`.
 
-Phase 05 closure juga melakukan route smoke pada:
-
-- `320×800`;
-- `430×932`;
-- `768×1024`;
-- desktop `1440×900`.
+Phase 05 closure melakukan route smoke pada seluruh Storefront sambil menjalankan fluid
+mobile-first sweep dari narrow ke wide, termasuk setiap perubahan layout atau breakpoint
+aktual yang terlihat selama resize.
 
 Tidak tersedia browser berarti visual verdict `BLOCKED`/`PARTIAL`, bukan `PASS`.
 
@@ -743,7 +748,7 @@ Validation:
 - full gate §3.3;
 - Admin AntD lint;
 - browser logical routes `/` dan `/reports`, period/search behavior, ID/EN, reload,
-  console, focus, dan overflow pada desktop serta narrow viewport.
+  console, focus, dan overflow sepanjang fluid desktop-first resize sweep.
 
 ### 7.6 Success, fallback, and handoff
 
@@ -909,155 +914,514 @@ headless business orchestration.
 
 ## 9. Phase 04 — Admin Headless Capability Boundaries
 
-### 9.1 Execution contract
+### 9.1 Replan authority, baseline, and execution contract
 
-| Field            | Value                                                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Phase ID         | 04                                                                                                                             |
-| Status           | `PENDING`                                                                                                                      |
-| Objective        | Mengganti proven cross-feature singleton imports dengan narrow injected ports/capabilities tanpa mengubah domain/data contract |
-| Surface          | Admin                                                                                                                          |
-| Module owner     | Satu active sub-wave                                                                                                           |
-| Preconditions    | Phase 03 PASS; protected behavior tests tersedia                                                                               |
-| Current behavior | Cross-domain workflows memakai app-local concrete repository singletons                                                        |
-| Target contract  | Composition-owned adapters + feature commands/ports + stable capability boundary                                               |
-| Stop condition   | Setiap sub-wave reviewed; atomicity/idempotency parity lulus                                                                   |
-| Evidence path    | Wave 04 block per sub-wave + Cutover Log                                                                                       |
+Phase 04 direvisi pada 29 Juli 2026 atas instruksi user. Model lama yang menjalankan
+`04A`–`04E` sebagai prompt, QA, review, dan commit terpisah **superseded** karena memecah
+satu dependency graph lintas fitur menjadi solusi lokal yang berulang dan rawan drift.
 
-### 9.2 Bounded sub-waves
+Replan ini adalah exception eksplisit untuk guardrail “satu vertical module aktif” pada
+§2. Exception hanya berlaku untuk cluster operasional Admin berikut:
 
-Satu sub-wave aktif dan direview pada satu waktu:
+```text
+Catalog read support → Inventory → Orders → POS
+                         ↑          ↓
+                         └─ Finance ┘
+```
 
-1. **04A Composition seam**
-   - composition root memiliki satu instance setiap current repository;
-   - compatibility exports mendelegasikan ke instance yang sama;
-   - tidak ada behavior/UI change.
-2. **04B Orders cancellation pilot**
-   - `orders.manage` memakai narrow Order, Inventory reversal, dan Finance refund ports;
-   - ports didelegasikan ke current adapters, sehingga Orders dapat dipilotkan tanpa
-     menunggu rewrite Inventory/Finance;
-   - paid/unpaid, rollback, invalid transition, dan retry diuji.
-3. **04C POS**
-   - `pos.session`, cart, checkout, order creation, dan stock consumption melalui ports;
-   - browser session storage menjadi explicit app-local adapter.
-4. **04D Inventory**
-   - `inventory.read/adjust/reverse`;
-   - HPP/menu dependency melalui injected catalog port.
-5. **04E Finance**
-   - `finance.read/record/refund`;
-   - order-derived data melalui injected order-read port.
+Scope tetap bounded ke composition, discovery/capability registration, application
+contracts, data transaction adapter yang disebut eksplisit, dan dependency injection
+pada routed screens. Ini bukan izin big-bang rewrite untuk seluruh Admin.
 
-Sub-wave boleh berhenti di `wired` jika consumer internal masih tersisa. Jangan memaksa
-`retired` pada Phase 04.
+| Field            | Value                                                                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase ID         | 04                                                                                                                                                  |
+| Status           | `PASS — final automated gate, Admin AntD lint, browser critical-flow matrix, and supervisor review completed 29 Juli 2026`                          |
+| Baseline commit  | `2ab788a` — fresh composition-owned repository instances dan compatibility binding                                                                  |
+| In-flight source | Resolved — partial 04B was replaced by the canonical one-wave implementation and is included in the final Phase 04 PASS                             |
+| Objective        | Menutup seluruh cross-feature Admin operational graph dengan composition-owned capabilities dan tanpa internal cross-feature singleton imports      |
+| Surface          | Admin                                                                                                                                               |
+| Module cluster   | Catalog read support, Orders, POS, Inventory, Finance                                                                                               |
+| Preconditions    | Phase 03 PASS; 04A commit tersedia; protected behavior tests tetap menjadi baseline                                                                 |
+| Target contract  | Satu data/runtime assembly, satu capability graph, manifest-provided contracts, app-owned injection adapters, dan explicit transaction/storage seam |
+| Executor model   | Claude mengimplementasikan satu Phase 04 utuh; tidak menjalankan QA, tidak commit, tidak push                                                       |
+| Supervisor model | Codex mereview seluruh diff dan menjalankan automated/browser QA tepat satu kali setelah implementation handoff                                     |
+| Stop condition   | Satu final Phase 04 verdict setelah seluruh work package selesai; tidak ada stop-gate per module                                                    |
+| Evidence path    | Satu Wave 04 closure block + capability matrix + atomicity/storage/browser evidence                                                                 |
 
-### 9.3 Allowed files
+Phase 04 memakai **satu prompt, satu implementation wave, satu final QA, dan satu
+checkpoint commit**. Work package pada §9.2 adalah urutan kerja internal, bukan alasan
+untuk handoff, QA, commit, atau supervisor verdict sementara.
 
-Selalu diizinkan pada active sub-wave:
+Hard stop hanya berlaku jika executor membuktikan bahwa:
+
+- perubahan di luar allowlist §9.7 diperlukan;
+- invariant domain pada §2 harus diubah;
+- module-system contract harus diubah;
+- atomic rollback tidak dapat dibuat oleh exact additive data transaction amendment
+  pada §9.5.
+
+Masalah implementasi yang masih dapat diselesaikan di dalam allowlist tidak boleh
+memecah Phase 04 menjadi prompt baru.
+
+### 9.2 Internal work packages — no intermediate stop-gates
+
+| Order | Work package                      | Required outcome                                                                                                                                       |
+| ----- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 04.0  | Freeze capability/consumer matrix | Kunci provider, consumer, exact port methods, lifecycle, failure semantics, dan compatibility consumers sebelum source rewrite                         |
+| 04.1  | Rebase composition/data ownership | Pertahankan per-runtime identity dari 04A; buat atomic Order+Inventory transaction seam dan explicit POS storage adapter; hapus redundant 04A wiring   |
+| 04.2  | Assemble capability graph         | Buat seluruh implementation sekali di composition root; inject ke extension constructors; register declared tokens dengan reversible lifecycle         |
+| 04.3  | Cut over application consumers    | Orders, POS, Inventory, Finance memakai module-owned commands/ports; seluruh direct internal cross-feature repository imports pada cluster menjadi nol |
+| 04.4  | Retire superseded compatibility   | Hapus proxy/singleton/moved source hanya jika consumer scan nol; jangan mempertahankan dua implementation aktif untuk workflow yang sama               |
+| 04.5  | One final handoff                 | Exact diff, contract matrix, unresolved debt, dan statement “validation not run”; serahkan ke Codex untuk satu final QA                                |
+
+Executor boleh mengubah urutan file di dalam work package untuk menjaga buildable state.
+Executor tidak boleh menyerahkan hasil setelah 04.1, 04.2, 04.3, atau satu module saja.
+
+### 9.3 Treatment of committed 04A and partial 04B
+
+Commit `2ab788a` adalah evidence bahwa composition dapat:
+
+- membuat Order, Inventory, Finance, dan Menu Catalog repository baru per runtime;
+- memberi Dashboard instance yang strict-identical;
+- menjaga separate roots terisolasi;
+- melakukan initialize/dispose secara reversible dan idempotent.
+
+Outcome tersebut wajib dipertahankan. Implementasi internalnya **tidak frozen**:
+
+- `createAdminRepositories.ts`, lifecycle binding, dan tests boleh diubah;
+- repository compatibility proxies/binding stacks dari 04A boleh disederhanakan atau
+  dihapus setelah consumer cluster bermigrasi;
+- global mutable binding stack bukan target akhir untuk Orders/POS/Inventory/Finance;
+- Menu compatibility path boleh tetap hidup hanya untuk Menu consumers yang memang di
+  luar behavioral cutover Phase 04;
+- Dashboard degraded startup tetap hanya menonaktifkan Dashboard reporting dan tidak
+  boleh mematikan module lain.
+
+Partial 04B pada working tree ketika replan:
+
+- bukan baseline behavior baru;
+- test yang menganggap cancelled/refunded order + failed Inventory reversal sebagai
+  keberhasilan parsial wajib diganti karena mengunci half-applied workflow;
+- file move/port yang masih tepat boleh dipakai ulang;
+- staged deletion atau untracked replacement diselesaikan melalui edit/add normal,
+  bukan reset, clean, atau forced checkout.
+
+Perubahan terhadap file yang sudah masuk commit 04A bukan regression bila outcome di
+atas tetap lulus dan hasil akhir lebih sesuai capability graph canonical.
+
+### 9.4 Frozen capability graph
+
+Semua implementation dibuat lebih dahulu oleh composition root dari instance repository,
+transaction adapter, clock/ID runtime, dan storage adapter yang sama. Extension menerima
+implementation yang sudah assembled; feature hook/screen dilarang merakit cross-feature
+ports.
+
+| Provider surface | Capability IDs                                                                 | Composition dependencies                                                         | Primary consumers                                   |
+| ---------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Catalog support  | `catalog.read`                                                                 | Menu Catalog repository                                                          | POS catalog; Inventory HPP                          |
+| Orders           | `orders.read`, `orders.manage`                                                 | Order repository; `inventory.reverse`; `finance.refund`; atomic data transaction | Orders routes; POS checkout                         |
+| Inventory        | `inventory.read`, `inventory.adjust`, `inventory.consume`, `inventory.reverse` | Inventory repository; `catalog.read` for HPP                                     | Inventory routes; Orders cancellation; POS checkout |
+| Finance          | `finance.read`, `finance.record`, `finance.refund`                             | Finance repository; Order read port; existing domain ledger/refund projection    | Finance routes; Orders cancellation                 |
+| POS              | `pos.session`, `pos.cart`, `pos.checkout`                                      | Catalog read; order create/read; inventory consume; POS session storage          | POS cashier route                                   |
+
+Rules:
+
+- manifest hanya mendeklarasikan `provides`/`requires`, IDs, version, route, dan nav
+  metadata; manifest tidak mengimpor screen, repository, storage, React, atau AntD;
+- extension menyediakan capability token yang dideklarasikan dan mengembalikan
+  reversible activation jika memiliki local compatibility binding;
+- `adminModuleCandidates.ts` menerima satu composed capability bundle dan memasukkannya
+  ke extension constructors;
+- module-system registry menjadi authoritative publication surface untuk extensions;
+- `AdminRuntime.capabilities` menyimpan typed UI-injection bundle dengan exact object
+  identity yang sama dengan value yang didaftarkan extensions;
+- routed screen menerima capability dari runtime bundle melalui app-owned route injection
+  adapter atau props; feature tidak mengimpor `app/composition` atau `app/routing`;
+- tidak ada feature A yang mengimpor `features/B/application/*Repository`;
+- built-in dependency assembly dilakukan topologically di composition root. Jangan
+  membuat circular runtime `resolve()` hanya untuk built-in modules yang sudah diketahui.
+
+Complexity budget:
+
+- satu capability implementation per feature cluster; jangan membuat adapter class baru
+  untuk setiap repository method;
+- port hanya dibuat pada boundary yang benar-benar melintasi owner atau membutuhkan test
+  double; same-feature delegation tidak perlu wrapper berlapis;
+- gunakan structural typing atau focused `Pick<>` ketika current repository sudah
+  memenuhi port tanpa adapter behavior;
+- satu workflow hanya memiliki satu active command; legacy dan target command tidak
+  boleh berjalan paralel setelah cutover;
+- jangan membuat generic `service`, `manager`, locator, event bus, atau abstraction
+  framework baru untuk kebutuhan Phase 04;
+- file baru harus memiliki consumer aktual pada final consumer scan.
+
+`finance.refund` pada data model saat ini adalah deterministic projection dari settled
+Order, bukan persisted manual Finance mutation. Phase 04 wajib membuat fakta ini eksplisit:
+
+- jangan menambah refund write palsu ke `FinanceRepository`;
+- capability mengembalikan canonical refund projection/identity yang dipakai ledger;
+- exactly-once dibuktikan dari satu settled Order state dan stable reference, bukan dari
+  counter atau array buatan yang terpisah dari ledger;
+- manual Finance transactions tetap memakai current repository semantics.
+
+### 9.5 Target contracts and exact data amendment
+
+Feature ports berada di feature `application/ports`; commands/orchestration berada di
+`application/commands`; concrete implementations dan cross-feature assembly berada di
+`app/composition`.
+
+Minimum contract shapes:
+
+```ts
+export interface AtomicDataTransaction {
+  run<TResult>(operation: () => Promise<TResult>): Promise<TResult>;
+}
+
+export interface CatalogReadCapability {
+  listMenus(): Promise<readonly MenuItem[]>;
+  listCategories(): Promise<readonly MenuCategory[]>;
+  listVariantGroups(): Promise<readonly MenuVariantGroup[]>;
+}
+
+export interface InventoryReverseCapability {
+  revertOrderConsumption(order: Order): Promise<readonly InventoryMovement[]>;
+}
+
+export interface FinanceRefundCapability {
+  projectRefund(order: Order): readonly FinanceTransaction[];
+}
+
+export interface OrdersManageCapability {
+  updateStatus(orderId: string, status: OrderStatus): Promise<OrderStatusUpdateResult>;
+  cancel(orderId: string): Promise<CancelOrderOutcome>;
+}
+
+export type CancelOrderOutcome =
+  | { readonly status: "cancelled"; readonly order: Order; readonly refunded: boolean }
+  | { readonly status: "not-found" }
+  | { readonly status: "invalid-transition"; readonly order: Order }
+  | {
+      readonly status: "failed";
+      readonly reason: "inventory-reversal" | "transaction";
+      readonly retryable: true;
+      readonly dataChanged: false;
+    };
+
+export interface PosSessionStoragePort {
+  load(): PosCashierState | null;
+  save(state: PosCashierState): void;
+  clear(): void;
+}
+```
+
+Names boleh disesuaikan bila responsibility tetap sama dan tidak menjadi generic
+`manager/service/helpers`. Public capability token IDs pada §9.4 tidak boleh diubah.
+
+Strict paid-cancellation atomicity tidak dapat dipenuhi oleh dua repository mutation
+tanpa transaction boundary. Phase 04 karena itu memiliki **satu additive data-contract
+amendment**:
+
+- tambah `AtomicDataTransaction`;
+- tambah in-memory transaction/runtime adapter yang memiliki Order dan Inventory
+  resources yang sama dengan composition root;
+- `run()` men-snapshot targeted resources, men-serialize overlapping operation,
+  me-rollback seluruh targeted mutation ketika callback gagal, lalu rethrow/map failure;
+- existing `OrderRepository`, `InventoryRepository`, `FinanceRepository`, dan Menu
+  Catalog public behavior tetap backward-compatible;
+- tidak ada perubahan domain transition, finance ledger rule, fixture meaning, atau
+  persisted backend contract;
+- adapter ini boleh mengganti repository construction mechanism yang dibuat pada 04A
+  selama per-runtime identity dan isolation tetap terbukti.
+
+POS checkout tidak otomatis diubah menjadi rollback transaction karena current protected
+behavior memiliki persisted order + explicit pending Inventory sync/retry. Phase 04
+mempertahankan semantics itu, tetapi memindahkannya ke `pos.checkout` dengan idempotent
+pending-sync identity.
+
+POS storage decision:
+
+- browser adapter berada di Admin/POS application boundary, bukan domain/data package;
+- storage surface: `sessionStorage`;
+- key baru yang dikunci oleh Phase 04: `warungmeng.admin.pos-session.v1`;
+- serialized state mencakup active session, outlet/opening balance, cart/checkout,
+  receipt, pending Inventory sync IDs, cash sales, sequence, dan last close record;
+- transient `processing` selalu dipulihkan sebagai `false`;
+- invalid/version-mismatch payload kembali ke clean closed session tanpa throw;
+- save/clear bersifat explicit dan dapat diganti memory adapter pada tests.
+
+### 9.6 Composition and consumer cutover
+
+Target composition:
+
+```text
+createAdminOperationalDataRuntime()
+  ├─ repositories
+  └─ atomicTransaction
+
+createAdminStorageAdapters()
+  └─ posSessionStorage
+
+createAdminCapabilities({ repositories, atomicTransaction, storage, runtime })
+  ├─ catalog
+  ├─ inventory
+  ├─ finance
+  ├─ orders
+  └─ pos
+
+createAdminModuleCandidates(capabilities)
+  └─ feature extensions provide declared tokens
+
+Admin route capability adapters
+  └─ read AdminRuntime.capabilities → inject feature-owned props → render lazy screen
+```
+
+Cutover rules:
+
+- app-level route adapter boleh mengimpor feature public types dan lazy screens, lalu
+  membaca typed bundle dari `AdminRuntime`; feature screen tidak boleh mengimpor
+  app-level adapter;
+- route path, component ID, navigation order, labels, icons, redirects, dan lazy loading
+  tetap identik dengan Phase 03;
+- screen edits hanya boleh mengganti dependency/default/callback wiring;
+- visible JSX, copy, layout, CSS, and AntD component selection tidak berubah;
+- no-capability state harus explicit dan tidak boleh silently memakai instance lain;
+- compatibility wrapper hanya boleh hidup bila ada consumer aktual yang belum dapat
+  dipindah tanpa keluar Phase 04;
+- closure scan wajib membuktikan tidak ada direct cross-feature internal import pada
+  cluster Phase 04.
+
+### 9.7 Phase-wide allowlist
+
+Replan ini menggantikan placeholder `<active-module>` lama dengan allowlist seluruh
+cluster. File di luar daftar tetap deny-by-default.
+
+Admin composition/discovery/runtime:
 
 ```text
 apps/admin/src/app/composition/createAdminRepositories.ts
+apps/admin/src/app/composition/createAdminRepositories.test.ts
+apps/admin/src/app/composition/createAdminCapabilities.ts             # new
+apps/admin/src/app/composition/createAdminCapabilities.test.ts        # new
+apps/admin/src/app/composition/createAdminStorageAdapters.ts          # new
+apps/admin/src/app/composition/createAdminStorageAdapters.test.ts     # new
 apps/admin/src/app/composition/createAdminRuntime.ts
 apps/admin/src/app/composition/adminRuntime.ts
 apps/admin/src/app/composition/AdminRuntimeProvider.tsx
-apps/admin/src/features/<active-module>/manifest/**
-apps/admin/src/features/<active-module>/index.ts
-apps/admin/src/features/<active-module>/application/**
+apps/admin/src/app/discovery/adminModuleCandidates.ts
+apps/admin/src/app/routing/adminRouteComponentRegistry.ts
+apps/admin/src/app/routing/adminCapabilityRouteAdapters.tsx           # new
+apps/admin/src/app/routing/adminCapabilityRouteAdapters.test.tsx      # new
+apps/admin/src/tests/adminModuleDiscovery.test.ts
+apps/admin/src/tests/adminImportBoundary.test.ts
+apps/admin/src/tests/adminCapabilityIntegration.test.ts               # new
 ```
 
-Tambahan exact compatibility owners:
+Feature contracts, commands, adapters, manifests, and public entrypoints:
 
 ```text
-# Orders
+apps/admin/src/features/menu/application/**                           # catalog.read support only
+apps/admin/src/features/menu/manifest/**
+apps/admin/src/features/menu/index.ts
+
+apps/admin/src/features/orders/application/**
+apps/admin/src/features/orders/manifest/**
+apps/admin/src/features/orders/index.ts
+
+apps/admin/src/features/pos/application/**
+apps/admin/src/features/pos/manifest/**
+apps/admin/src/features/pos/index.ts
+
+apps/admin/src/features/inventory/application/**
+apps/admin/src/features/inventory/manifest/**
+apps/admin/src/features/inventory/index.ts
+
+apps/admin/src/features/finance/application/**
+apps/admin/src/features/finance/manifest/**
+apps/admin/src/features/finance/index.ts
+```
+
+Exact routed screen compatibility owners and tests:
+
+```text
+apps/admin/src/features/orders/screens/OrderListScreen.tsx
+apps/admin/src/features/orders/screens/OrderListScreen.test.tsx
 apps/admin/src/features/orders/screens/OrderDetailScreen.tsx
 apps/admin/src/features/orders/screens/OrderDetailScreen.test.tsx
 
-# POS
 apps/admin/src/features/pos/screens/PosCashierScreen.tsx
 apps/admin/src/features/pos/screens/PosCashierScreen.test.tsx
 
-# Inventory
+apps/admin/src/features/inventory/screens/InventoryMaterialsScreen.tsx
+apps/admin/src/features/inventory/screens/InventoryMovementsScreen.tsx
 apps/admin/src/features/inventory/screens/InventoryHppScreen.tsx
 apps/admin/src/features/inventory/screens/InventoryScreens.test.tsx
 
-# Finance
-apps/admin/src/features/finance/screens/Finance*.tsx
+apps/admin/src/features/finance/screens/FinanceScreen.tsx
+apps/admin/src/features/finance/screens/FinanceOverviewScreen.tsx
+apps/admin/src/features/finance/screens/FinanceTransactionListScreen.tsx
+apps/admin/src/features/finance/screens/FinanceTransactionListScreen.test.tsx
+apps/admin/src/features/finance/screens/FinanceExpenseScreen.tsx
 apps/admin/src/features/finance/tests/**
 ```
 
-Screen edits hanya boleh mengubah dependency/callback injection. JSX, visible copy, dan
-layout tidak boleh berubah tanpa phase amendment serta browser scope tambahan.
-
-### 9.4 Forbidden files
+Exact additive data transaction amendment:
 
 ```text
-apps/admin/src/app/routing/**
+packages/data/src/repositories/AtomicDataTransaction.ts               # new
+packages/data/src/runtime/**                                          # new, operational data runtime only
+packages/data/src/mocks/InMemoryAtomicDataTransaction.ts              # new
+packages/data/src/mocks/InMemoryAtomicDataTransaction.test.ts         # new
+packages/data/src/mocks/InMemoryOrderRepository.ts
+packages/data/src/mocks/InMemoryOrderRepository.test.ts
+packages/data/src/mocks/InMemoryInventoryRepository.ts
+packages/data/src/mocks/InMemoryInventoryRepository.test.ts
+packages/data/src/index.ts
+```
+
+`packages/data` changes harus additive/backward-compatible dan hanya untuk transaction
+ownership/rollback. Jika implementation membutuhkan file package lain, executor mencatat
+exact reason sebagai hard blocker; jangan memperlebar scope sendiri.
+
+### 9.8 Forbidden files
+
+```text
+apps/admin/src/App.tsx
+apps/admin/src/main.tsx
+apps/admin/src/app/AppRoutes.tsx
+apps/admin/src/app/navigation.tsx
 apps/admin/src/app/navigation/**
-apps/admin/src/features/<non-active-module>/**
+apps/admin/src/app/routing/resolveAdminRoutes.ts
+apps/admin/src/app/providers/**
+apps/admin/src/components/**
 apps/admin/src/features/**/components/**
+apps/admin/src/features/**/views/**
+apps/admin/src/features/dashboard/**
+apps/admin/src/features/settings/**
 apps/admin/src/**/*.css
 apps/storefront/**
 packages/domain/**
-packages/data/**
 packages/i18n/**
 packages/ui-admin/**
 packages/ui-storefront/**
 packages/module-system/**
+packages/config/**
+package.json
+package-lock.json
+tsconfig.base.json
+eslint.config.ts
+vite.config.ts
+vitest.config.ts
 ```
 
-Contract gap pada `module-system`, domain, atau data membuat phase `BLOCKED`; jangan
-mengubah contract secara incidental.
+No dependency addition, route/nav redesign, visible UI redesign, backend contract, auth,
+payment integration, or persisted Finance refund mutation.
 
-### 9.5 Required parity
+### 9.9 Required behavior and characterization matrix
 
 Orders:
 
-- paid cancellation menghasilkan tepat satu refund dan reversal;
-- unpaid cancellation tidak menghasilkan keduanya;
-- partial failure tidak meninggalkan half-applied workflow;
-- retry tidak menduplikasi effects;
-- invalid transition tetap ditolak.
+- paid cancellation commit menghasilkan cancelled/refunded Order, tepat satu canonical
+  refund projection, dan tepat satu Inventory reversal;
+- unpaid cancellation tidak menghasilkan refund atau reversal;
+- setiap failure sebelum transaction commit mengembalikan `dataChanged: false`;
+- injected failure setelah satu mutation membuktikan rollback Order dan Inventory;
+- retry setelah failure atau success tidak menggandakan effect;
+- not-found dan invalid transition tetap tidak bermutasi;
+- tests memverifikasi actual port invocation/identity, bukan menghitung projection lain
+  yang tidak dipakai command.
 
 POS:
 
-- open/restore/close session;
-- deterministic cart/pricing;
-- expected/actual/variance;
-- checkout menghasilkan satu order dan satu stock consumption;
-- retry dan failure state.
+- open/restore/close session dan route remount/reload semantics;
+- deterministic cart, variants, pricing, receipt, dan cash change;
+- expected/actual/variance tetap sama;
+- checkout menghasilkan tepat satu Order;
+- Inventory consumption tepat satu ketika berhasil;
+- failure setelah Order persist membuat satu pending sync entry; retry idempotent,
+  menghapus pending hanya setelah consume berhasil;
+- double submit/overlap tidak membuat duplicate Order;
+- corrupt/mismatched session storage pulih aman.
 
 Inventory:
 
-- unit conversion, stock balance, movement, recipe/HPP;
-- consume/revert idempotency;
-- missing recipe/cost behavior.
+- read/material/movement behavior tidak berubah;
+- unit conversion, balance, recipe, HPP, missing recipe/cost tetap sama;
+- consume/reverse idempotent;
+- HPP membaca Catalog melalui injected `catalog.read`, bukan Menu repository import.
 
 Finance:
 
-- ledger direction, status, summaries;
-- refund amount/reference uniqueness;
-- manual transaction behavior.
+- ledger direction/status/summaries tetap sama;
+- refund amount/reference uniqueness berasal dari canonical Order projection;
+- manual transaction create/update/void tetap sama;
+- Finance order-derived reads memakai injected Order read capability/port;
+- tidak ada direct import ke Orders repository singleton.
 
-Setiap characterization test harus dibuktikan gagal jika behavior yang dilindungi
-dihilangkan.
+Architecture/lifecycle:
 
-### 9.6 Validation, fallback, and handoff
+- manifest declaration sama dengan capability yang benar-benar didaftarkan;
+- registry resolve mengembalikan exact composition-owned implementation;
+- dispose/reinitialize/StrictMode tidak meninggalkan stale capability/storage binding;
+- separate Admin runtimes tidak berbagi repository, transaction state, POS session store,
+  atau capability implementation;
+- module registration failure melepaskan semua capability milik module itu;
+- removal of each protected command/adapter membuat characterization test gagal;
+- zero direct internal cross-feature repository import untuk Phase 04 cluster.
 
-Per sub-wave:
+### 9.10 One final QA and supervisor closure
 
-- target tests;
-- full gate §3.3;
-- Admin AntD lint;
-- browser critical screen/flow jika screen injection berubah.
+Writer/executor:
 
-Fallback:
+- tidak menjalankan `test`, `lint`, `typecheck`, `build`, AntD lint, atau browser QA;
+- tidak mengedit Evidence/Ledger/status closure;
+- tidak commit atau push;
+- menyerahkan exact files, capability graph, transaction/storage semantics, consumer scan,
+  dan unresolved blockers sekali setelah seluruh Phase 04 implementation selesai.
 
-- current singleton compatibility wrapper tetap tersedia;
-- composition binding dikembalikan ke current implementation;
-- failure dicatat tanpa menghapus target/legacy source;
-- no ledger advancement beyond evidence.
+Codex supervisor menjalankan QA **sekali** setelah handoff:
 
-Stop setelah setiap sub-wave untuk supervisor verdict. Setelah 04E, lakukan Phase 04
-summary review dan minta approval user sebelum Storefront.
+1. diff/allowlist/forbidden/import-boundary review; findings tetap dipisahkan per
+   capability/module untuk traceability, tetapi menghasilkan satu final Phase 04 verdict;
+2. focused capability, transaction, Orders, POS, Inventory, Finance, runtime lifecycle,
+   dan route injection tests;
+3. full gate §3.3;
+4. Admin AntD lint;
+5. browser critical-flow matrix dengan Admin fluid desktop-first sweep sesuai §3.4:
+   - Orders list/detail, paid/unpaid cancellation, reload;
+   - POS open/restore/checkout/pending-sync retry/close;
+   - Inventory HPP load/error/retry;
+   - Finance overview/transactions/expenses;
+   - console errors, focus, and horizontal overflow;
+6. post-QA `git status`, artifact cleanup, Evidence/Ledger update, dan one final verdict.
+
+Phase 04 `PASS` membutuhkan seluruh matrix §9.9, automated gate, dan browser evidence.
+Commit checkpoint hanya dilakukan setelah PASS dan instruksi commit user. Tidak ada
+partial module commit dalam Phase 04 replan.
+
+### 9.11 Fallback and handoff
+
+Fallback dilakukan melalui normal source edits:
+
+- capability route adapter dapat dikembalikan ke feature compatibility prop selama
+  canonical capability implementation tetap satu;
+- failed module registration tidak boleh menghapus repository/data runtime module lain;
+- transaction failure harus rollback, bukan mengembalikan half-applied success;
+- storage failure jatuh ke memory/clean-session behavior tanpa crash;
+- legacy wrapper tidak dihapus sebelum replacement consumer tests ada;
+- jangan memakai `git reset`, `git clean`, forced checkout, test deletion, atau contract
+  weakening.
+
+Jika hard blocker tersisa, executor tetap menyelesaikan work package independen di dalam
+allowlist lalu menyerahkan satu Phase 04 handoff dengan:
+
+- blocker location dan exact missing contract;
+- source yang sudah wired;
+- source yang belum boleh cut over;
+- safe next action;
+- no false PASS dan no ledger advancement.
+
+Setelah final Phase 04 PASS, minta approval user sebelum Phase 05 Storefront.
 
 ## 10. Phase 05 — Storefront Registry and Composition
 
@@ -1247,11 +1611,11 @@ Per sub-wave:
 - Storefront workspace typecheck/build;
 - full gate §3.3;
 - Storefront AntD lint;
-- browser parity pair `375×812` dan `1024×768`.
+- browser fluid mobile-first sweep sesuai §3.4.
 
 Phase closure:
 
-- route smoke seluruh Storefront pada expanded viewport matrix §3.4;
+- route smoke seluruh Storefront sepanjang fluid mobile-first sweep §3.4;
 - keyboard/focus;
 - loading/error/retry/not-found;
 - horizontal overflow;
@@ -1314,7 +1678,7 @@ Compatibility path:
 Characterization tests:
 Fail-on-removal proof:
 Commands and exact outcomes:
-Browser viewport/scenarios/evidence:
+Browser fluid mode/sweep/scenarios/evidence:
 Reviewer findings:
 Ledger status approved:
 Legacy consumers remaining:

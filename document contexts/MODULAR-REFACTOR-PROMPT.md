@@ -757,8 +757,12 @@ behavior berubah, jalankan full monorepo gate.
 
 Material UI change membutuhkan browser QA. Minimum:
 
-- Admin desktop dan narrow/mobile layout yang relevan;
-- Storefront `320x800`, `375x812`, `430x932`, `768x1024`, `1024x768`, dan desktop;
+- Admin fluid desktop-first: mulai dari desktop, resize kontinu ke sempit dan kembali
+  melebar;
+- Storefront fluid mobile-first: mulai dari narrow/mobile, resize kontinu melewati
+  intermediate layout sampai desktop lebar;
+- screenshot dapat mencatat ukuran exact sebagai metadata, tetapi fixed pixel/device
+  ratio bukan gate;
 - keyboard, visible focus, navigation, loading, empty, error, disabled, not-found;
 - horizontal overflow;
 - console errors;

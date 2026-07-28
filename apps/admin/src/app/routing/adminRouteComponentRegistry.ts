@@ -1,11 +1,27 @@
 import { lazy, createElement, type ComponentType, type LazyExoticComponent } from "react";
 import { Navigate } from "react-router-dom";
+import {
+  FinanceExpenseRouteAdapter,
+  FinanceOverviewRouteAdapter,
+  FinanceTransactionListRouteAdapter,
+  InventoryHppRouteAdapter,
+  InventoryMaterialsRouteAdapter,
+  InventoryMovementsRouteAdapter,
+  OrderDetailRouteAdapter,
+  OrderListRouteAdapter,
+  PosCashierRouteAdapter,
+} from "./adminCapabilityRouteAdapters";
+
+export type AdminRouteComponent = ComponentType | LazyExoticComponent<ComponentType>;
 
 /**
  * Component IDs are the app-local extension seam.  Feature manifests only
  * store these opaque IDs; React, router, and screen imports stay here.
+ * Phase 04 cluster screens resolve through capability route adapters that
+ * read the runtime bundle and inject feature-owned props; the screens
+ * themselves stay lazy inside those adapters.
  */
-const registry: Record<string, LazyExoticComponent<ComponentType>> = {
+const registry: Record<string, AdminRouteComponent> = {
   "admin.dashboard.screen.root": lazy(() =>
     import("../../features/dashboard/screens/DashboardScreen").then((module) => ({
       default: module.DashboardScreen,
@@ -69,59 +85,23 @@ const registry: Record<string, LazyExoticComponent<ComponentType>> = {
       default: module.FinanceScreen,
     })),
   ),
-  "admin.finance.screen.overview": lazy(() =>
-    import("../../features/finance/screens/FinanceOverviewScreen").then((module) => ({
-      default: module.FinanceOverviewScreen,
-    })),
-  ),
-  "admin.finance.screen.transactions": lazy(() =>
-    import("../../features/finance/screens/FinanceTransactionListScreen").then((module) => ({
-      default: module.FinanceTransactionListScreen,
-    })),
-  ),
-  "admin.finance.screen.expenses": lazy(() =>
-    import("../../features/finance/screens/FinanceExpenseScreen").then((module) => ({
-      default: module.FinanceExpenseScreen,
-    })),
-  ),
+  "admin.finance.screen.overview": FinanceOverviewRouteAdapter,
+  "admin.finance.screen.transactions": FinanceTransactionListRouteAdapter,
+  "admin.finance.screen.expenses": FinanceExpenseRouteAdapter,
 
   "admin.inventory.screen.root": lazy(() =>
     import("../../features/inventory/screens/InventoryScreen").then((module) => ({
       default: module.InventoryScreen,
     })),
   ),
-  "admin.inventory.screen.materials": lazy(() =>
-    import("../../features/inventory/screens/InventoryMaterialsScreen").then((module) => ({
-      default: module.InventoryMaterialsScreen,
-    })),
-  ),
-  "admin.inventory.screen.movements": lazy(() =>
-    import("../../features/inventory/screens/InventoryMovementsScreen").then((module) => ({
-      default: module.InventoryMovementsScreen,
-    })),
-  ),
-  "admin.inventory.screen.hpp": lazy(() =>
-    import("../../features/inventory/screens/InventoryHppScreen").then((module) => ({
-      default: module.InventoryHppScreen,
-    })),
-  ),
+  "admin.inventory.screen.materials": InventoryMaterialsRouteAdapter,
+  "admin.inventory.screen.movements": InventoryMovementsRouteAdapter,
+  "admin.inventory.screen.hpp": InventoryHppRouteAdapter,
 
-  "admin.pos.screen.cashier": lazy(() =>
-    import("../../features/pos/screens/PosCashierScreen").then((module) => ({
-      default: module.PosCashierScreen,
-    })),
-  ),
+  "admin.pos.screen.cashier": PosCashierRouteAdapter,
 
-  "admin.orders.screen.list": lazy(() =>
-    import("../../features/orders/screens/OrderListScreen").then((module) => ({
-      default: module.OrderListScreen,
-    })),
-  ),
-  "admin.orders.screen.detail": lazy(() =>
-    import("../../features/orders/screens/OrderDetailScreen").then((module) => ({
-      default: module.OrderDetailScreen,
-    })),
-  ),
+  "admin.orders.screen.list": OrderListRouteAdapter,
+  "admin.orders.screen.detail": OrderDetailRouteAdapter,
 
   "admin.settings.screen.root": lazy(() =>
     import("../../features/settings/SettingsScreen").then((module) => ({
@@ -156,9 +136,7 @@ const registry: Record<string, LazyExoticComponent<ComponentType>> = {
   ),
 };
 
-export function getRouteComponent(
-  componentId: string,
-): LazyExoticComponent<ComponentType> | undefined {
+export function getRouteComponent(componentId: string): AdminRouteComponent | undefined {
   return registry[componentId];
 }
 

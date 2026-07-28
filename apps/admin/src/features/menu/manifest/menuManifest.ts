@@ -1,6 +1,7 @@
 import type { WarungMengModuleManifest } from "@warungmeng/module-system";
 
 export const MENU_MODULE_ID = "admin.menu" as const;
+export const CATALOG_READ_CAPABILITY_ID = "catalog.read" as const;
 export const MENU_NAV_ID = "admin.menu.nav.menu" as const;
 export const MENU_ROUTE_ROOT_ID = "admin.menu.route.root" as const;
 export const MENU_ROUTE_LIST_ID = "admin.menu.route.list" as const;
@@ -15,6 +16,7 @@ export const menuManifest = {
   version: 1,
   surface: "admin",
   displayNameKey: "navigation.menu",
+  provides: [{ id: CATALOG_READ_CAPABILITY_ID, version: 1 }],
   contributions: [
     {
       kind: "navigation",

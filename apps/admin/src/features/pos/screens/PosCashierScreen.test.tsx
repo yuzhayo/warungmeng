@@ -4,18 +4,24 @@ import { AdminUiProvider } from "@warungmeng/ui-admin";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import type { PosCheckoutPort } from "../application/ports/posCheckoutPort";
 import { PosSessionStore } from "../application/posSessionStore";
 import { PosCashierScreen } from "./PosCashierScreen";
 
 function renderPos() {
   const orders = new InMemoryOrderRepository();
   const sessionStore = new PosSessionStore({ id: "wm-1", name: "WARUNG MENG" });
+  const checkout: PosCheckoutPort = {
+    createOrder: (input) => orders.createOrder(input),
+    getOrderById: (id) => orders.getOrderById(id),
+    consumeOrder: () => Promise.resolve([]),
+  };
   const result = render(
     <WarungMengI18nProvider storage={null}>
       <AdminUiProvider storage={null}>
         <PosCashierScreen
-          catalogRepository={createWarungMengMockRepository()}
-          orders={orders}
+          catalog={createWarungMengMockRepository()}
+          checkout={checkout}
           sessionStore={sessionStore}
         />
       </AdminUiProvider>

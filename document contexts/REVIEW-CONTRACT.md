@@ -55,7 +55,8 @@ Ambil hasil nyata, bukan klaim (command + outcome + tanggal). Lihat `EVIDENCE` �
 - `npm run lint` · `npm run typecheck` · `npm run test -- --maxWorkers=2` · `npm run build`
 - Admin AntD: `npx -y @ant-design/cli lint apps/admin/src --format json`
 - Shared package berubah → gate seluruh monorepo.
-- UI/route material → Playwright parity (375×812 & 1024×768).
+- UI/route material → Playwright fluid-resize evidence: Admin desktop-first; Storefront
+  mobile-first. Tidak ada fixed pixel pair sebagai gate.
 
 ## 5. Aturan Kenaikan Status Ledger (gigi anti-drift)
 

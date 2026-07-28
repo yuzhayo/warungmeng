@@ -1,21 +1,20 @@
-import type { OrderRepository } from "@warungmeng/data";
 import { Alert, Button } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { orderRepository } from "../application/orderRepository";
+import type { OrdersReadCapability } from "../application/ordersCapabilities";
 import { useOrderList } from "../application/useOrderList";
 import { OrderListTable } from "../components/OrderListTable";
 import { OrderListToolbar } from "../components/OrderListToolbar";
 import "./OrderListScreen.css";
 
 export interface OrderListScreenProps {
-  readonly repository?: OrderRepository;
+  readonly orders: OrdersReadCapability;
 }
 
-export function OrderListScreen({ repository = orderRepository }: OrderListScreenProps) {
+export function OrderListScreen({ orders }: OrderListScreenProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const orderList = useOrderList(repository);
+  const orderList = useOrderList(orders);
 
   return (
     <section aria-labelledby="order-list-title" className="order-list-screen">

@@ -1,16 +1,25 @@
 import { createModuleRegistry, type ModuleCandidate } from "@warungmeng/module-system";
+import { FINANCE_MODULE_ID } from "../../features/finance";
+import { INVENTORY_MODULE_ID } from "../../features/inventory";
+import { MENU_MODULE_ID } from "../../features/menu";
+import { ORDERS_MODULE_ID } from "../../features/orders";
+import { POS_MODULE_ID } from "../../features/pos";
 import { createAdminModuleCandidates } from "../discovery/adminModuleCandidates";
 import { createAdminModuleDiagnostics } from "../discovery/adminModuleDiagnostics";
 import { discoverAdminModules } from "../discovery/discoverAdminModules";
-import type { AdminRuntime, AdminRuntimeSnapshot } from "./adminRuntime";
+import type { AdminRuntime, AdminRuntimeCapabilities, AdminRuntimeSnapshot } from "./adminRuntime";
+import { createAdminCapabilities, type AdminCapabilities } from "./createAdminCapabilities";
 import {
   bindAdminRepositories,
   bindUnavailableAdminRepositories,
   type AdminRepositories,
 } from "./createAdminRepositories";
+import { createAdminStorageAdapters } from "./createAdminStorageAdapters";
 
 export interface CreateAdminRuntimeOptions {
   readonly repositories: AdminRepositories;
+  /** Defaults to a bundle assembled over these repositories and browser storage. */
+  readonly capabilities?: AdminCapabilities;
   readonly candidates?: readonly ModuleCandidate[];
 }
 
@@ -23,9 +32,21 @@ const idleSnapshot: AdminRuntimeSnapshot = {
 export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRuntime {
   const diagnostics = createAdminModuleDiagnostics();
   const registry = createModuleRegistry({ surface: "admin", diagnostics });
-  const candidates = options.candidates ?? createAdminModuleCandidates(options.repositories);
+  const capabilities =
+    options.capabilities ??
+    createAdminCapabilities({
+      repositories: options.repositories,
+      storage: createAdminStorageAdapters(),
+    });
+  const candidates =
+    options.candidates ??
+    createAdminModuleCandidates({
+      repositories: options.repositories,
+      capabilities,
+    });
   const listeners = new Set<() => void>();
   let snapshot = idleSnapshot;
+  let activeCapabilities: AdminRuntimeCapabilities = {};
   let operation: Promise<AdminRuntimeSnapshot> | undefined;
   let target: "idle" | "active" = "idle";
   let initialized = false;
@@ -35,6 +56,21 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
     snapshot = next;
     for (const listener of listeners) listener();
     return snapshot;
+  }
+
+  /**
+   * A module's capability slice is only exposed while that module is actually
+   * registered, so a failed registration (whose capabilities were rolled
+   * back) never leaks stale implementations to route adapters.
+   */
+  function resolveActiveCapabilities(): AdminRuntimeCapabilities {
+    return {
+      ...(registry.resolve(MENU_MODULE_ID) ? { catalog: capabilities.catalog } : {}),
+      ...(registry.resolve(ORDERS_MODULE_ID) ? { orders: capabilities.orders } : {}),
+      ...(registry.resolve(INVENTORY_MODULE_ID) ? { inventory: capabilities.inventory } : {}),
+      ...(registry.resolve(FINANCE_MODULE_ID) ? { finance: capabilities.finance } : {}),
+      ...(registry.resolve(POS_MODULE_ID) ? { pos: capabilities.pos } : {}),
+    };
   }
 
   async function performInitialize(): Promise<AdminRuntimeSnapshot> {
@@ -47,6 +83,7 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
         ? bindAdminRepositories(options.repositories)
         : bindUnavailableAdminRepositories(options.repositories);
       initialized = true;
+      activeCapabilities = resolveActiveCapabilities();
       return update({
         status: result.dashboardRegistered ? "ready" : "degraded",
         dashboardAvailable: result.dashboardRegistered,
@@ -63,6 +100,7 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
       cleanupBinding?.();
       cleanupBinding = bindUnavailableAdminRepositories(options.repositories);
       initialized = true;
+      activeCapabilities = resolveActiveCapabilities();
       return update({
         status: "degraded",
         dashboardAvailable: false,
@@ -76,6 +114,7 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
     cleanupBinding = undefined;
     await registry.disposeAll();
     initialized = false;
+    activeCapabilities = {};
     return update(idleSnapshot);
   }
 
@@ -105,6 +144,9 @@ export function createAdminRuntime(options: CreateAdminRuntimeOptions): AdminRun
     surface: "admin",
     registry,
     repositories: options.repositories,
+    get capabilities() {
+      return activeCapabilities;
+    },
     initialize() {
       target = "active";
       return startReconciliation();

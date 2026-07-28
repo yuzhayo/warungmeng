@@ -109,16 +109,11 @@ describe("Admin import boundary", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps Dashboard concrete repository wiring in the composition owner only", () => {
+  it("keeps the Menu compatibility repository wiring in the composition owner only", () => {
     const repositoryOwners = sourceFiles(adminSrc)
       .filter((file) =>
         moduleSpecifiers(file).some((specifier) =>
-          [
-            "features/orders/application/orderRepository",
-            "features/finance/application/financeRepository",
-            "features/inventory/application/inventoryRepository",
-            "features/menu/application/menuCatalogRepository",
-          ].some((repositoryPath) => specifier.includes(repositoryPath)),
+          specifier.includes("features/menu/application/menuCatalogRepository"),
         ),
       )
       .map((file) => relative(adminSrc, file));
@@ -126,6 +121,26 @@ describe("Admin import boundary", () => {
     expect(repositoryOwners.map((path) => path.replaceAll("\\", "/"))).toEqual([
       "app/composition/createAdminRepositories.ts",
     ]);
+  });
+
+  // Phase 04 closure scan: no feature may import another feature's internals.
+  // Relative specifiers are resolved against the importing file, so any
+  // `../../<other-feature>/...` path is caught regardless of depth.
+  it("keeps features free of direct internal cross-feature imports", () => {
+    const features = join(adminSrc, "features");
+    const violations = sourceFiles(features).flatMap((file) => {
+      const owner = relative(features, file).replaceAll("\\", "/").split("/")[0];
+      return moduleSpecifiers(file)
+        .filter((specifier) => specifier.startsWith("."))
+        .flatMap((specifier) => {
+          const resolved = relative(features, join(dirname(file), specifier)).replaceAll("\\", "/");
+          if (resolved.startsWith("..")) return [];
+          const target = resolved.split("/")[0];
+          return target && target !== owner ? [`${relative(adminSrc, file)} -> ${specifier}`] : [];
+        });
+    });
+
+    expect(violations).toEqual([]);
   });
 
   // Architecture guard: manifest files must never import React, Router, AntD,
