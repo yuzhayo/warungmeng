@@ -1,7 +1,7 @@
 # Warung Meng — Modular Migration Ledger Generation Contract
 
 Status: documentation-only generation contract  
-Canonical output: `.docs/MODULAR-MIGRATION-LEDGER.md`  
+Canonical output: `document contexts/07-MODULAR-MIGRATION-LEDGER.md`
 Target reference: `warungmeng-target-modular-file-tree.md`
 
 Dokumen ini menggantikan generator PowerShell. Isinya menjadi prosedur wajib bagi
@@ -219,7 +219,7 @@ benar-benar dijalankan. Dokumentasi yang formatnya valid bukan bukti behavior pa
 Hasil generation disimpan hanya di:
 
 ```text
-.docs/MODULAR-MIGRATION-LEDGER.md
+document contexts/07-MODULAR-MIGRATION-LEDGER.md
 ```
 
 File tersebut adalah ledger status migrasi. Dokumen ini adalah generation contract.

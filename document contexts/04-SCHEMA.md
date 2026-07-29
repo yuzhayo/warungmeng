@@ -1,4 +1,4 @@
-# Warung Meng â€” Schema and Domain Logic Context
+# Warung Meng — Schema and Domain Logic Context
 
 > Sumber: live checkout `packages/domain/src/**` dan
 > `packages/data/src/repositories/*.ts`, diaudit 24 Juli 2026.
@@ -123,7 +123,7 @@ interface OrderTotals {
 ```
 
 **Protected behavior**: transisi status order (valid/invalid), efek cancel
-paidâ†’refund+reversal (atomik, idempotent), cancel unpaidâ†’tanpa efek.
+paid→refund+reversal (atomik, idempotent), cancel unpaid→tanpa efek.
 
 ## 3. Inventory (`packages/domain/src/inventory`)
 
@@ -354,8 +354,8 @@ type summary saja tidak cukup:
 | Finance   | `validation.ts`, `ledger.ts`, `calculations.ts`      | Transaction validation, ledger effects, summaries                           |
 | Reporting | `dashboard.ts`, `reports.ts`                         | Period aggregation, menu/category/inventory reporting                       |
 
-Business orchestration yang melintasi domainâ€”terutama cancel paid order â†’ Finance
-refund + Inventory reversalâ€”berada di application/repository workflow dan juga wajib
+Business orchestration yang melintasi domain—terutama cancel paid order → Finance
+refund + Inventory reversal—berada di application/repository workflow dan juga wajib
 dipetakan terpisah dari pure domain modules.
 
 ## 8. Repository Contracts (`packages/data/src/repositories`)
@@ -365,13 +365,13 @@ dipetakan terpisah dari pure domain modules.
 | `MenuRepository`             | `listMenus`, `getMenuById`, `createMenu`, `updateMenu`, `deleteMenu`                                                                                   |
 | `MenuCategoryRepository`     | `listCategories`, `getCategoryById`, `createCategory`, `updateCategory`, `deleteCategory`                                                              |
 | `MenuVariantGroupRepository` | `listVariantGroups`, `getVariantGroupById`, `createVariantGroup`, `updateVariantGroup`, `deleteVariantGroup`                                           |
-| `OrderRepository`            | `listOrders`, `getOrderById`, `createOrder`, `updateOrderStatus` â†’ `OrderStatusUpdateResult` (`updated`/`not-found`/`invalid-transition`)            |
+| `OrderRepository`            | `listOrders`, `getOrderById`, `createOrder`, `updateOrderStatus` → `OrderStatusUpdateResult` (`updated`/`not-found`/`invalid-transition`)              |
 | `InventoryRepository`        | Ingredient CRUD/archive; suppliers; stock balances; movements; recipes; `calculateHpp`; idempotent `consumeOrder`; idempotent `revertOrderConsumption` |
 | `FinanceRepository`          | `listManualTransactions`, `getManualTransactionById`, `createManualTransaction`, `updateManualTransaction`, `voidManualTransaction`                    |
 
 Semua repository saat ini punya implementasi **mock (in-memory)** di
 `packages/data/src/mocks/InMemory*Repository.ts`, di-seed dari `WarungMeng*MockData.ts`.
-Backend/persistence sungguhan belum ada â€” ini scope terpisah (lihat `PRD.md` Â§6/Â§7).
+Backend/persistence sungguhan belum ada — ini scope terpisah (lihat `01-PRD.md` §6/§7).
 
 ## 9. Repository Semantics yang Dilindungi
 
@@ -387,10 +387,10 @@ Backend/persistence sungguhan belum ada â€” ini scope terpisah (lihat `PRD.
 ## 10. Aturan Perubahan Schema
 
 - Domain hanya boleh diimpor oleh `data`, `application` (port), dan tidak boleh
-  bergantung balik ke package lain (lihat `RULES.md` Â§1 Import Contract).
-- Menambah/mengubah field domain **butuh approval eksplisit** â€” bukan bagian dari
+  bergantung balik ke package lain (lihat `05-RULES.md` §1 Import Contract).
+- Menambah/mengubah field domain **butuh approval eksplisit** — bukan bagian dari
   refactor modular (Guardrails: "mengubah domain/data contract tanpa explicit approval"
   dilarang).
 - Kebutuhan schema baru yang sudah teridentifikasi tapi belum dieksekusi:
-  `idempotencyKey` di `CreateOrderInput` (TD-SF-02) â€” diblokir oleh boundary rule,
+  `idempotencyKey` di `CreateOrderInput` (TD-SF-02) — diblokir oleh boundary rule,
   perlu proses approval domain contract change.
